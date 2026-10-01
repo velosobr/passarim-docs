@@ -113,6 +113,41 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [passarim-docker-api]
 
+  # Catalog API (gRPC). Só na rede PRIVADA: ninguém de fora chega nele,
+  # nem publicamos porta no host. Quem o consome é o BFF (Etapa 3).
+  # "build" aponta para o repositório vizinho; na Etapa 4 isso vira uma
+  # imagem publicada no GHCR.
+  catalog-api:
+    build: ../passarim-catalog
+    image: passarim-catalog:dev
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      GRPC_REFLECTION: "true"   # só em dev: permite usar o grpcurl
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [passarim-private]
+    read_only: true             # sistema de arquivos só de leitura (OWASP API8)
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/catalog-api", "healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Roda UMA vez para carregar as aves curadas e termina.
+  catalog-seed:
+    image: passarim-catalog:dev
+    pull_policy: never   # imagem construída localmente pelo serviço catalog-api; não existe em registry
+    entrypoint: ["/usr/local/bin/seed", "-dir", "/content/species"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      catalog-api:
+        condition: service_healthy   # a API já aplicou as migrations
+    networks: [passarim-private]
+    read_only: true
+    restart: "no"
+
   # Coleta de métricas.
   prometheus:
     image: prom/prometheus:v3.5.0

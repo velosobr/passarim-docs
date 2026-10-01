@@ -71,13 +71,13 @@ sequenceDiagram
 |---|---|
 | [passarim-docs](https://github.com/velosobr/passarim-docs) | Este: arquitetura, ADRs, segurança, `docker-compose` |
 | [passarim-proto](https://github.com/velosobr/passarim-proto) | Contratos gRPC |
-| passarim-catalog | Catalog API + worker + banco *(etapa 2)* |
+| [passarim-catalog](https://github.com/velosobr/passarim-catalog) | Catalog API (gRPC) + banco + aves curadas |
 | passarim-bff | BFF REST + cache *(etapa 3)* |
 | passarim-app | App KMP *(etapa 6)* |
 
 ## Rodando a infraestrutura local
 
-Pré-requisito: Docker.
+Pré-requisito: Docker, e os repositórios `passarim-docs` e `passarim-catalog` clonados lado a lado na mesma pasta.
 
 ```bash
 cp .env.example .env
