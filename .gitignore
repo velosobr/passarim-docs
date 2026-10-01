@@ -1,0 +1,3 @@
+# Segredos locais: NUNCA commitar o .env (só o .env.example).
+.env
+.DS_Store

@@ -9,7 +9,7 @@ guardar binários no banco pesa backups e impede CDN; usar o link original quebr
 
 ## Decisão
 
-o worker processa e salva em MinIO (local) / Cloudflare R2 (produção); o banco guarda só a chave e os créditos.
+o worker processa e salva em SeaweedFS (local, ver ADR-0012) / Cloudflare R2 (produção); o banco guarda só a chave e os créditos.
 
 ## Consequências
 

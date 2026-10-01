@@ -57,7 +57,7 @@ flowchart LR
     BFF1 & BFF2 -- gRPC + mTLS --> CAT[Catalog API]
     CAT --> PG[(PostgreSQL)]
     W[Worker de ingestão] --> PG
-    W --> S3[(Object storage<br/>MinIO / R2)]
+    W --> S3[(Object storage<br/>SeaweedFS / R2)]
     App -- imagens/áudio --> CDN[CDN] --> S3
     W --> EXT[Wikipedia · Wikidata · iNaturalist<br/>GBIF · xeno-canto · CBRO]
 ```
@@ -80,7 +80,7 @@ internal/
 Regra: **dependências apontam só para dentro**. `usecase` define interfaces (ports); `adapter` as implementa.
 
 ### Stack Go
-`net/http` (Go 1.22+ routing) · `grpc-go` · `pgx` + `sqlc` · `golang-migrate` · `go-redis` · `slog` · OpenTelemetry · `minio-go` (S3-compatível) · Testcontainers.
+`net/http` (Go 1.22+ routing) · `grpc-go` · `pgx` + `sqlc` · `golang-migrate` · `go-redis` · `slog` · OpenTelemetry · `minio-go` (cliente S3 genérico) · Testcontainers.
 
 ### Stack do app
 KMP + Compose Multiplatform · módulos `core/` e `feature/` (explore, detail, favorites, settings) · MVI · Koin · Ktor · **Room 2.8.x (estável) com `BundledSQLiteDriver`** · Coil 3 · MapLibre Compose (tiles OpenFreeMap) · player de áudio nativo via `expect/actual`.
@@ -112,7 +112,7 @@ KMP + Compose Multiplatform · módulos `core/` e `feature/` (explore, detail, f
 | Canto | xeno-canto (gravações no Brasil, qualidade A/B) — **requer chave de API** |
 
 ### Mídia
-O worker baixa o original **uma vez**, processa (fotos → WebP em 3 tamanhos; áudio → AAC, recortado) e salva em **object storage** (MinIO local / Cloudflare R2 em produção, servido por CDN). O banco guarda só `storage_key` + créditos. Estimativa: ~3,5 MB/ave (~175 MB no MVP; ~7 GB para as ~1.970 espécies — cabe nos 10 GB gratuitos do R2).
+O worker baixa o original **uma vez**, processa (fotos → WebP em 3 tamanhos; áudio → AAC, recortado) e salva em **object storage** (SeaweedFS local / Cloudflare R2 em produção, servido por CDN). O banco guarda só `storage_key` + créditos. Estimativa: ~3,5 MB/ave (~175 MB no MVP; ~7 GB para as ~1.970 espécies — cabe nos 10 GB gratuitos do R2).
 
 **Licenças:** aceitas CC0, CC-BY, CC-BY-SA, CC-BY-NC, CC-BY-NC-SA. **Licenças ND são descartadas** (não podemos redimensionar/recortar). O filtro de licenças é **configurável** (para um futuro app monetizado bastaria remover NC). Autor, licença e link original são exibidos no app.
 
@@ -205,7 +205,7 @@ Requisições 429 · taxa de 4xx/5xx · rejeições mTLS · downloads bloqueados
 
 ### Go
 - **Unitários** de `domain`/`usecase` com fakes, escritos em **TDD**. Meta ≥ 80% de cobertura nessas camadas.
-- **Integração** com **Testcontainers** (PostgreSQL, Redis, MinIO).
+- **Integração** com **Testcontainers** (PostgreSQL, Redis, SeaweedFS).
 - **Contrato** BFF ↔ catalog pelos `.proto`; APIs externas simuladas com **golden files** (testes nunca chamam APIs reais).
 - **E2E:** sobe o compose e chama o Traefik.
 
@@ -230,7 +230,7 @@ Requisições 429 · taxa de 4xx/5xx · rejeições mTLS · downloads bloqueados
 | Orquestração | Docker Compose (`passarim-docs`) | Fly.io |
 | Banco | PostgreSQL container | Neon |
 | Cache | Redis container | Upstash Redis |
-| Mídia | MinIO | Cloudflare R2 + CDN |
+| Mídia | SeaweedFS (S3) | Cloudflare R2 + CDN |
 | LB | Traefik (2 réplicas BFF) | Proxy do Fly.io |
 | Observabilidade | Prometheus, Grafana, Jaeger | Logs (cache Redis via Upstash permanece ativo) |
 

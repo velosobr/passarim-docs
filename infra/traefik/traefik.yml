@@ -1,0 +1,22 @@
+# Configuração estática do Traefik, nosso load balancer.
+# Um load balancer recebe todas as requisições e as distribui entre
+# várias cópias (réplicas) do mesmo serviço. Se uma cópia cair,
+# ele para de mandar tráfego para ela.
+entryPoints:
+  web:
+    address: ":80"         # por onde o app entra
+  dashboard:
+    address: ":8081"       # painel visual do Traefik
+api:
+  dashboard: true
+  insecure: true           # dashboard sem senha: aceitável SÓ em ambiente local
+providers:
+  docker:
+    # O Traefik descobre os serviços lendo "labels" no docker-compose.
+    # exposedByDefault: false => só entra no load balancer quem pedir
+    # explicitamente (traefik.enable=true). Mais seguro.
+    exposedByDefault: false
+    network: passarim-public
+metrics:
+  prometheus: {}           # expõe métricas em /metrics para o Prometheus
+ping: {}                   # /ping usado no healthcheck

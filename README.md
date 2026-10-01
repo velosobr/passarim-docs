@@ -26,7 +26,7 @@ flowchart LR
         CAT[Catalog API<br/>gRPC]
         W[Worker de ingestão]
         PG[(PostgreSQL)]
-        S3[(Object storage<br/>MinIO / R2)]
+        S3[(Object storage<br/>SeaweedFS / R2)]
     end
     subgraph Externo["Fontes externas"]
         EXT[Wikipedia · Wikidata<br/>iNaturalist · GBIF<br/>xeno-canto · CBRO]
@@ -90,7 +90,7 @@ docker compose up -d --wait
 | Grafana | <http://localhost:3000> (admin / ver `.env`) |
 | Prometheus | <http://localhost:9090> |
 | Jaeger | <http://localhost:16686> |
-| MinIO (console) | <http://localhost:9001> |
+| Object storage (arquivos) | <http://localhost:8888> |
 
 ## Documentação
 

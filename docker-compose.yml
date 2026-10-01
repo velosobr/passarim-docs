@@ -1,0 +1,135 @@
+# docker-compose.yml — sobe toda a infraestrutura local do Passarim.
+# Uso: cp .env.example .env && docker compose up -d --wait
+#
+# Duas redes separam quem pode falar com quem (defesa em profundidade):
+#   - passarim-public:  Traefik <-> BFF
+#   - passarim-private: BFF <-> catalog <-> banco/cache/storage
+# O Traefik NÃO está na rede privada: mesmo comprometido, não alcança o banco.
+#
+# Todas as portas são publicadas apenas em 127.0.0.1 (só o seu computador
+# acessa; ninguém na sua rede Wi-Fi).
+
+name: passarim
+
+networks:
+  passarim-public:
+    name: passarim-public
+  passarim-private:
+    name: passarim-private
+
+volumes:
+  postgres-data:
+  objectstorage-data:
+  grafana-data:
+
+services:
+  # Banco relacional — dono: passarim-catalog (ADR-0004).
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports: ["127.0.0.1:${HOST_PORT_POSTGRES}:5432"]
+    volumes: [postgres-data:/var/lib/postgresql]
+    networks: [passarim-private]
+    healthcheck:
+      # pg_isready responde OK quando o banco aceita conexões.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Cache do BFF (etapa 3).
+  redis:
+    image: redis:8-alpine
+    ports: ["127.0.0.1:${HOST_PORT_REDIS}:6379"]
+    networks: [passarim-private]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Object storage compatível com S3 para fotos e áudios (ADR-0006).
+  # Localmente usamos o SeaweedFS (ADR-0012); em produção, o Cloudflare R2.
+  # Como os dois falam o protocolo S3, o código Go é o mesmo nos dois casos.
+  objectstorage:
+    image: chrislusf/seaweedfs:4.48
+    # "server -s3" sobe, num único processo, o armazenamento e a API S3 (porta 8333).
+    command: server -s3 -dir=/data
+    environment:
+      # Com estas variáveis o SeaweedFS exige credenciais: acesso anônimo recebe 403.
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+    ports:
+      - "127.0.0.1:${HOST_PORT_S3}:8333"     # API S3
+      - "127.0.0.1:${HOST_PORT_S3_UI}:8888"  # navegador de arquivos (filer)
+    volumes: [objectstorage-data:/data]
+    networks: [passarim-private]
+    healthcheck:
+      # 127.0.0.1 e não "localhost": no container, localhost resolve primeiro
+      # para IPv6 (::1), mas o SeaweedFS só escuta em IPv4.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8333/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Load balancer na frente das réplicas do BFF (etapa 3 adiciona as réplicas).
+  traefik:
+    image: traefik:v3.5
+    command: ["--configFile=/etc/traefik/traefik.yml"]
+    ports:
+      - "127.0.0.1:${HOST_PORT_TRAEFIK_HTTP}:80"
+      - "127.0.0.1:${HOST_PORT_TRAEFIK_DASHBOARD}:8081"
+    volumes:
+      - ./infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      # Somente leitura: o Traefik só precisa LER quais containers existem.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [passarim-public]
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Coleta de métricas.
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["127.0.0.1:${HOST_PORT_PROMETHEUS}:9090"]
+    # Precisa das duas redes: raspa o Traefik (pública) e, depois, o catalog (privada).
+    networks: [passarim-public, passarim-private]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Painéis de observabilidade.
+  grafana:
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports: ["127.0.0.1:${HOST_PORT_GRAFANA}:3000"]
+    networks: [passarim-private]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Tracing distribuído: recebe spans via OpenTelemetry (OTLP) na porta 4317.
+  jaeger:
+    image: jaegertracing/jaeger:2.9.0
+    ports: ["127.0.0.1:${HOST_PORT_JAEGER_UI}:16686"]
+    networks: [passarim-public, passarim-private]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:16686/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

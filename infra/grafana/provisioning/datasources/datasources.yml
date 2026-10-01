@@ -1,0 +1,11 @@
+# Conecta o Grafana automaticamente ao Prometheus e ao Jaeger,
+# para não precisar configurar nada à mão na primeira vez.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    isDefault: true
+  - name: Jaeger
+    type: jaeger
+    url: http://jaeger:16686
