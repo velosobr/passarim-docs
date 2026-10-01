@@ -1,0 +1,9 @@
+# Regras de estilo para os arquivos Markdown.
+config:
+  default: true
+  MD013: false   # linhas longas são aceitas (tabelas, links)
+  MD033: false   # permite <br/> dentro dos diagramas
+  MD041: false   # ADRs começam com título no próprio corpo
+  MD060: false   # estilo de pipes em tabela: puramente cosmético
+ignores:
+  - "docs/superpowers/**"   # documentos de trabalho, não são publicados
