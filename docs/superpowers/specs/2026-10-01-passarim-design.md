@@ -95,7 +95,7 @@ KMP + Compose Multiplatform · módulos `core/` e `feature/` (explore, detail, f
 | `species_fact` | `species_id`, `text`, `source` |
 | `species_biome` | `species_id`, `biome` (enum: amazonia, mata_atlantica, cerrado, caatinga, pantanal, pampa) |
 | `species_state` | `species_id`, `uf` |
-| `media` | `species_id`, `kind` (photo/audio), `storage_key`, `variant` (thumb/medium/large/aac), `width`, `height`, `duration_ms`, `author`, `license`, `source_url`, `source` |
+| `media` | `species_id`, `kind` (photo/audio), `position` (chave natural junto com `species_id`+`kind`, ver ADR-0013), `thumb_key`, `medium_key`, `large_key` (foto, em 3 tamanhos), `audio_key` (canto), `width`, `height`, `duration_ms`, `credits` (`author`/`license`/`source`/`source_url`) |
 | `occurrence_cluster` | `species_id`, `lat`, `lng`, `count`, `precision` (pontos pré-agrupados) |
 | `ingestion_job` | `species_id`, `source`, `status`, `attempts`, `next_run_at`, `last_error` |
 
