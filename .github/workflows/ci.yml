@@ -1,0 +1,26 @@
+# CI do passarim-docs: valida documentação, compose e segredos.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks precisa do histórico completo
+      - name: markdownlint
+        run: npx -y markdownlint-cli2 "**/*.md"
+      - name: mermaid diagrams compile
+        run: npx -y @mermaid-js/mermaid-cli -i README.md -o /tmp/readme.md
+      - name: docker compose config is valid
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+      - name: gitleaks (segredos commitados)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
