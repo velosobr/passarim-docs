@@ -5,8 +5,12 @@
 entryPoints:
   web:
     address: ":80"         # por onde o app entra
-  dashboard:
-    address: ":8081"       # painel visual do Traefik
+  # O nome "traefik" é especial: é nele que o Traefik publica o painel
+  # (dashboard), as métricas (/metrics) e o /ping. Se usássemos outro nome,
+  # ele criaria sozinho um entrypoint "traefik" na porta 8080 e a 8081
+  # ficaria vazia (respondendo 404).
+  traefik:
+    address: ":8081"       # painel visual, /metrics e /ping
 api:
   dashboard: true
   insecure: true           # dashboard sem senha: aceitável SÓ em ambiente local
@@ -17,6 +21,9 @@ providers:
     # explicitamente (traefik.enable=true). Mais seguro.
     exposedByDefault: false
     network: passarim-public
+    # Não montamos o socket do Docker no Traefik: ele conversa com um
+    # "socket proxy" que só permite LISTAR containers (ver docker-compose.yml).
+    endpoint: "tcp://docker-socket-proxy:2375"
 metrics:
   prometheus: {}           # expõe métricas em /metrics para o Prometheus
 ping: {}                   # /ping usado no healthcheck

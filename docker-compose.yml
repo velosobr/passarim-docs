@@ -4,7 +4,10 @@
 # Duas redes separam quem pode falar com quem (defesa em profundidade):
 #   - passarim-public:  Traefik <-> BFF
 #   - passarim-private: BFF <-> catalog <-> banco/cache/storage
-# O Traefik NÃO está na rede privada: mesmo comprometido, não alcança o banco.
+# O Traefik NÃO está na rede privada e não tem acesso ao socket do Docker
+# (só a um proxy que permite listar containers): mesmo comprometido, não
+# alcança o banco. Prometheus e Jaeger estão nas duas redes porque precisam
+# coletar dados dos dois lados.
 #
 # Todas as portas são publicadas apenas em 127.0.0.1 (só o seu computador
 # acessa; ninguém na sua rede Wi-Fi).
@@ -14,6 +17,10 @@ name: passarim
 networks:
   passarim-public:
     name: passarim-public
+  # Rede exclusiva entre o Traefik e o socket proxy.
+  passarim-docker-api:
+    name: passarim-docker-api
+    internal: true   # sem acesso à internet
   passarim-private:
     name: passarim-private
 
@@ -84,14 +91,27 @@ services:
       - "127.0.0.1:${HOST_PORT_TRAEFIK_DASHBOARD}:8081"
     volumes:
       - ./infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      # Somente leitura: o Traefik só precisa LER quais containers existem.
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks: [passarim-public]
+    networks: [passarim-public, passarim-docker-api]
+    depends_on: [docker-socket-proxy]
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      # Passamos o mesmo arquivo de config para o healthcheck achar o /ping na 8081.
+      test: ["CMD", "traefik", "healthcheck", "--configFile=/etc/traefik/traefik.yml"]
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # Socket proxy: o Traefik descobre containers pela API do Docker. Montar
+  # /var/run/docker.sock direto nele seria perigoso: o ":ro" NÃO limita a API,
+  # e quem tem o socket consegue criar containers privilegiados (= root no host).
+  # Este proxy só libera leitura da lista de containers; o resto responde 403.
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.5.0
+    environment:
+      CONTAINERS: 1   # permite GET /containers (o que o Traefik precisa)
+      POST: 0         # bloqueia qualquer escrita (criar, apagar, exec...)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [passarim-docker-api]
 
   # Coleta de métricas.
   prometheus:

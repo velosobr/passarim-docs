@@ -24,6 +24,7 @@ Worker → Internet (APIs externas): **tudo que volta é não confiável**.
 | BFF | D | Inundação de requisições | Rate limit por IP, limites de página/busca, timeouts HTTP | API4 |
 | BFF | I | Vazar stack trace ou campos internos | problem+json sem detalhes; DTOs explícitos | API3, API8 |
 | BFF | T | Injeção via parâmetros de busca | Validação de entrada; queries parametrizadas no catalog | Injeção |
+| Traefik | E | Traefik comprometido usar o socket do Docker para controlar o host | Socket proxy só com leitura de containers; Traefik fora da rede privada | API8 |
 | Catalog | S | Alguém além do BFF chamar o gRPC | Rede privada + mTLS | API2, API5 |
 | Catalog | E | Acesso a operações administrativas | Admin não exposto publicamente; chave de admin | API5 |
 | Worker | T/E | SSRF: URL externa apontando para rede interna | Allowlist de hosts, bloqueio de IP privado/link-local | API7 |
