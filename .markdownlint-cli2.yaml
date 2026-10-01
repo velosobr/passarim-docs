@@ -7,3 +7,4 @@ config:
   MD060: false   # estilo de pipes em tabela: puramente cosmético
 ignores:
   - "docs/superpowers/**"   # documentos de trabalho, não são publicados
+  - ".superpowers/**"       # rascunhos locais de execução (fora do git)
