@@ -15,7 +15,11 @@ jobs:
       - name: markdownlint
         run: npx -y markdownlint-cli2 "**/*.md"
       - name: mermaid diagrams compile
-        run: npx -y @mermaid-js/mermaid-cli -i README.md -o /tmp/readme.md
+        # O mermaid-cli usa um Chromium "headless" para desenhar os diagramas.
+        # Os runners Ubuntu do GitHub bloqueiam o sandbox do Chromium; como o
+        # runner é descartável e só renderiza nossos próprios diagramas,
+        # desligar o sandbox AQUI é aceitável (nunca faça isso num servidor).
+        run: npx -y @mermaid-js/mermaid-cli -p .github/puppeteer-config.json -i README.md -o /tmp/readme.md
       - name: docker compose config is valid
         run: |
           cp .env.example .env
