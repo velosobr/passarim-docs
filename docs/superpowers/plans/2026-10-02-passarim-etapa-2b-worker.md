@@ -16,7 +16,7 @@
 - Dependências apontam para dentro: `domain` puro; `usecase/ingest` importa só `domain`; adapters implementam as interfaces de `usecase/ingest`.
 - **Licenças aceitas:** CC0, CC-BY, CC-BY-SA, CC-BY-NC, CC-BY-NC-SA. **ND é sempre recusada.** Filtro NC configurável (`ALLOW_NC`, padrão `true`).
 - **Crédito obrigatório** em toda mídia: autor, licença, fonte, link original.
-- **Mídia:** fotos em WebP com 3 variantes — `thumb` 320 px, `medium` 800 px e `large` 1600 px de largura (sem ampliar). Até **5 fotos** por espécie. Canto em AAC mono 96 kbps, **no máximo 30 s**, 1 por espécie. Chaves: `species/<id>/photo-<n>-<variant>.webp` e `species/<id>/audio-0.aac`.
+- **Mídia:** fotos em WebP com 3 variantes — `thumb` 320 px, `medium` 800 px e `large` 1600 px de largura (sem ampliar). Até **5 fotos** por espécie. Canto em AAC mono 96 kbps, **no máximo 30 s**, 1 por espécie. Chaves: `species/<id>/photo-<idDaFotoNaFonte>-<variant>.webp` e `species/<id>/audio-<idDaGravaçãoNaFonte>.aac` (alterado depois da revisão final: a chave leva o id de origem, não a posição, e os objetos órfãos são apagados após o banco ser atualizado).
 - **Ocorrências:** só Brasil, coordenadas sem problemas geoespaciais, até 900 pontos (3 páginas de 300), agrupados em grade de **1,0°**.
 - **SSRF (OWASP API7):** downloads só via HTTPS, para hosts de uma allowlist. IPs privados, loopback e link-local são bloqueados (também depois de redirecionamentos). Limite de bytes por tipo e `Content-Type` permitido.
 - **API10:** imagens acima de **40 megapixels** são recusadas antes de decodificar; respostas externas são validadas.
