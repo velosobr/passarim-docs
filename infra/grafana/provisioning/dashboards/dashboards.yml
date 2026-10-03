@@ -1,0 +1,10 @@
+# Carrega os dashboards desta pasta ao subir o Grafana (dashboards como código).
+apiVersion: 1
+providers:
+  - name: passarim
+    folder: Passarim
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards

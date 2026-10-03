@@ -14,9 +14,55 @@
 
 name: passarim
 
+# Configuração COMUM às duas réplicas do BFF (âncora YAML): garante que sejam idênticas.
+x-bff: &bff
+  image: passarim-bff:dev
+  environment:
+    CATALOG_ADDR: catalog-api:50051
+    REDIS_URL: redis://redis:6379
+    # Quem abre a mídia é o app, fora do Docker: por isso a porta publicada do filer no host.
+    MEDIA_BASE_URL: http://localhost:${HOST_PORT_S3_UI}/buckets/passarim-media
+    # Confia SÓ no IP fixo do Traefik (Prometheus e Jaeger também estão na rede pública).
+    TRUSTED_PROXIES: 172.30.0.10/32
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+  depends_on:
+    catalog-api:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks: [passarim-public, passarim-private]   # nenhuma porta publicada: só o Traefik é a porta de entrada
+  read_only: true
+  # Sequência de shutdown: 3 s de drenagem + até 10 s de Shutdown + 2 s de flush + margem.
+  stop_grace_period: 20s
+  healthcheck:
+    test: ["CMD", "/usr/local/bin/bff", "healthcheck"]
+    interval: 5s
+    timeout: 3s
+    retries: 20
+  # Labels IDÊNTICAS nas duas réplicas e com o MESMO nome de service ("bff"):
+  # é isso que faz o Traefik juntar os dois containers num balanceamento round-robin.
+  labels:
+    traefik.enable: "true"
+    traefik.docker.network: passarim-public
+    traefik.http.routers.bff.rule: PathPrefix(`/v1`)
+    traefik.http.routers.bff.entrypoints: web
+    traefik.http.routers.bff.service: bff
+    traefik.http.services.bff.loadbalancer.server.port: "8080"
+    traefik.http.services.bff.loadbalancer.healthcheck.path: /readyz
+    traefik.http.services.bff.loadbalancer.healthcheck.interval: 2s
+    traefik.http.services.bff.loadbalancer.healthcheck.timeout: 1s
+
 networks:
   passarim-public:
     name: passarim-public
+    # Subnet FIXA para o BFF poder confiar SÓ no IP do Traefik (X-Forwarded-For).
+    # ip_range: containers sem IP fixo recebem endereços da metade de cima (172.30.0.128/25),
+    # então ninguém herda o 172.30.0.10 do Traefik. Se esta subnet colidir com uma rede da
+    # sua máquina, troque a subnet, o IP do Traefik e TRUSTED_PROXIES juntos.
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          ip_range: 172.30.0.128/25
   # Rede exclusiva entre o Traefik e o socket proxy.
   passarim-docker-api:
     name: passarim-docker-api
@@ -51,6 +97,8 @@ services:
   redis:
     image: redis:8-alpine
     ports: ["127.0.0.1:${HOST_PORT_REDIS}:6379"]
+    # O cache nunca pode crescer sem limite; allkeys-lru descarta o menos usado.
+    command: ["redis-server", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
     networks: [passarim-private]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -82,16 +130,21 @@ services:
       timeout: 3s
       retries: 20
 
-  # Load balancer na frente das réplicas do BFF (etapa 3 adiciona as réplicas).
+  # Load balancer na frente das réplicas do BFF (bff-1 e bff-2).
   traefik:
-    image: traefik:v3.5
+    # v3.6+: o 3.5 fala a API 1.24 do Docker e o Docker Engine 29+ (mínimo 1.40) responde 400,
+    # então o provider docker não enxergaria nenhum container.
+    image: traefik:v3.6.25
     command: ["--configFile=/etc/traefik/traefik.yml"]
     ports:
       - "127.0.0.1:${HOST_PORT_TRAEFIK_HTTP}:80"
       - "127.0.0.1:${HOST_PORT_TRAEFIK_DASHBOARD}:8081"
     volumes:
       - ./infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-    networks: [passarim-public, passarim-docker-api]
+    networks:
+      passarim-public:
+        ipv4_address: 172.30.0.10
+      passarim-docker-api:
     depends_on: [docker-socket-proxy]
     healthcheck:
       # Passamos o mesmo arquivo de config para o healthcheck achar o /ping na 8081.
@@ -174,6 +227,14 @@ services:
     # O worker termina o lote em andamento (até 2 min) antes de sair; sem isto o
     # Docker o mata após 10 s e o job fica 'running' até voltar à fila (15 min).
     stop_grace_period: 2m30s
+
+  # BFF (REST/JSON em /v1) — duas réplicas atrás do Traefik (Etapa 3).
+  bff-1:
+    <<: *bff
+    build: ../passarim-bff
+  bff-2:
+    <<: *bff
+    pull_policy: never   # usa a imagem construída pelo bff-1
 
   # Coleta de métricas.
   prometheus:

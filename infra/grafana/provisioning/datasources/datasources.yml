@@ -1,11 +1,19 @@
 # Conecta o Grafana automaticamente ao Prometheus e ao Jaeger,
 # para não precisar configurar nada à mão na primeira vez.
 apiVersion: 1
+# Datasources criados antes de existir o uid fixo têm outro uid no banco do Grafana
+# e o provisionamento falharia com "data source not found". Apagar e recriar é
+# idempotente (os datasources são 100% provisionados, sem estado do usuário).
+deleteDatasources:
+  - { name: Prometheus, orgId: 1 }
+  - { name: Jaeger, orgId: 1 }
 datasources:
   - name: Prometheus
     type: prometheus
+    uid: prometheus
     url: http://prometheus:9090
     isDefault: true
   - name: Jaeger
     type: jaeger
+    uid: jaeger
     url: http://jaeger:16686
