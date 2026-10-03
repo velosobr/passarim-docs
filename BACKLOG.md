@@ -37,6 +37,8 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — `NextAttemptDelay` com `attempt` negativo dá panic; ordem do erro de variável faltante em `LoadWorker` é aleatória.
 - [ ] **P3** — Timeout de 2 min vale por lote: lotes lentos (WAV grande) podem cortar jobs no meio. Considerar timeout por job.
 
+- [ ] **P2** — mTLS entre BFF e catalog (spec §9, API2). Decidido na Etapa 3: o BFF aceita credenciais TLS por configuração, mas roda sem mTLS no ambiente local. Falta gerar a CA e os certificados, ligar TLS no servidor gRPC do catalog e exigir certificado do cliente. Fazer junto do deploy (Etapa 4), antes de publicar.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
