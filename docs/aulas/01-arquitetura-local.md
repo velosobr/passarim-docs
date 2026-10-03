@@ -73,7 +73,7 @@ GBIF (Global Biodiversity Information Facility) é uma rede internacional de dad
 
 ## Onde isso roda?
 
-Hoje, tudo no `docker compose` do desktop. Na Etapa 4 (deploy) vai para: Fly.io (serviços), Neon (Postgres), Upstash (Redis) e Cloudflare R2 com CDN (mídia). O proxy do Fly.io substitui o Traefik.
+Hoje, tudo no `docker compose` do desktop. Na Etapa 6 (deploy, depois de o app funcionar localmente) vai para: Fly.io (serviços), Neon (Postgres), Upstash (Redis) e Cloudflare R2 com CDN (mídia). O proxy do Fly.io substitui o Traefik.
 
 ## Para praticar
 

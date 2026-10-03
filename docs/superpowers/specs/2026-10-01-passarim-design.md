@@ -214,7 +214,7 @@ Requisições 429 · taxa de 4xx/5xx · rejeições mTLS · downloads bloqueados
 - Mappers e Room em `commonTest`.
 - **Snapshot tests com Paparazzi** (`androidUnitTest`): todos os componentes do design system e todas as telas, nos temas **claro e escuro** e com **fonte ampliada**. Verificação no CI a cada PR.
   - Limitação: Paparazzi renderiza só Android; telas `commonMain` são cobertas via o alvo Android.
-  - A compatibilidade com o plugin de biblioteca KMP do AGP será validada no início da etapa 6; fallback: Roborazzi.
+  - A compatibilidade com o plugin de biblioteca KMP do AGP será validada no início da etapa 5; fallback: Roborazzi.
 - Alguns testes de UI com Compose UI Test.
 
 ## 11. CI/CD (GitHub Actions)
@@ -241,15 +241,15 @@ Manifestos **Kubernetes** incluídos em `passarim-docs/k8s/` apenas como materia
 1. `passarim-proto` + `passarim-docs` (contratos, ADRs, modelo de ameaças, README com system design).
 2. `passarim-catalog` (banco, Catalog API, worker, 30–50 aves curadas).
 3. `passarim-bff` + Traefik → `docker compose up` completo.
-4. Deploy (Fly.io, Neon, Upstash, R2).
-5. Design no Figma: tokens, tema claro, ícone flat e telas faltantes.
-6. `passarim-app`: Explorar, Detalhe, Favoritos, Configurações, Paparazzi.
+4. Design no Figma: tokens, tema claro, ícone flat e telas faltantes.
+5. `passarim-app`: Explorar, Detalhe, Favoritos, Configurações, Paparazzi (rodando contra o `docker compose` local).
+6. Deploy (Fly.io, Neon, Upstash, R2), só depois de o app funcionar localmente de ponta a ponta.
 
 ## 14. Dependências do usuário
 
 - **Instalar Go** (`brew install go`) antes da etapa 1.
 - Criar **chave gratuita do xeno-canto** (etapa 2).
-- Criar contas gratuitas: **GitHub** (repos), **Fly.io**, **Neon**, **Upstash**, **Cloudflare** (etapa 4).
+- Criar contas gratuitas: **GitHub** (repos), **Fly.io**, **Neon**, **Upstash**, **Cloudflare** (etapa 6, deploy).
 - Lista CBRO: baixada automaticamente; se não for possível, o usuário será avisado.
 
 ## 15. ADRs previstos

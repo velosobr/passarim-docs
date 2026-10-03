@@ -73,7 +73,7 @@ sequenceDiagram
 | [passarim-proto](https://github.com/velosobr/passarim-proto) | Contratos gRPC |
 | [passarim-catalog](https://github.com/velosobr/passarim-catalog) | Catalog API (gRPC) + banco + aves curadas |
 | [passarim-bff](https://github.com/velosobr/passarim-bff) | BFF REST/JSON + cache Redis + resiliência |
-| passarim-app | App KMP *(etapa 6)* |
+| passarim-app | App KMP *(etapa 5)* |
 
 ## Rodando a infraestrutura local
 

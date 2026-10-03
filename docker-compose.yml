@@ -168,7 +168,7 @@ services:
 
   # Catalog API (gRPC). Só na rede PRIVADA: ninguém de fora chega nele,
   # nem publicamos porta no host. Quem o consome é o BFF (Etapa 3).
-  # "build" aponta para o repositório vizinho; na Etapa 4 isso vira uma
+  # "build" aponta para o repositório vizinho; na Etapa 6 isso vira uma
   # imagem publicada no GHCR.
   catalog-api:
     build: ../passarim-catalog

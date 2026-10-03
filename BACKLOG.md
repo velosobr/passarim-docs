@@ -2,7 +2,7 @@
 
 Pendências conhecidas, vindas das revisões de código de cada etapa. Marque com `[x]` ao concluir e cite o commit.
 
-Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = antes do deploy (Etapa 4) · **P3** = melhoria.
+Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = antes do deploy (Etapa 6) · **P3** = melhoria.
 
 ## Conteúdo curado (`passarim-catalog/content/species`)
 
@@ -37,11 +37,11 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — `NextAttemptDelay` com `attempt` negativo dá panic; ordem do erro de variável faltante em `LoadWorker` é aleatória.
 - [ ] **P3** — Timeout de 2 min vale por lote: lotes lentos (WAV grande) podem cortar jobs no meio. Considerar timeout por job.
 
-- [ ] **P2** — mTLS entre BFF e catalog (spec §9, API2). Decidido na Etapa 3: o BFF aceita credenciais TLS por configuração, mas roda sem mTLS no ambiente local. Falta gerar a CA e os certificados, ligar TLS no servidor gRPC do catalog e exigir certificado do cliente. Fazer junto do deploy (Etapa 4), antes de publicar.
+- [ ] **P2** — mTLS entre BFF e catalog (spec §9, API2). Decidido na Etapa 3: o BFF aceita credenciais TLS por configuração, mas roda sem mTLS no ambiente local. Falta gerar a CA e os certificados, ligar TLS no servidor gRPC do catalog e exigir certificado do cliente. Fazer junto do deploy (Etapa 6), antes de publicar.
 
 ## passarim-bff (Etapa 3)
 
-- [ ] **P2** — HSTS no BFF quando houver TLS (deploy, Etapa 4).
+- [ ] **P2** — HSTS no BFF quando houver TLS (deploy, Etapa 6).
 - [ ] **P2** — Configurar `CLIENT_IP_HEADER` e `TRUSTED_PROXIES` para o proxy do Fly.io no deploy.
 - [ ] **P3** — Chip de dieta rotulado: exige campo novo (enum ou lista de categorias) no `catalog.proto`; hoje `diet` é texto livre.
 - [ ] **P3** — Tracing OpenTelemetry dentro do catalog (hoje o trace mostra só o BFF e a chamada gRPC).
