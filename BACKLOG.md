@@ -39,6 +39,16 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 
 - [ ] **P2** — mTLS entre BFF e catalog (spec §9, API2). Decidido na Etapa 3: o BFF aceita credenciais TLS por configuração, mas roda sem mTLS no ambiente local. Falta gerar a CA e os certificados, ligar TLS no servidor gRPC do catalog e exigir certificado do cliente. Fazer junto do deploy (Etapa 4), antes de publicar.
 
+## passarim-bff (Etapa 3)
+
+- [ ] **P2** — HSTS no BFF quando houver TLS (deploy, Etapa 4).
+- [ ] **P2** — Configurar `CLIENT_IP_HEADER` e `TRUSTED_PROXIES` para o proxy do Fly.io no deploy.
+- [ ] **P3** — Chip de dieta rotulado: exige campo novo (enum ou lista de categorias) no `catalog.proto`; hoje `diet` é texto livre.
+- [ ] **P3** — Tracing OpenTelemetry dentro do catalog (hoje o trace mostra só o BFF e a chamada gRPC).
+- [ ] **P3** — Job no CI do `passarim-docs` com checkout dos repositórios vizinhos para rodar o e2e BFF + catalog real.
+- [ ] **P3** — Rate limit: agrupar IPv6 por prefixo /64 (hoje cada endereço é um balde).
+- [ ] **P3** — Worker: atrasar o `removeOrphans` (ou manter a versão anterior por um tempo) para fechar a janela de URLs de mídia quebradas.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
