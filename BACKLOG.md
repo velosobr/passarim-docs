@@ -55,6 +55,7 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — `main`: um segundo SIGINT/SIGTERM durante o shutdown deveria forçar a saída (chamar `stop()` logo após o primeiro sinal).
 - [ ] **P3** — Logs: incluir `request_id` no erro de gravação do Redis e logar WARN ao servir stale por orçamento estourado.
 - [ ] **P3** — Dashboard Grafana: filtrar `route=~"GET /v1.*"` nos painéis de requisições e latência (sondas de /readyz e /healthz dominam em sistema parado).
+- [ ] **P3** — Ao final do projeto: publicar o Swagger UI (`docs/swagger.html`, gerado por `make swagger`) no GitHub Pages do `passarim-bff`, com um passo no CI que regenera a página a partir do `openapi.yaml`.
 
 ## passarim-docs / infraestrutura
 
