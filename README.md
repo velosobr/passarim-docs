@@ -72,7 +72,7 @@ sequenceDiagram
 | [passarim-docs](https://github.com/velosobr/passarim-docs) | Este: arquitetura, ADRs, segurança, `docker-compose` |
 | [passarim-proto](https://github.com/velosobr/passarim-proto) | Contratos gRPC |
 | [passarim-catalog](https://github.com/velosobr/passarim-catalog) | Catalog API (gRPC) + banco + aves curadas |
-| passarim-bff | BFF REST + cache *(etapa 3)* |
+| [passarim-bff](https://github.com/velosobr/passarim-bff) | BFF REST/JSON + cache Redis + resiliência |
 | passarim-app | App KMP *(etapa 6)* |
 
 ## Rodando a infraestrutura local
@@ -87,11 +87,37 @@ docker compose up -d --wait
 
 | Serviço | Endereço |
 |---|---|
+| API (BFF via Traefik) | <http://localhost:8080/v1/species> (porta `HOST_PORT_TRAEFIK_HTTP`) |
 | Traefik (dashboard) | <http://localhost:8081> |
 | Grafana | <http://localhost:3000> (admin / ver `.env`) |
 | Prometheus | <http://localhost:9090> |
 | Jaeger | <http://localhost:16686> |
 | Object storage (arquivos) | <http://localhost:8888> — a mídia fica no bucket `passarim-media` |
+
+## Demonstração: derrubar uma réplica do BFF
+
+O BFF roda em duas réplicas (`bff-1` e `bff-2`) atrás do Traefik. Para ver o balanceamento:
+
+```bash
+# Terminal 1: um laço de requisições (troque 8080 pelo HOST_PORT_TRAEFIK_HTTP do seu .env)
+while true; do curl -s -o /dev/null -w "%{http_code} " localhost:8080/v1/filters; sleep 0.2; done
+
+# Terminal 2: derrube uma réplica. As respostas continuam 200: o BFF marca /readyz como 503,
+# espera o Traefik tirá-lo da rotação e só então termina.
+docker compose stop bff-1
+docker compose start bff-1
+```
+
+Para ver o stale-while-error (dado velho quando o catalog cai):
+
+```bash
+curl -si localhost:8080/v1/species/turdus-rufiventris | grep -i x-cache   # miss (ou hit)
+docker compose stop catalog-api
+# Depois de 10 min o dado deixa de ser "fresco", mas ainda é servido:
+curl -si localhost:8080/v1/species/turdus-rufiventris | grep -i x-cache   # stale
+curl -si localhost:8080/v1/species/uma-ave-nunca-consultada               # 503 problem+json
+docker compose start catalog-api
+```
 
 ## Documentação
 
