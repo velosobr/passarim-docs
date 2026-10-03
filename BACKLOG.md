@@ -48,6 +48,13 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Job no CI do `passarim-docs` com checkout dos repositórios vizinhos para rodar o e2e BFF + catalog real.
 - [ ] **P3** — Rate limit: agrupar IPv6 por prefixo /64 (hoje cada endereço é um balde).
 - [ ] **P3** — Worker: atrasar o `removeOrphans` (ou manter a versão anterior por um tempo) para fechar a janela de URLs de mídia quebradas.
+- [ ] **P3** — Cache: um `panic` dentro do singleflight derruba o processo (o x/sync repropaga em goroutine); recuperar dentro da função do voo e devolver `KindInternal`.
+- [ ] **P3** — Cache: cursores forjados (JSON base64url aceito pelo catalog) criam chaves de lista no Redis; fazer bypass/TTL curto para páginas com cursor ou assinar o cursor.
+- [ ] **P3** — `AccessLog`: registrar também os 500 vindos de `panic` (hoje não entram em `bff_http_requests_total`).
+- [ ] **P3** — Config: rejeitar `NaN` e `Inf` em `RATE_LIMIT_RPS`.
+- [ ] **P3** — `main`: um segundo SIGINT/SIGTERM durante o shutdown deveria forçar a saída (chamar `stop()` logo após o primeiro sinal).
+- [ ] **P3** — Logs: incluir `request_id` no erro de gravação do Redis e logar WARN ao servir stale por orçamento estourado.
+- [ ] **P3** — Dashboard Grafana: filtrar `route=~"GET /v1.*"` nos painéis de requisições e latência (sondas de /readyz e /healthz dominam em sistema parado).
 
 ## passarim-docs / infraestrutura
 
