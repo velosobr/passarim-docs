@@ -149,7 +149,7 @@ A comunicação BFF → catalog usa **gRPC** (contratos em `passarim-proto`).
 - **Loading** — skeletons.
 
 ### Design (pendências derivadas da revisão)
-Unificar cor primária no verde da marca; fundo único; **desenhar tema claro**; ícone adaptativo flat; telas faltantes (Favoritos, busca/filtros, mapa, loading, vazios, Sobre/Créditos). Feito no Figma na etapa 5, **antes** do app, para que tokens de cor/tipografia (claro e escuro) existam quando os snapshots forem gravados.
+Unificar cor primária no verde da marca; fundo único; **desenhar tema claro**; ícone adaptativo flat; telas faltantes (Favoritos, busca/filtros, mapa, loading, vazios, Sobre/Créditos). Feito no Figma na etapa 4, **antes** do app, para que tokens de cor/tipografia (claro e escuro) existam quando os snapshots forem gravados.
 
 ---
 
