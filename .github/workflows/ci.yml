@@ -23,6 +23,7 @@ jobs:
       - name: docker compose config is valid
         run: |
           cp .env.example .env
+          echo 'XENO_CANTO_API_KEY=chave-falsa-so-para-validar' >> .env   # o .env.example deixa a chave vazia
           docker compose config --quiet
       - name: gitleaks (segredos commitados)
         uses: gitleaks/gitleaks-action@v2

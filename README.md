@@ -81,6 +81,7 @@ Pré-requisito: Docker, e os repositórios `passarim-docs` e `passarim-catalog` 
 
 ```bash
 cp .env.example .env
+# Edite o .env e preencha XENO_CANTO_API_KEY (necessária para o worker de ingestão).
 docker compose up -d --wait
 ```
 
@@ -90,7 +91,7 @@ docker compose up -d --wait
 | Grafana | <http://localhost:3000> (admin / ver `.env`) |
 | Prometheus | <http://localhost:9090> |
 | Jaeger | <http://localhost:16686> |
-| Object storage (arquivos) | <http://localhost:8888> |
+| Object storage (arquivos) | <http://localhost:8888> — a mídia fica no bucket `passarim-media` |
 
 ## Documentação
 
