@@ -57,6 +57,10 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Dashboard Grafana: filtrar `route=~"GET /v1.*"` nos painéis de requisições e latência (sondas de /readyz e /healthz dominam em sistema parado).
 - [ ] **P3** — Ao final do projeto: publicar o Swagger UI (`docs/swagger.html`, gerado por `make swagger`) no GitHub Pages do `passarim-bff`, com um passo no CI que regenera a página a partir do `openapi.yaml`.
 
+## passarim-app (Etapa 5)
+
+- [ ] **P2** — No início da etapa: fazer o app enxergar o `docker compose` do desktop. O emulador Android acessa o desktop em `10.0.2.2` e o simulador iOS em `localhost`; o aparelho físico precisa do IP da rede local, e isso exige publicar a porta do Traefik além de `127.0.0.1` (só para teste, nunca no deploy). Lembrar que `MEDIA_BASE_URL` e a porta do SeaweedFS têm o mesmo problema: as URLs de mídia usam `localhost` e precisam apontar para um endereço que o aparelho alcance.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
