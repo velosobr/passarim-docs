@@ -123,5 +123,6 @@ docker compose start catalog-api
 
 - [Decisões de arquitetura (ADRs)](docs/adr/)
 - [Modelo de ameaças](docs/security/threat-model.md)
+- [Aula 1: como as peças conversam](docs/aulas/01-arquitetura-local.md)
 - [Spec de design](docs/superpowers/specs/2026-10-01-passarim-design.md)
 - [Revisão do protótipo](docs/design/revisao-design-v1.md)
