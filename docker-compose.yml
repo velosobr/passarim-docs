@@ -148,6 +148,33 @@ services:
     read_only: true
     restart: "no"
 
+  # Worker de ingestão (Etapa 2b): busca fotos, cantos e avistamentos nas
+  # fontes externas e grava no banco e no object storage. Precisa de
+  # INTERNET (sai pela rede privada, que não é "internal") e não recebe
+  # conexões de ninguém, então não publica portas.
+  catalog-worker:
+    build:
+      context: ../passarim-catalog
+      dockerfile: Dockerfile.worker
+    image: passarim-worker:dev
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      S3_ENDPOINT: objectstorage:8333
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      XENO_CANTO_API_KEY: ${XENO_CANTO_API_KEY:?defina XENO_CANTO_API_KEY no .env}
+    depends_on:
+      catalog-seed:
+        condition: service_completed_successfully   # só começa com as aves já no banco
+      objectstorage:
+        condition: service_healthy
+    networks: [passarim-private]
+    read_only: true
+    tmpfs: [/tmp]   # o ffmpeg pode precisar de arquivos temporários
+    # O worker termina o lote em andamento (até 2 min) antes de sair; sem isto o
+    # Docker o mata após 10 s e o job fica 'running' até voltar à fila (15 min).
+    stop_grace_period: 2m30s
+
   # Coleta de métricas.
   prometheus:
     image: prom/prometheus:v3.5.0

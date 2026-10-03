@@ -8,4 +8,7 @@ scrape_configs:
   - job_name: catalog
     static_configs:
       - targets: ["catalog-api:9091"]
+  - job_name: worker
+    static_configs:
+      - targets: ["catalog-worker:9092"]
   # O job do BFF será adicionado na Etapa 3.
