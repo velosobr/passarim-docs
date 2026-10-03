@@ -27,6 +27,18 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Healthcheck assume `GRPC_ADDR` no formato `:porta`.
 - [ ] **P3** — `WaitForDB` espera mais um intervalo depois da última tentativa.
 
+- [ ] **P1** — Chaves fixas de mídia (`photo-0-large.webp`, `audio-0.aac`) são sobrescritas antes de o banco ser atualizado. Se o `Replace*` falhar depois, o crédito no banco aponta para outra foto/gravação (obrigação de atribuição), e uma CDN serviria cache velho. Usar chaves com id de origem ou hash, gravar no banco e só então remover os objetos antigos. Muda o formato de chave das Global Constraints do plano 2b; combinar com o BFF (Etapa 3).
+- [ ] **P2** — Objetos órfãos no storage: ao reduzir ou zerar fotos/canto, os arquivos antigos continuam acessíveis (inclusive de mídia cuja licença deixou de ser aceita). Criar uma limpeza (GC).
+- [ ] **P2** — Validar `PageURL`/`SourceURL` vindos das fontes (só `https` e hosts esperados) antes de gravar como link de crédito (API10).
+- [ ] **P2** — ffmpeg decide o formato da entrada sozinho: passar `-protocol_whitelist pipe` e `-f` explícito (mp3/wav, image2pipe) como defesa em profundidade.
+- [ ] **P2** — Chave do xeno-canto pode vazar no `Referer` se a API redirecionar: `CheckRedirect` só para o mesmo host.
+- [ ] **P3** — `safehttp`: bloquear também 100.64.0.0/10 (CGNAT), 0.0.0.0/8, 192.0.0.0/24, 198.18.0.0/15 e NAT64.
+- [ ] **P3** — Fallback de áudio tenta até 50 candidatas sem limiter nos downloads: limitar a ~3 tentativas e aplicar o rate limit.
+- [ ] **P3** — Worker sem log por job (`job_id`, `source`, erro); erros de `Complete`/`Fail` são descartados.
+- [ ] **P3** — `Height` da foto large é calculado, não lido da saída do ffmpeg (erro de até 2 px).
+- [ ] **P3** — `NextAttemptDelay` com `attempt` negativo dá panic; ordem do erro de variável faltante em `LoadWorker` é aleatória.
+- [ ] **P3** — Timeout de 2 min vale por lote: lotes lentos (WAV grande) podem cortar jobs no meio. Considerar timeout por job.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
