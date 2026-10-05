@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <title>Passarim — foreground (trinca-ferro)</title>
+  <g fill="none" stroke="#A6F4B6" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64.6 37.9 L75.7 43 L64.6 46.4"/>
+    <path d="M64.6 37.9 C62.9 31.1 52.7 29.4 47.6 35.4 C42.5 40.5 40.8 49 39.1 55.8 C37.4 62.6 34.9 67.7 32.3 72.8 L41.7 69.4"/>
+    <path d="M64.6 46.4 C64.6 52.4 62.9 60.9 56.1 66 C51 69.4 45.9 69.4 41.7 69.4"/>
+    <path d="M45.9 47.3 C51 45.6 56.1 50.7 54.4 59.2"/>
+    <path d="M45.9 47.3 C44.2 54.1 45.9 60.9 49.3 64.3"/>
+    <path d="M57.8 38.8 h.01"/>
+    <path d="M53.6 35 L61.2 35.8"/>
+    <path d="M51 69.4 L51 76.2 M56.1 68.5 L56.1 76.2 M40.8 76.2 L68 76.2"/>
+  </g>
+</svg>
