@@ -149,7 +149,7 @@ A comunicação BFF → catalog usa **gRPC** (contratos em `passarim-proto`).
 - **Loading** — skeletons.
 
 ### Design (pendências derivadas da revisão)
-Unificar cor primária no verde da marca; fundo único; **desenhar tema claro**; ícone adaptativo flat; telas faltantes (Favoritos, busca/filtros, mapa, loading, vazios, Sobre/Créditos). Feito no Figma na etapa 4, **antes** do app, para que tokens de cor/tipografia (claro e escuro) existam quando os snapshots forem gravados.
+Unificar cor primária no verde da marca; fundo único; **desenhar tema claro**; ícone adaptativo flat; telas faltantes (Favoritos, busca/filtros, mapa, loading, vazios, Sobre/Créditos). Feito na etapa 4 (tokens, ícone e mockups em HTML, sem Figma — ver spec da etapa 4), **antes** do app, para que tokens de cor/tipografia (claro e escuro) existam quando os snapshots forem gravados.
 
 ---
 
@@ -241,7 +241,7 @@ Manifestos **Kubernetes** incluídos em `passarim-docs/k8s/` apenas como materia
 1. `passarim-proto` + `passarim-docs` (contratos, ADRs, modelo de ameaças, README com system design).
 2. `passarim-catalog` (banco, Catalog API, worker, 30–50 aves curadas).
 3. `passarim-bff` + Traefik → `docker compose up` completo.
-4. Design no Figma: tokens, tema claro, ícone flat e telas faltantes.
+4. Design (sem Figma): tokens, tema claro, ícone flat (trinca-ferro) e telas faltantes.
 5. `passarim-app`: Explorar, Detalhe, Favoritos, Configurações, Paparazzi (rodando contra o `docker compose` local).
 6. Deploy (Fly.io, Neon, Upstash, R2), só depois de o app funcionar localmente de ponta a ponta.
 

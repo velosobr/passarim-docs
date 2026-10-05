@@ -41,3 +41,30 @@ test('toda classe t-* usada existe em _base.css', () => {
 test('páginas geradas estão em dia com os fragmentos (rode `npm run build`)', () => {
   for (const [file, html] of renderAll()) assert.equal(text(join(MOCKUPS, file)), html, file);
 });
+
+import { screenNames } from './build-mockups.mjs';
+
+const REQUIRED_SCREENS = [
+  'splash', 'explorar', 'busca-ativa', 'explorar-vazio', 'filtros',
+  'detalhe', 'loading-explorar', 'loading-detalhe',
+  'favoritos', 'favoritos-vazio',
+  'configuracoes', 'dados-armazenamento', 'sobre',
+  'erro-sem-internet', 'erro-servidor', 'erro-nao-encontrada',
+];
+
+test('as 16 telas do spec existem, nos dois temas', () => {
+  assert.deepEqual(screenNames(), [...REQUIRED_SCREENS].sort());
+  const generated = readdirSync(MOCKUPS);
+  for (const s of REQUIRED_SCREENS) {
+    for (const theme of ['light', 'dark']) {
+      assert.ok(generated.includes(`${s}.${theme}.html`), `${s}.${theme}.html`);
+      assert.ok(readdirSync(join(MOCKUPS, 'png')).includes(`${s}.${theme}.png`), `png/${s}.${theme}.png`);
+    }
+  }
+});
+
+test('Compose consegue ler as telas: nenhuma tela usa slider e nenhuma usa reticências', () => {
+  for (const f of readdirSync(join(MOCKUPS, 'src'))) {
+    assert.doesNotMatch(text(join(MOCKUPS, 'src', f)), /type="range"|slider|text-overflow/i, f);
+  }
+});

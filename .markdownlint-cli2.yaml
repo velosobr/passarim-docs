@@ -8,3 +8,4 @@ config:
 ignores:
   - "docs/superpowers/**"   # documentos de trabalho, não são publicados
   - ".superpowers/**"       # rascunhos locais de execução (fora do git)
+  - "**/node_modules/**"   # dependências das ferramentas de design
