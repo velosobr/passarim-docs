@@ -1,3 +1,6 @@
 # Segredos locais: NUNCA commitar o .env (só o .env.example).
 .env
 .DS_Store
+
+# PNGs de verificação com fonte ampliada (não versionados)
+docs/design/mockups/png/x*/
