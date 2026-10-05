@@ -319,7 +319,7 @@ test('os tokens reais não têm falhas', () => {
 
 test('detecta par texto/fundo abaixo de 4.5:1', () => {
   const t = fresh();
-  t.color.light.onPrimary = '#C8E6C9';
+  t.color.light.onPrimary = '#8FBF9F';
   const f = checkTokens(t);
   assert.ok(f.some((x) => x.kind === 'contrast' && x.theme === 'light' && x.bg === 'primary' && x.fg === 'onPrimary' && x.ratio < 4.5));
 });

@@ -1,0 +1,75 @@
+{
+  "meta": { "name": "Passarim", "version": "1.0.0" },
+  "color": {
+    "light": {
+      "primary": "#1A6D3C", "onPrimary": "#FFFFFF",
+      "primaryContainer": "#A6F4B6", "onPrimaryContainer": "#00210E",
+      "secondary": "#4E6352", "onSecondary": "#FFFFFF",
+      "secondaryContainer": "#D0E8D2", "onSecondaryContainer": "#0B1F10",
+      "tertiary": "#7A5900", "onTertiary": "#FFFFFF",
+      "tertiaryContainer": "#FFDEA3", "onTertiaryContainer": "#261900",
+      "error": "#BA1A1A", "onError": "#FFFFFF",
+      "errorContainer": "#FFDAD6", "onErrorContainer": "#410002",
+      "surface": "#F6FBF3", "onSurface": "#181D18",
+      "surfaceVariant": "#DCE5DB", "onSurfaceVariant": "#414942",
+      "surfaceContainer": "#EAF0E8",
+      "outline": "#717971", "outlineVariant": "#C0C9BF",
+      "inverseSurface": "#2D322D", "inverseOnSurface": "#EEF2EB", "inversePrimary": "#8BD89D",
+      "scrim": "#000000"
+    },
+    "dark": {
+      "primary": "#7DDB97", "onPrimary": "#00391B",
+      "primaryContainer": "#00522A", "onPrimaryContainer": "#A6F4B6",
+      "secondary": "#B4CCB7", "onSecondary": "#203524",
+      "secondaryContainer": "#364B3A", "onSecondaryContainer": "#D0E8D2",
+      "tertiary": "#F0BF4C", "onTertiary": "#412D00",
+      "tertiaryContainer": "#5E4200", "onTertiaryContainer": "#FFDEA3",
+      "error": "#FFB4AB", "onError": "#690005",
+      "errorContainer": "#93000A", "onErrorContainer": "#FFDAD6",
+      "surface": "#101410", "onSurface": "#E0E4DC",
+      "surfaceVariant": "#414942", "onSurfaceVariant": "#C0C9BF",
+      "surfaceContainer": "#1C211C",
+      "outline": "#8A938A", "outlineVariant": "#414942",
+      "inverseSurface": "#E0E4DC", "inverseOnSurface": "#2D322D", "inversePrimary": "#1A6D3C",
+      "scrim": "#000000"
+    }
+  },
+  "conservationLabels": {
+    "LC": "Pouco preocupante", "NT": "Quase ameaçada", "VU": "Vulnerável",
+    "EN": "Em perigo", "CR": "Criticamente em perigo", "EW": "Extinta na natureza"
+  },
+  "conservation": {
+    "light": {
+      "LC": { "bg": "#CDEBD3", "fg": "#0B3B1C" },
+      "NT": { "bg": "#E3EDB8", "fg": "#33400A" },
+      "VU": { "bg": "#FFE08A", "fg": "#4A3600" },
+      "EN": { "bg": "#FFC9A3", "fg": "#5A2200" },
+      "CR": { "bg": "#FFB4AB", "fg": "#5C0008" },
+      "EW": { "bg": "#E1D5F0", "fg": "#2E1A4D" }
+    },
+    "dark": {
+      "LC": { "bg": "#1F4A2C", "fg": "#BDF0C8" },
+      "NT": { "bg": "#4A5418", "fg": "#E3EDB8" },
+      "VU": { "bg": "#5E4800", "fg": "#FFE08A" },
+      "EN": { "bg": "#6E3000", "fg": "#FFC9A3" },
+      "CR": { "bg": "#8A1018", "fg": "#FFDAD6" },
+      "EW": { "bg": "#44306A", "fg": "#E8DDFF" }
+    }
+  },
+  "type": {
+    "family": "Manrope",
+    "styles": {
+      "headlineMedium": { "size": 28, "line": 36, "weight": 700, "tracking": 0 },
+      "titleLarge":     { "size": 22, "line": 28, "weight": 700, "tracking": 0 },
+      "titleMedium":    { "size": 16, "line": 24, "weight": 600, "tracking": 0.15 },
+      "titleSmall":     { "size": 14, "line": 20, "weight": 600, "tracking": 0.1 },
+      "bodyLarge":      { "size": 16, "line": 24, "weight": 400, "tracking": 0.5 },
+      "bodyMedium":     { "size": 14, "line": 20, "weight": 400, "tracking": 0.25 },
+      "bodySmall":      { "size": 12, "line": 16, "weight": 400, "tracking": 0.4 },
+      "labelLarge":     { "size": 14, "line": 20, "weight": 600, "tracking": 0.1 },
+      "labelSmall":     { "size": 11, "line": 16, "weight": 600, "tracking": 0.5 }
+    }
+  },
+  "shape": { "card": 12, "field": 16, "pill": 28 },
+  "space": { "unit": 4, "screenMargin": 16, "touchTarget": 48 }
+}
