@@ -42,3 +42,12 @@ jobs:
         run: |
           node --test
           node check-tokens.mjs
+      - name: dependências das ferramentas (playwright-core usa o Chrome do runner)
+        working-directory: docs/design/tools
+        run: npm ci
+      - name: mockups sem texto cortado, com fonte normal e ampliada, e ícone na zona segura
+        working-directory: docs/design/tools
+        run: |
+          node export-png.mjs
+          node export-png.mjs --scale 1.3
+          node export-icon-preview.mjs

@@ -29,7 +29,7 @@
       "surface": "#101410", "onSurface": "#E0E4DC",
       "surfaceVariant": "#414942", "onSurfaceVariant": "#C0C9BF",
       "surfaceContainer": "#1C211C",
-      "outline": "#8A938A", "outlineVariant": "#414942",
+      "outline": "#97A097", "outlineVariant": "#414942",
       "inverseSurface": "#E0E4DC", "inverseOnSurface": "#2D322D", "inversePrimary": "#1A6D3C",
       "scrim": "#000000"
     }

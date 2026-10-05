@@ -53,3 +53,12 @@ test('as listas esperadas não encolheram', () => {
   assert.equal(STATUSES.length, 6);
   assert.ok(REQUIRED_ROLES.includes('surfaceContainer') && REQUIRED_ROLES.includes('scrim'));
 });
+
+test('protege o toggle desligado (outline sobre surfaceVariant) e o ícone de erro (error sobre surfaceVariant)', () => {
+  const t = fresh();
+  t.color.dark.outline = '#8A938A'; // valor antigo, 2.93:1
+  assert.ok(checkTokens(t).some((x) => x.kind === 'contrast' && x.theme === 'dark' && x.bg === 'surfaceVariant' && x.fg === 'outline'));
+  const u = fresh();
+  u.color.light.error = '#D8A8A4';
+  assert.ok(checkTokens(u).some((x) => x.kind === 'contrast' && x.theme === 'light' && x.bg === 'surfaceVariant' && x.fg === 'error'));
+});

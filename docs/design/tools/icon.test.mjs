@@ -38,3 +38,7 @@ test('readBirdPaths devolve os traços do foreground', () => {
   assert.equal(readBirdPaths().length, 8);
   assert.equal(readBirdPaths()[0], 'M64.6 37.9 L75.7 43 L64.6 46.4');
 });
+
+test('nenhum SVG do ícone usa transform (a checagem da zona segura mede coordenadas locais)', () => {
+  for (const f of files) assert.doesNotMatch(svg(f), /transform\s*=/i, f);
+});

@@ -29,7 +29,7 @@ Esquema Material 3. Os nomes dos papéis são os mesmos de `ColorScheme` no Comp
 | `surfaceVariant` | `#DCE5DB` | `#414942` |
 | `onSurfaceVariant` | `#414942` | `#C0C9BF` |
 | `surfaceContainer` | `#EAF0E8` | `#1C211C` |
-| `outline` | `#717971` | `#8A938A` |
+| `outline` | `#717971` | `#97A097` |
 | `outlineVariant` | `#C0C9BF` | `#414942` |
 | `inverseSurface` | `#2D322D` | `#E0E4DC` |
 | `inverseOnSurface` | `#EEF2EB` | `#2D322D` |
@@ -91,7 +91,7 @@ val PassarimDarkColors = darkColorScheme(
     surfaceVariant = Color(0xFF414942),
     onSurfaceVariant = Color(0xFFC0C9BF),
     surfaceContainer = Color(0xFF1C211C),
-    outline = Color(0xFF8A938A),
+    outline = Color(0xFF97A097),
     outlineVariant = Color(0xFF414942),
     inverseSurface = Color(0xFFE0E4DC),
     inverseOnSurface = Color(0xFF2D322D),

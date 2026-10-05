@@ -24,12 +24,12 @@ export const TEXT_PAIRS = [
   ['surface', 'onSurface'], ['surface', 'onSurfaceVariant'],
   ['surfaceContainer', 'onSurface'], ['surfaceContainer', 'onSurfaceVariant'],
   ['surfaceVariant', 'onSurfaceVariant'], ['inverseSurface', 'inverseOnSurface'],
-  ['surface', 'primary'], ['surfaceContainer', 'primary'], ['surface', 'error'],
+  ['surface', 'primary'], ['surfaceContainer', 'primary'], ['surface', 'error'], ['surfaceVariant', 'error'],
   ['inverseSurface', 'inversePrimary'],
 ];
 
 // Elementos não textuais (contornos, bordas de controle): 3:1.
-export const NONTEXT_PAIRS = [['surface', 'outline'], ['surfaceContainer', 'outline']];
+export const NONTEXT_PAIRS = [['surface', 'outline'], ['surfaceContainer', 'outline'], ['surfaceVariant', 'outline']];
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 

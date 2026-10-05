@@ -30,7 +30,7 @@ npm run build               # tokens → _base.css + TOKENS.md; fragmentos → p
 node export-png.mjs         # páginas → PNG (falha se houver texto cortado, rolagem horizontal ou fonte ausente)
 node export-png.mjs --scale 1.3   # mesma verificação com fonte ampliada (PNGs em png/x1.3/, não versionados)
 node export-icon-preview.mjs      # icon/preview-48dp.png (falha se a logo sair da zona segura de 66dp)
-npm test                    # contraste, cores literais, arquivos gerados em dia, ícone
+npm test                    # contraste, cores literais, arquivos gerados em dia, ícone (checagens estáticas; as de layout e zona segura rodam nos exports acima)
 ```
 
 Para mudar uma cor: edite `tokens/passarim-tokens.json`, rode `node check-tokens.mjs` (contraste), `npm run build` e `node export-png.mjs`. Para mudar uma tela: edite `mockups/src/<tela>.html` (somente `var(--...)`, nunca cor literal) e repita o build e o export.

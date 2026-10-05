@@ -7,7 +7,7 @@ import { ICON, isMain } from './paths.mjs';
 const read = (f) => readFileSync(join(ICON, f), 'utf8');
 const inner = (svg) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '').replace(/<title>.*?<\/title>/, '');
 const SAFE_RADIUS = 33; // zona segura: círculo de 66dp no centro dos 108dp
-const HALF_STROKE = 1.6;
+const HALF_STROKE = parseFloat(/stroke-width="([\d.]+)"/.exec(read('foreground.svg'))[1]) / 2; // meia espessura do traço, lida do próprio SVG
 
 function html() {
   const layer = (extra = '') =>
