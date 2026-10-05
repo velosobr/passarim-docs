@@ -18,7 +18,7 @@ Em `passarim-docs/docs/design/`:
 README.md                      o que o app consome e como regenerar
 tokens/passarim-tokens.json    fonte única: cor (claro/escuro), tipografia, forma, espaço
 tokens/TOKENS.md               leitura humana + mapeamento para Compose (Color.kt, Type.kt, Shape.kt)
-icon/                          colibri flat: foreground.svg, background.svg, monochrome.svg, splash.svg, preview-48dp.png
+icon/                          trinca-ferro flat: foreground.svg, background.svg, monochrome.svg, splash.svg, preview-48dp.png
 mockups/_base.css              tokens como CSS variables (gerado de passarim-tokens.json)
 mockups/<tela>.<tema>.html     uma página por tela e tema
 mockups/png/<tela>.<tema>.png  exportados; é o que se revisa
@@ -30,7 +30,7 @@ tools/                         scripts: gerar CSS dos tokens, checar contraste, 
 ## 3. Tokens
 
 ### Cor
-Esquema Material 3 derivado do verde do colibri do protótipo. Um único tom primário, um único fundo (`surface`) por tema.
+Esquema Material 3 derivado do verde da marca do protótipo (o verde do ícone original). Um único tom primário, um único fundo (`surface`) por tema.
 
 | Papel | Claro | Escuro |
 |---|---|---|
@@ -52,7 +52,7 @@ Cantos: 12dp (cards), 16dp (campos), 28dp (chips e botões grandes). Grade de 4d
 
 ## 4. Ícone
 
-Colibri redesenhado como traço sólido **flat** (sem glow nem textura), preservando traço e silhueta do original. Viewport 108dp, silhueta dentro da zona segura de 66dp.
+Logo baseada no **trinca-ferro** (*Saltator similis*, presente no catálogo): corpo roliço, bico cônico grosso, sobrancelha branca, asa e poleiro, desenhada como traço sólido **flat** (sem glow nem textura), mantendo o estilo de contorno do ícone original. Viewport 108dp, silhueta dentro da zona segura de 66dp.
 
 Variantes: foreground (verde) + background liso, monocromática (ícone temático do Android 13), splash (só o ícone, Android 12+), prévia a 48dp para validar legibilidade.
 
