@@ -1,0 +1,101 @@
+/* Gerado por tools/build-tokens.mjs a partir de tokens/passarim-tokens.json. Não edite à mão. */
+:root{
+  --shape-card:12px;
+  --shape-field:16px;
+  --shape-pill:28px;
+  --space-unit:4px;
+  --space-margin:16px;
+  --touch-target:48px;
+  --font:"Manrope",system-ui,sans-serif;
+}
+:root,[data-theme="light"]{
+  --md-primary:#1A6D3C;
+  --md-on-primary:#FFFFFF;
+  --md-primary-container:#A6F4B6;
+  --md-on-primary-container:#00210E;
+  --md-secondary:#4E6352;
+  --md-on-secondary:#FFFFFF;
+  --md-secondary-container:#D0E8D2;
+  --md-on-secondary-container:#0B1F10;
+  --md-tertiary:#7A5900;
+  --md-on-tertiary:#FFFFFF;
+  --md-tertiary-container:#FFDEA3;
+  --md-on-tertiary-container:#261900;
+  --md-error:#BA1A1A;
+  --md-on-error:#FFFFFF;
+  --md-error-container:#FFDAD6;
+  --md-on-error-container:#410002;
+  --md-surface:#F6FBF3;
+  --md-on-surface:#181D18;
+  --md-surface-variant:#DCE5DB;
+  --md-on-surface-variant:#414942;
+  --md-surface-container:#EAF0E8;
+  --md-outline:#717971;
+  --md-outline-variant:#C0C9BF;
+  --md-inverse-surface:#2D322D;
+  --md-inverse-on-surface:#EEF2EB;
+  --md-inverse-primary:#8BD89D;
+  --md-scrim:#000000;
+  --cons-lc-bg:#CDEBD3;
+  --cons-lc-fg:#0B3B1C;
+  --cons-nt-bg:#E3EDB8;
+  --cons-nt-fg:#33400A;
+  --cons-vu-bg:#FFE08A;
+  --cons-vu-fg:#4A3600;
+  --cons-en-bg:#FFC9A3;
+  --cons-en-fg:#5A2200;
+  --cons-cr-bg:#FFB4AB;
+  --cons-cr-fg:#5C0008;
+  --cons-ew-bg:#E1D5F0;
+  --cons-ew-fg:#2E1A4D;
+}
+[data-theme="dark"]{
+  --md-primary:#7DDB97;
+  --md-on-primary:#00391B;
+  --md-primary-container:#00522A;
+  --md-on-primary-container:#A6F4B6;
+  --md-secondary:#B4CCB7;
+  --md-on-secondary:#203524;
+  --md-secondary-container:#364B3A;
+  --md-on-secondary-container:#D0E8D2;
+  --md-tertiary:#F0BF4C;
+  --md-on-tertiary:#412D00;
+  --md-tertiary-container:#5E4200;
+  --md-on-tertiary-container:#FFDEA3;
+  --md-error:#FFB4AB;
+  --md-on-error:#690005;
+  --md-error-container:#93000A;
+  --md-on-error-container:#FFDAD6;
+  --md-surface:#101410;
+  --md-on-surface:#E0E4DC;
+  --md-surface-variant:#414942;
+  --md-on-surface-variant:#C0C9BF;
+  --md-surface-container:#1C211C;
+  --md-outline:#8A938A;
+  --md-outline-variant:#414942;
+  --md-inverse-surface:#E0E4DC;
+  --md-inverse-on-surface:#2D322D;
+  --md-inverse-primary:#1A6D3C;
+  --md-scrim:#000000;
+  --cons-lc-bg:#1F4A2C;
+  --cons-lc-fg:#BDF0C8;
+  --cons-nt-bg:#4A5418;
+  --cons-nt-fg:#E3EDB8;
+  --cons-vu-bg:#5E4800;
+  --cons-vu-fg:#FFE08A;
+  --cons-en-bg:#6E3000;
+  --cons-en-fg:#FFC9A3;
+  --cons-cr-bg:#8A1018;
+  --cons-cr-fg:#FFDAD6;
+  --cons-ew-bg:#44306A;
+  --cons-ew-fg:#E8DDFF;
+}
+.t-headlineMedium{font-size:1.75rem;line-height:2.25rem;font-weight:700;letter-spacing:0px}
+.t-titleLarge{font-size:1.375rem;line-height:1.75rem;font-weight:700;letter-spacing:0px}
+.t-titleMedium{font-size:1rem;line-height:1.5rem;font-weight:600;letter-spacing:0.15px}
+.t-titleSmall{font-size:0.875rem;line-height:1.25rem;font-weight:600;letter-spacing:0.1px}
+.t-bodyLarge{font-size:1rem;line-height:1.5rem;font-weight:400;letter-spacing:0.5px}
+.t-bodyMedium{font-size:0.875rem;line-height:1.25rem;font-weight:400;letter-spacing:0.25px}
+.t-bodySmall{font-size:0.75rem;line-height:1rem;font-weight:400;letter-spacing:0.4px}
+.t-labelLarge{font-size:0.875rem;line-height:1.25rem;font-weight:600;letter-spacing:0.1px}
+.t-labelSmall{font-size:0.6875rem;line-height:1rem;font-weight:600;letter-spacing:0.5px}
