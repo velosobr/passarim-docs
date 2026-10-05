@@ -1,0 +1,25 @@
+<div class="phone">
+  {{include:statusbar}}
+  <main class="content">
+    <h1 class="t-headlineMedium" style="padding-top:8px">Favoritos</h1>
+    <p class="muted t-bodyMedium">Salvos neste aparelho. Funcionam sem internet.</p>
+    <div style="display:flex;flex-direction:column">
+      <div class="fav-row">
+        <div class="photo thumb">{{include:bird size=24}}</div>
+        <div class="txt"><span class="t-titleSmall">Arara-azul-grande</span><span class="sci t-bodySmall">Anodorhynchus hyacinthinus</span></div>
+        <a class="iconbtn on" aria-label="Desfavoritar">{{include:icon name=favorite size=24}}</a>
+      </div>
+      <div class="fav-row">
+        <div class="photo thumb">{{include:bird size=24}}</div>
+        <div class="txt"><span class="t-titleSmall">Tucano-toco</span><span class="sci t-bodySmall">Ramphastos toco</span></div>
+        <a class="iconbtn on" aria-label="Desfavoritar">{{include:icon name=favorite size=24}}</a>
+      </div>
+      <div class="fav-row">
+        <div class="photo thumb">{{include:bird size=24}}</div>
+        <div class="txt"><span class="t-titleSmall">Trinca-ferro</span><span class="sci t-bodySmall">Saltator similis</span></div>
+        <a class="iconbtn on" aria-label="Desfavoritar">{{include:icon name=favorite size=24}}</a>
+      </div>
+    </div>
+  </main>
+  {{include:bottomnav e="" f=active c=""}}
+</div>

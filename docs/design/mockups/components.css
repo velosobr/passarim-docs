@@ -65,7 +65,7 @@ a{color:inherit;text-decoration:none}
 
 .state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:0 32px}
 .state .art{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;margin-bottom:8px;background:var(--md-primary-container);color:var(--md-on-primary-container)}
-.state .art.err{background:var(--md-error-container);color:var(--md-on-error-container)}
+.state .art.err{background:var(--md-surface-variant);color:var(--md-error)}
 .state .art .icon{width:56px;height:56px}
 .state p{color:var(--md-on-surface-variant)}
 
