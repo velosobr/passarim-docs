@@ -1,0 +1,17 @@
+<div class="phone">
+  {{include:statusbar}}
+  <main class="content" style="flex:1">
+    <div class="searchbar t-bodyLarge">{{include:icon name=search size=24}}<span class="value">arara</span><a class="iconbtn" aria-label="Limpar busca">{{include:icon name=close size=24}}</a></div>
+    <div class="chips">
+      <span class="chip selected t-labelLarge">{{include:icon name=check size=18}} Pampa {{include:icon name=close size=18}}</span>
+      <span class="chip t-labelLarge">Estado {{include:icon name=expand_more size=18}}</span>
+    </div>
+    <div class="state">
+      <div class="art">{{include:icon name=search size=56}}</div>
+      <h2 class="t-titleLarge">Nenhuma ave encontrada</h2>
+      <p class="t-bodyMedium">Não achamos aves para “arara” no Pampa. Tente outro nome ou remova algum filtro.</p>
+      <a class="btn tonal t-labelLarge">Limpar filtros</a>
+    </div>
+  </main>
+  {{include:bottomnav e=active f="" c=""}}
+</div>

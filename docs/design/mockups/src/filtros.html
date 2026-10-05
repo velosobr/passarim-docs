@@ -1,0 +1,52 @@
+<div class="phone">
+  {{include:statusbar}}
+  <main class="content">
+    <div class="searchbar t-bodyLarge">{{include:icon name=search size=24}}<span class="hint">Buscar aves</span></div>
+    <div class="chips">
+      <span class="chip t-labelLarge">Bioma {{include:icon name=expand_more size=18}}</span>
+      <span class="chip t-labelLarge">Estado {{include:icon name=expand_more size=18}}</span>
+    </div>
+    <div class="grid">
+      {{include:card name="Arara-azul-grande" sci="Anodorhynchus hyacinthinus" heart=favorite favclass=on}}
+      {{include:card name="Bem-te-vi" sci="Pitangus sulphuratus" heart=favorite_border favclass=""}}
+      {{include:card name="Sabiá-laranjeira" sci="Turdus rufiventris" heart=favorite_border favclass=""}}
+      {{include:card name="Tucano-toco" sci="Ramphastos toco" heart=favorite favclass=on}}
+    </div>
+  </main>
+  {{include:bottomnav e=active f="" c=""}}
+  <div class="scrim"></div>
+  <section class="sheet" aria-label="Filtros">
+    <div class="grabber"></div>
+    <div class="sheet-head"><h2 class="t-titleLarge">Filtrar aves</h2><a class="btn text t-labelLarge">Limpar</a></div>
+    <div class="labeled">
+      <span class="t-labelLarge muted">Bioma</span>
+      <div class="chips">
+        <span class="chip selected t-labelLarge">{{include:icon name=check size=18}} Cerrado · 26</span>
+        <span class="chip t-labelLarge">Mata Atlântica · 29</span>
+        <span class="chip t-labelLarge">Amazônia · 24</span>
+        <span class="chip t-labelLarge">Caatinga · 19</span>
+        <span class="chip t-labelLarge">Pantanal · 19</span>
+        <span class="chip t-labelLarge">Pampa · 15</span>
+      </div>
+    </div>
+    <div class="labeled">
+      <span class="t-labelLarge muted">Estado</span>
+      <div class="chips">
+        <span class="chip t-labelLarge">SP · 29</span>
+        <span class="chip t-labelLarge">PR · 24</span>
+        <span class="chip t-labelLarge">RS · 24</span>
+        <span class="chip selected t-labelLarge">{{include:icon name=check size=18}} RJ · 23</span>
+        <span class="chip t-labelLarge">GO · 22</span>
+        <span class="chip t-labelLarge">BA · 21</span>
+        <span class="chip t-labelLarge">AM · 19</span>
+        <span class="chip t-labelLarge">PA · 19</span>
+        <span class="chip t-labelLarge">MT · 19</span>
+        <span class="chip t-labelLarge">MG · 19</span>
+        <span class="chip t-labelLarge">MS · 16</span>
+        <span class="chip t-labelLarge">SC · 15</span>
+      </div>
+      <a class="btn text t-labelLarge" style="align-self:flex-start;padding:0">Ver todos os estados</a>
+    </div>
+    <a class="btn filled t-labelLarge">Mostrar aves</a>
+  </section>
+</div>
