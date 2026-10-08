@@ -12,7 +12,9 @@ A etapa 5 (`passarim-app`) é grande demais para um único spec e plano. Ela é 
 | 5b — Explorar | Busca, filtros, grid, paginação infinita, loading, vazio e erros |
 | 5c — Detalhe | Hero, conservação, player de canto, galeria, "Onde encontrar" (mapa) |
 | 5d — Favoritos e Configurações | Room KMP, DataStore, tema Sistema/Claro/Escuro, cores dinâmicas, Sobre, Dados e armazenamento |
-| 5e — Snapshots e CI completos | Paparazzi para todas as telas e componentes, fonte ampliada |
+| 5e — Fechamento | Matriz completa de snapshots (claro/escuro, fonte 1.0×/1.3×/2.0×), validação no iOS, release com R8, acessibilidade, resiliência e documentação |
+
+Specs das demais fatias: [5b](2026-10-08-passarim-app-explorar-design.md) · [5c](2026-10-08-passarim-app-detalhe-design.md) · [5d](2026-10-08-passarim-app-favoritos-configuracoes-design.md) · [5e](2026-10-08-passarim-app-fechamento-design.md).
 
 **Decisões já tomadas:**
 - **Plataformas:** Android primeiro, com o iOS compilando. Todo o código de produto fica em `commonMain`. O iOS só precisa linkar o framework e abrir no simulador; a validação visual completa no iOS fica para depois.
