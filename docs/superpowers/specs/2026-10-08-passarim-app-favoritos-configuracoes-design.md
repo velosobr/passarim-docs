@@ -57,7 +57,7 @@ A aba Favoritos e a aba Configurações ganham destinos reais; `AboutRoute`, `St
 
 ## 7. Testes
 
-- **Room (no `androidUnitTest`, banco em memória com driver embutido):** inserir, remover, ordenação, toggle duplo, `observeIds`, migração preparada. A prova do driver no teste da JVM do host é feita na 5a (§3); isso desvia do "Room em `commonTest`" do spec geral §10 e fica registrado no ADR de testes.
+- **Room (em `jvmTest` de `core:database`, banco em memória com `BundledSQLiteDriver`):** inserir, remover, ordenação, toggle duplo, `observeIds`, migração preparada. O alvo `jvm()` existe só para testes (5a §3, ponto 3); isso desvia do "Room em `commonTest`" do spec geral §10 e fica registrado no ADR de testes.
 - **Configurações:** repositório com DataStore em arquivo temporário (padrões, persistência, valor inválido), ViewModel (tema, dinâmico, autoPlay, limpar cache chama o limpador e não toca favoritos).
 - **ViewModel de Favoritos:** vazio, conteúdo, remover.
 - **Paparazzi:** Favoritos (lista, vazio), Configurações (cada opção de tema, dinâmico ligado/desligado), Dados e armazenamento, Sobre; claro e escuro × 1.0×/1.3×/2.0×.

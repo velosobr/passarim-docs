@@ -51,7 +51,7 @@ passarim-app/
   core/data/                HttpClient (Ktor), safeCall, parser de problem+json
   core/presentation/        UiText, ObserveAsEvents
   core/design-system/       tema (Manrope, cores, formas) e componentes genéricos (sem dependência de feature)
-  core/database/            Room KMP (esqueleto na 5a; entidades, DAO e LocalFavoritesRepository na 5d)
+  core/database/            Room KMP (esqueleto na 5a; entidades, DAO e LocalFavoritesRepository na 5d); alvo jvm() só para testes
   snapshots/                módulo Android puro com Paparazzi
 ```
 
@@ -63,12 +63,13 @@ Regras de dependência (das skills): `presentation → domain ← data`; `domain
 `kmp-library`, `kmp-domain` (sem Android), `kmp-feature` (biblioteca + Compose + Koin), `compose`, `koin`, `ktor`, `room`, `kotlinx-serialization`, `android-application`. Catálogo de versões único em `gradle/libs.versions.toml`; nenhuma versão fixa em arquivos de build.
 
 ### Versões
-O **primeiro passo do plano** valida e fixa o conjunto de versões estáveis (Kotlin, Compose Multiplatform 1.11.x, AGP, Gradle, KSP, Room 2.8.x, Ktor, Koin, Coil 3, Kermit, Paparazzi, SDKs) compilando um projeto mínimo com todos os plugins juntos, e prova três pontos de risco:
-1. o Paparazzi renderiza um componente com `Res.font`/`Res.string` do Compose Multiplatform (§8);
-2. o Room com `BundledSQLiteDriver` abre um banco em memória no teste local da JVM do host (`androidUnitTest`); se o artefato Android não trouxer a biblioteca nativa do desktop, usa-se `androidx.sqlite:sqlite-bundled-jvm` no classpath de teste, um alvo `jvm()` ou `iosSimulatorArm64Test`;
-3. o plugin de biblioteca KMP do AGP convive com o módulo `snapshots`.
+Um spike em 2026-10-09 validou o conjunto abaixo (Gradle 9.8.1; AGP 9.4.1 com o DSL novo; Kotlin 2.4.21; Compose Multiplatform 1.12.1; KSP 2.3.12; Room 2.8.5 + `sqlite-bundled` 2.6.2; **Paparazzi 2.0.0-alpha05**; **JDK 21**). O **primeiro passo do plano** o reproduz e fixa no catálogo, junto com Ktor, Koin, Coil, Kermit, Turbine, AssertK e as bibliotecas de navegação/lifecycle. O que o spike provou:
+1. **Paparazzi:** o 1.3.5 (estável) **não** funciona com o Gradle atual (gerador de relatório quebra) nem com o AGP 9 (`BaseExtension`). O 2.0.0-alpha05 funciona com o AGP 9.4.1 e **exige JDK 21** (bytecode 65). É uma versão alpha: decisão [DR] aceita, com Roborazzi como fallback (ADR-0010 atualizado na 5a).
+2. **Recursos do Compose Multiplatform no Paparazzi:** `Res.string`/`Res.font` só resolvem se o teste chamar `setResourceReaderAndroidContext(paparazzi.context)` (API experimental) antes do snapshot; o `PreviewContextConfigurationEffect()` não basta (só age em modo de inspeção). O módulo KMP precisa de `androidResources { enable = true }`.
+3. **Room:** o `BundledSQLiteDriver` com banco em memória roda na JVM do host a partir de um alvo `jvm()` em `core:database`, usado **só para testes** (`jvmTest`); o `androidUnitTest` exigiria Robolectric/contexto Android. KSP (`kspAndroid`, `kspIosArm64`, `kspIosSimulatorArm64`, `kspJvm`) e a compilação para iOS e Android passam.
+4. **Plugin Android:** módulos KMP usam `com.android.kotlin.multiplatform.library` (bloco `android { }`); `snapshots` usa `com.android.library` sem `kotlin-android` (Kotlin embutido no AGP 9). Dependências do Compose com coordenadas explícitas (os atalhos `compose.*` estão obsoletos).
 
-Se o Paparazzi não fechar com o conjunto, troca-se por Roborazzi (ADR-0010) e registra-se um ADR.
+Se um passo do plano divergir do spike (por exemplo, nova versão estável do Paparazzi), a troca vira ADR.
 
 ## 4. Camada de dados (`core:data`)
 
@@ -117,7 +118,7 @@ Se o Paparazzi não fechar com o conjunto, troca-se por Roborazzi (ADR-0010) e r
 ## 8. Testes e CI
 
 - **Lógica:** `commonTest` com `kotlin.test`, Turbine e AssertK, em todas as fatias (ver decisões, §1). ADR registra o desvio do §10 do spec geral.
-- **Snapshots:** módulo `snapshots` (`com.android.library` + Paparazzi) depende de `core:design-system` e, a partir da 5b, de cada `feature/*/presentation`; renderiza o componente nos temas claro e escuro e com fonte 1.0×, 1.3× e 2.0× (matriz: **todas** as escalas nos **dois** temas). Referências gravadas no repositório. A tela da splash **não** entra: é da SplashScreen API do sistema (o ícone tem preview próprio).
+- **Snapshots:** módulo `snapshots` (`com.android.library` + Paparazzi) depende de `core:design-system` e, a partir da 5b, de cada `feature/*/presentation`; renderiza o componente nos temas claro e escuro e com fonte 1.0×, 1.3× e 2.0× (matriz: **todas** as escalas nos **dois** temas). Os testes de snapshot são os únicos em JUnit4 (a regra do Paparazzi); toda a lógica usa `kotlin.test`. Referências gravadas no repositório. A tela da splash **não** entra: é da SplashScreen API do sistema (o ícone tem preview próprio).
 - **CI (GitHub Actions):** job Linux — `ktlintCheck`, `detekt`, testes, `verifyPaparazzi`, `assembleDebug`, `osv-scanner`; job macOS — `linkDebugFrameworkIosSimulatorArm64`. Cache do Gradle. gitleaks e Dependabot (Gradle e Actions) desde o primeiro commit.
 - **Segredos/segurança:** nenhum segredo no app; R8 no release; HTTPS-only fora do debug (Android e iOS); sem certificate pinning (ADR-0008).
 - **ADRs:** cada decisão vira ADR **na fatia que a toma** (5a: framework de teste e módulo `snapshots` Android puro, com a atualização do ADR-0010; 5c: mapa e `AudioPlayer`; 5e: o que restar).
@@ -133,8 +134,9 @@ Se o Paparazzi não fechar com o conjunto, troca-se por Roborazzi (ADR-0010) e r
 |---|---|
 | Incompatibilidade entre AGP, plugin KMP-library, Room KSP e Paparazzi | Primeiro passo do plano valida o conjunto; fallback Roborazzi com ADR |
 | Paparazzi não roda em módulo KMP | Módulo `snapshots` Android puro (já no desenho) |
-| Paparazzi não resolve `Res.font`/`Res.string` do Compose Multiplatform | Snapshot do selo já os usa (critério 4); fallback: fonte/strings injetadas por parâmetro nos snapshots, registrado em ADR |
-| `BundledSQLiteDriver` sem biblioteca nativa no teste da JVM do host | Prova no primeiro passo (§3); alternativas listadas |
+| Paparazzi não resolve `Res.font`/`Res.string` do Compose Multiplatform | Resolvido com `setResourceReaderAndroidContext` (§3, ponto 2); o snapshot do selo os usa (critério 4) |
+| Paparazzi 2.0 é alpha | Fixado em 2.0.0-alpha05 validado; fallback Roborazzi com ADR |
+| `BundledSQLiteDriver` sem biblioteca nativa no teste da JVM do host | Resolvido pelo alvo `jvm()` de teste (§3, ponto 3) |
 | Xcode/Gradle no macOS do CI consumindo minutos | Job iOS só linka o framework; repositório público tem minutos gratuitos |
 | Aparelho físico não alcança o compose | `docker-compose.device.yml` opcional e `bff.baseUrl` em `local.properties` |
 | Mídia local com `localhost` no emulador | Reescrita de host só em debug |
