@@ -24,11 +24,19 @@ Esquema Material 3. Os nomes dos papéis são os mesmos de `ColorScheme` no Comp
 | `onError` | `#FFFFFF` | `#690005` |
 | `errorContainer` | `#FFDAD6` | `#93000A` |
 | `onErrorContainer` | `#410002` | `#FFDAD6` |
+| `background` | `#F6FBF3` | `#101410` |
+| `onBackground` | `#181D18` | `#E0E4DC` |
 | `surface` | `#F6FBF3` | `#101410` |
 | `onSurface` | `#181D18` | `#E0E4DC` |
 | `surfaceVariant` | `#DCE5DB` | `#414942` |
 | `onSurfaceVariant` | `#414942` | `#C0C9BF` |
+| `surfaceDim` | `#D7DBD4` | `#101410` |
+| `surfaceBright` | `#F6FBF3` | `#363A35` |
+| `surfaceContainerLowest` | `#FFFFFF` | `#0B0F0B` |
+| `surfaceContainerLow` | `#F0F5ED` | `#181D18` |
 | `surfaceContainer` | `#EAF0E8` | `#1C211C` |
+| `surfaceContainerHigh` | `#E4EAE2` | `#272B26` |
+| `surfaceContainerHighest` | `#DFE4DC` | `#323630` |
 | `outline` | `#717971` | `#97A097` |
 | `outlineVariant` | `#C0C9BF` | `#414942` |
 | `inverseSurface` | `#2D322D` | `#E0E4DC` |
@@ -56,11 +64,19 @@ val PassarimLightColors = lightColorScheme(
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFFFDAD6),
     onErrorContainer = Color(0xFF410002),
+    background = Color(0xFFF6FBF3),
+    onBackground = Color(0xFF181D18),
     surface = Color(0xFFF6FBF3),
     onSurface = Color(0xFF181D18),
     surfaceVariant = Color(0xFFDCE5DB),
     onSurfaceVariant = Color(0xFF414942),
+    surfaceDim = Color(0xFFD7DBD4),
+    surfaceBright = Color(0xFFF6FBF3),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF0F5ED),
     surfaceContainer = Color(0xFFEAF0E8),
+    surfaceContainerHigh = Color(0xFFE4EAE2),
+    surfaceContainerHighest = Color(0xFFDFE4DC),
     outline = Color(0xFF717971),
     outlineVariant = Color(0xFFC0C9BF),
     inverseSurface = Color(0xFF2D322D),
@@ -86,11 +102,19 @@ val PassarimDarkColors = darkColorScheme(
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
+    background = Color(0xFF101410),
+    onBackground = Color(0xFFE0E4DC),
     surface = Color(0xFF101410),
     onSurface = Color(0xFFE0E4DC),
     surfaceVariant = Color(0xFF414942),
     onSurfaceVariant = Color(0xFFC0C9BF),
+    surfaceDim = Color(0xFF101410),
+    surfaceBright = Color(0xFF363A35),
+    surfaceContainerLowest = Color(0xFF0B0F0B),
+    surfaceContainerLow = Color(0xFF181D18),
     surfaceContainer = Color(0xFF1C211C),
+    surfaceContainerHigh = Color(0xFF272B26),
+    surfaceContainerHighest = Color(0xFF323630),
     outline = Color(0xFF97A097),
     outlineVariant = Color(0xFF414942),
     inverseSurface = Color(0xFFE0E4DC),
@@ -119,7 +143,12 @@ Família única **Manrope** (variável, embarcada no app). Itálico (nome cient�
 
 | Estilo | Tamanho | Linha | Peso | Tracking |
 |---|---|---|---|---|
+| `displayLarge` | 57 | 64 | 700 | -0.25 |
+| `displayMedium` | 45 | 52 | 700 | 0 |
+| `displaySmall` | 36 | 44 | 700 | 0 |
+| `headlineLarge` | 32 | 40 | 700 | 0 |
 | `headlineMedium` | 28 | 36 | 700 | 0 |
+| `headlineSmall` | 24 | 32 | 700 | 0 |
 | `titleLarge` | 22 | 28 | 700 | 0 |
 | `titleMedium` | 16 | 24 | 600 | 0.15 |
 | `titleSmall` | 14 | 20 | 600 | 0.1 |
@@ -127,6 +156,7 @@ Família única **Manrope** (variável, embarcada no app). Itálico (nome cient�
 | `bodyMedium` | 14 | 20 | 400 | 0.25 |
 | `bodySmall` | 12 | 16 | 400 | 0.4 |
 | `labelLarge` | 14 | 20 | 600 | 0.1 |
+| `labelMedium` | 12 | 16 | 600 | 0.5 |
 | `labelSmall` | 11 | 16 | 600 | 0.5 |
 
 ## Forma e espaço

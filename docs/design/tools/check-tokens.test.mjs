@@ -62,3 +62,16 @@ test('protege o toggle desligado (outline sobre surfaceVariant) e o ícone de er
   u.color.light.error = '#D8A8A4';
   assert.ok(checkTokens(u).some((x) => x.kind === 'contrast' && x.theme === 'light' && x.bg === 'surfaceVariant' && x.fg === 'error'));
 });
+
+test('cobre todos os papéis de cor e os 15 estilos de tipografia do Material 3 (nada cai no baseline do Compose)', () => {
+  const t = loadTokens();
+  const m3Roles = ['background', 'onBackground', 'surfaceDim', 'surfaceBright', 'surfaceContainerLowest', 'surfaceContainerLow', 'surfaceContainerHigh', 'surfaceContainerHighest'];
+  for (const theme of ['light', 'dark']) for (const r of m3Roles) assert.ok(r in t.color[theme], `${theme}.${r}`);
+  const styles = ['displayLarge', 'displayMedium', 'displaySmall', 'headlineLarge', 'headlineMedium', 'headlineSmall', 'titleLarge', 'titleMedium', 'titleSmall', 'bodyLarge', 'bodyMedium', 'bodySmall', 'labelLarge', 'labelMedium', 'labelSmall'];
+  assert.deepEqual(Object.keys(t.type.styles).sort(), [...styles].sort());
+});
+
+test('fundo único: background é igual a surface nos dois temas', () => {
+  const t = loadTokens();
+  for (const theme of ['light', 'dark']) assert.equal(t.color[theme].background, t.color[theme].surface);
+});

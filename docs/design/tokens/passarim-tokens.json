@@ -10,9 +10,12 @@
       "tertiaryContainer": "#FFDEA3", "onTertiaryContainer": "#261900",
       "error": "#BA1A1A", "onError": "#FFFFFF",
       "errorContainer": "#FFDAD6", "onErrorContainer": "#410002",
+      "background": "#F6FBF3", "onBackground": "#181D18",
       "surface": "#F6FBF3", "onSurface": "#181D18",
       "surfaceVariant": "#DCE5DB", "onSurfaceVariant": "#414942",
-      "surfaceContainer": "#EAF0E8",
+      "surfaceDim": "#D7DBD4", "surfaceBright": "#F6FBF3",
+      "surfaceContainerLowest": "#FFFFFF", "surfaceContainerLow": "#F0F5ED",
+      "surfaceContainer": "#EAF0E8", "surfaceContainerHigh": "#E4EAE2", "surfaceContainerHighest": "#DFE4DC",
       "outline": "#717971", "outlineVariant": "#C0C9BF",
       "inverseSurface": "#2D322D", "inverseOnSurface": "#EEF2EB", "inversePrimary": "#8BD89D",
       "scrim": "#000000"
@@ -26,9 +29,12 @@
       "tertiaryContainer": "#5E4200", "onTertiaryContainer": "#FFDEA3",
       "error": "#FFB4AB", "onError": "#690005",
       "errorContainer": "#93000A", "onErrorContainer": "#FFDAD6",
+      "background": "#101410", "onBackground": "#E0E4DC",
       "surface": "#101410", "onSurface": "#E0E4DC",
       "surfaceVariant": "#414942", "onSurfaceVariant": "#C0C9BF",
-      "surfaceContainer": "#1C211C",
+      "surfaceDim": "#101410", "surfaceBright": "#363A35",
+      "surfaceContainerLowest": "#0B0F0B", "surfaceContainerLow": "#181D18",
+      "surfaceContainer": "#1C211C", "surfaceContainerHigh": "#272B26", "surfaceContainerHighest": "#323630",
       "outline": "#97A097", "outlineVariant": "#414942",
       "inverseSurface": "#E0E4DC", "inverseOnSurface": "#2D322D", "inversePrimary": "#1A6D3C",
       "scrim": "#000000"
@@ -59,7 +65,12 @@
   "type": {
     "family": "Manrope",
     "styles": {
+      "displayLarge":   { "size": 57, "line": 64, "weight": 700, "tracking": -0.25 },
+      "displayMedium":  { "size": 45, "line": 52, "weight": 700, "tracking": 0 },
+      "displaySmall":   { "size": 36, "line": 44, "weight": 700, "tracking": 0 },
+      "headlineLarge":  { "size": 32, "line": 40, "weight": 700, "tracking": 0 },
       "headlineMedium": { "size": 28, "line": 36, "weight": 700, "tracking": 0 },
+      "headlineSmall":  { "size": 24, "line": 32, "weight": 700, "tracking": 0 },
       "titleLarge":     { "size": 22, "line": 28, "weight": 700, "tracking": 0 },
       "titleMedium":    { "size": 16, "line": 24, "weight": 600, "tracking": 0.15 },
       "titleSmall":     { "size": 14, "line": 20, "weight": 600, "tracking": 0.1 },
@@ -67,6 +78,7 @@
       "bodyMedium":     { "size": 14, "line": 20, "weight": 400, "tracking": 0.25 },
       "bodySmall":      { "size": 12, "line": 16, "weight": 400, "tracking": 0.4 },
       "labelLarge":     { "size": 14, "line": 20, "weight": 600, "tracking": 0.1 },
+      "labelMedium":    { "size": 12, "line": 16, "weight": 600, "tracking": 0.5 },
       "labelSmall":     { "size": 11, "line": 16, "weight": 600, "tracking": 0.5 }
     }
   },

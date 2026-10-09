@@ -25,11 +25,19 @@
   --md-on-error:#FFFFFF;
   --md-error-container:#FFDAD6;
   --md-on-error-container:#410002;
+  --md-background:#F6FBF3;
+  --md-on-background:#181D18;
   --md-surface:#F6FBF3;
   --md-on-surface:#181D18;
   --md-surface-variant:#DCE5DB;
   --md-on-surface-variant:#414942;
+  --md-surface-dim:#D7DBD4;
+  --md-surface-bright:#F6FBF3;
+  --md-surface-container-lowest:#FFFFFF;
+  --md-surface-container-low:#F0F5ED;
   --md-surface-container:#EAF0E8;
+  --md-surface-container-high:#E4EAE2;
+  --md-surface-container-highest:#DFE4DC;
   --md-outline:#717971;
   --md-outline-variant:#C0C9BF;
   --md-inverse-surface:#2D322D;
@@ -66,11 +74,19 @@
   --md-on-error:#690005;
   --md-error-container:#93000A;
   --md-on-error-container:#FFDAD6;
+  --md-background:#101410;
+  --md-on-background:#E0E4DC;
   --md-surface:#101410;
   --md-on-surface:#E0E4DC;
   --md-surface-variant:#414942;
   --md-on-surface-variant:#C0C9BF;
+  --md-surface-dim:#101410;
+  --md-surface-bright:#363A35;
+  --md-surface-container-lowest:#0B0F0B;
+  --md-surface-container-low:#181D18;
   --md-surface-container:#1C211C;
+  --md-surface-container-high:#272B26;
+  --md-surface-container-highest:#323630;
   --md-outline:#97A097;
   --md-outline-variant:#414942;
   --md-inverse-surface:#E0E4DC;
@@ -90,7 +106,12 @@
   --cons-ew-bg:#44306A;
   --cons-ew-fg:#E8DDFF;
 }
+.t-displayLarge{font-size:3.5625rem;line-height:4rem;font-weight:700;letter-spacing:-0.25px}
+.t-displayMedium{font-size:2.8125rem;line-height:3.25rem;font-weight:700;letter-spacing:0px}
+.t-displaySmall{font-size:2.25rem;line-height:2.75rem;font-weight:700;letter-spacing:0px}
+.t-headlineLarge{font-size:2rem;line-height:2.5rem;font-weight:700;letter-spacing:0px}
 .t-headlineMedium{font-size:1.75rem;line-height:2.25rem;font-weight:700;letter-spacing:0px}
+.t-headlineSmall{font-size:1.5rem;line-height:2rem;font-weight:700;letter-spacing:0px}
 .t-titleLarge{font-size:1.375rem;line-height:1.75rem;font-weight:700;letter-spacing:0px}
 .t-titleMedium{font-size:1rem;line-height:1.5rem;font-weight:600;letter-spacing:0.15px}
 .t-titleSmall{font-size:0.875rem;line-height:1.25rem;font-weight:600;letter-spacing:0.1px}
@@ -98,4 +119,5 @@
 .t-bodyMedium{font-size:0.875rem;line-height:1.25rem;font-weight:400;letter-spacing:0.25px}
 .t-bodySmall{font-size:0.75rem;line-height:1rem;font-weight:400;letter-spacing:0.4px}
 .t-labelLarge{font-size:0.875rem;line-height:1.25rem;font-weight:600;letter-spacing:0.1px}
+.t-labelMedium{font-size:0.75rem;line-height:1rem;font-weight:600;letter-spacing:0.5px}
 .t-labelSmall{font-size:0.6875rem;line-height:1rem;font-weight:600;letter-spacing:0.5px}
