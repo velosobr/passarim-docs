@@ -94,6 +94,19 @@ docker compose up -d --wait
 | Jaeger | <http://localhost:16686> |
 | Object storage (arquivos) | <http://localhost:8888> — a mídia fica no bucket `passarim-media` |
 
+### Testando o app num aparelho físico
+
+O compose publica tudo só em `127.0.0.1`. O emulador Android (`10.0.2.2`) e o simulador iOS (`localhost`) alcançam o
+computador sem mudar nada, mas um aparelho físico não. Para esse caso, suba com o override opcional, que republica
+só o BFF (Traefik) e a mídia (porta `HOST_PORT_S3_UI`) em todas as interfaces:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.device.yml up -d --wait
+```
+
+Use **apenas em rede confiável** e só para teste local. Depois configure o endereço do computador no app (veja o
+README do `passarim-app`).
+
 ## Demonstração: derrubar uma réplica do BFF
 
 O BFF roda em duas réplicas (`bff-1` e `bff-2`) atrás do Traefik. Para ver o balanceamento:
