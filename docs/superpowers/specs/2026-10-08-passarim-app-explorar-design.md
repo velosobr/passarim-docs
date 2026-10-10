@@ -12,7 +12,7 @@ A aba **Explorar**: grade de aves em 2 colunas, busca por nome, filtros de bioma
 1. Com o compose no ar, Explorar lista as aves reais, rola e carrega as próximas páginas até o fim (`nextCursor == null`), sem itens repetidos.
 2. Buscar "azul" mostra as aves cujo nome contém "azul" (4 no seed atual: Arara-azul-grande, Ararinha-azul, Gralha-azul e Udu-de-coroa-azul); combinar com um bioma sem resultado mostra o estado vazio com "Limpar filtros".
 3. O sheet de filtros mostra biomas e estados com as contagens de `GET /v1/filters`; aplicar e limpar funciona; os filtros selecionados aparecem como chips selecionados.
-4. Derrubar a rede mostra "Sem conexão" com "Tentar novamente" e "Ver favoritos"; parar as duas réplicas do BFF (o Traefik passa a responder 404 `text/plain`) mostra "Serviço indisponível", **não** "ave não encontrada" (regra de `safeCall` da 5a).
+4. Derrubar a rede mostra "Sem conexão" com "Tentar novamente" e "Ver favoritos"; parar as duas réplicas do BFF (o Traefik passa a responder sem `problem+json`: 404 `text/plain` ou 503) mostra "Serviço indisponível", **não** "ave não encontrada" (regra de `safeCall` da 5a).
 5. Tocar num card navega para `DetailRoute(id)` (a tela real chega na 5c; até lá, o placeholder do `app`).
 6. Com fonte 2.0×, a grade passa para **1 coluna** e nenhum texto é cortado (§5).
 7. Snapshots Paparazzi de grade, loading, vazio, erro e sheet de filtros em claro e escuro, cada um em 1.0×, 1.3× e 2.0×; testes de ViewModel verdes; CI verde.
@@ -68,3 +68,7 @@ A aba **Explorar**: grade de aves em 2 colunas, busca por nome, filtros de bioma
 ## 8. Decisões do redator **[DR]**
 
 `limit` 20; debounce 400 ms; pré-carga a 6 itens do fim; favoritos em memória até a 5d; filtros em memória por sessão; seleção única por grupo no sheet; sem contador de resultados; 1 coluna a partir de `fontScale` 1.5.
+
+## 9. Ajustes da implementação (2026-10-10)
+
+Validados no esqueleto da fatia e detalhados no plano (`docs/superpowers/plans/2026-10-10-passarim-app-5b-explorar.md`, seção "Diferenças em relação à spec"): bioma e estado como códigos `String` (sem `BiomeCode`/`StateCode`); `Filters` e `FiltersRepository` continuam em `core:domain`, só a implementação vai para `feature:explore:data`; `filtersSheetOpen` vira `sheet: FiltersSheetState?` (com as escolhas ainda não aplicadas); um único `Job` de carregamento no lugar de `collectLatest`; sem o evento de mensagem pontual (nenhum caso na 5b); busca e chips visíveis em todas as fases; o texto do vazio não cita o bioma; `ScreenError` novo em `core:presentation`; Coil no `core:design-system` (o `SpeciesCard` mostra a foto).
