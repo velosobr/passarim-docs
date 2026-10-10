@@ -1,6 +1,6 @@
 # ADR-0010: Paparazzi para testes de snapshot
 
-- **Status:** Aceita
+- **Status:** Substituída por ADR-0017
 - **Data:** 2026-10-01
 
 ## Contexto

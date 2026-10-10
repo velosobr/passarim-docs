@@ -1,0 +1,20 @@
+# Override OPCIONAL para testar o app num aparelho físico na mesma rede (Wi-Fi) do seu computador.
+#
+# O compose normal publica tudo só em 127.0.0.1. Aqui republicamos apenas o que o app precisa
+# alcançar — o Traefik (BFF) e o navegador de arquivos do SeaweedFS (mídia) — em todas as
+# interfaces. USE SÓ EM REDE CONFIÁVEL e só para teste local: nunca em produção.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.device.yml up -d
+#
+# `!override` (Compose >= 2.24) SUBSTITUI a lista de portas; sem ele o Compose somaria os dois
+# mapeamentos e a mesma porta do host seria publicada duas vezes.
+services:
+  traefik:
+    ports: !override
+      - "0.0.0.0:${HOST_PORT_TRAEFIK_HTTP}:80"
+      - "127.0.0.1:${HOST_PORT_TRAEFIK_DASHBOARD}:8081" # o dashboard continua só local
+  objectstorage:
+    ports: !override
+      - "127.0.0.1:${HOST_PORT_S3}:8333" # a API S3 (com credenciais) continua só local
+      - "0.0.0.0:${HOST_PORT_S3_UI}:8888" # mídia: o app baixa fotos e cantos daqui
