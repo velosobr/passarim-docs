@@ -3420,6 +3420,8 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
     OTHER_LDFLAGS: "-framework PassarimApp"
+    # O framework só existe para iosSimulatorArm64: sem isto, o destino genérico também compila x86_64.
+    EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
   configs:
     Debug:
       INFOPLIST_FILE: iosApp/Info-Debug.plist
@@ -3718,6 +3720,8 @@ git commit -m "feat: iosApp gerado por XcodeGen com ATS só no Debug, ícone e L
 - Consumes: `PassarimTheme`, `ConservationBadge` (Task 6); `ConservationStatus` (Task 2).
 - Produces: 6 referências (claro e escuro × fonte 1.0×, 1.3×, 2.0×). A partir da 5b cada `feature/*/presentation` também entra como `implementation` deste módulo. O módulo precisa de `implementation(projects.core.designSystem)` — com `testImplementation` o Paparazzi não vê os assets (recursos do Compose).
 
+Os parâmetros do teste são **percentuais inteiros** (100, 130, 200), não `Float`: o nome do teste vira nome do arquivo de referência, e um `Float` formata como `1,3` ou `1.3` conforme o locale da máquina (referência gravada no Mac, verificada no Linux do CI — a primeira execução do CI falhou por isso).
+
 - [ ] **Step 1: Escrever o teste e a configuração**
 
 `build-logic/src/main/kotlin/passarim.paparazzi.gradle.kts`
@@ -3803,7 +3807,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class ConservationBadgeSnapshotTest(
     private val dark: Boolean,
-    private val fontScale: Float,
+    private val fontScalePercent: Int,
 ) {
     @get:Rule
     val paparazzi =
@@ -3811,7 +3815,7 @@ class ConservationBadgeSnapshotTest(
             deviceConfig =
                 DeviceConfig.PIXEL_5.copy(
                     nightMode = if (dark) NightMode.NIGHT else NightMode.NOTNIGHT,
-                    fontScale = fontScale,
+                    fontScale = fontScalePercent / 100f,
                 ),
         )
 
@@ -3823,7 +3827,7 @@ class ConservationBadgeSnapshotTest(
 
     @Test
     fun allStatuses() {
-        val name = "${if (dark) "dark" else "light"}-${fontScale}x"
+        val name = "${if (dark) "dark" else "light"}-${fontScalePercent / 100f}x"
         paparazzi.snapshot(name) {
             PassarimTheme(darkTheme = dark) {
                 Surface(color = MaterialTheme.colorScheme.background) {
@@ -3837,8 +3841,10 @@ class ConservationBadgeSnapshotTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "dark={0}, fontScale={1}")
-        fun params(): List<Array<Any>> = listOf(false, true).flatMap { dark -> listOf(1.0f, 1.3f, 2.0f).map { arrayOf<Any>(dark, it) } }
+        // Percentuais inteiros: um Float no nome do teste viraria "1,3" ou "1.3" conforme o locale da máquina,
+        // e o nome vira nome de arquivo de referência (gravado no Mac, verificado no Linux do CI).
+        @Parameterized.Parameters(name = "dark={0}, fontScale={1}%")
+        fun params(): List<Array<Any>> = listOf(false, true).flatMap { dark -> listOf(100, 130, 200).map { arrayOf<Any>(dark, it) } }
     }
 }
 ```
@@ -4435,4 +4441,11 @@ gh repo create velosobr/passarim-app --public --source . --remote origin --push
 gh run watch --exit-status
 ```
 
-Expected: o repositório existe e o CI roda; os jobs `android`, `security`, `secrets` e `ios` ficam verdes. Se o job `android` reclamar de plataforma ou licença do Android SDK, instale `platforms;android-37.0` no workflow (`sdkmanager`) e registre a decisão. Depois, marque a 5a como concluída e siga para o plano da 5b.
+Expected: o repositório existe e o CI roda; os jobs `android`, `security`, `secrets` e `ios` ficam verdes.
+
+**O que a primeira publicação (2026-10-10) mostrou**, para quem for reexecutar: o primeiro CI falhou em três pontos, todos corrigidos (veja o commit "fix: snapshots com nome independente de locale e iOS só para simulador arm64"):
+1. **Snapshots no Linux:** as referências com `fontScale=1,3` no nome não existiam no CI (locale) → parâmetros em percentuais inteiros (Task 11). O Android SDK 37 e a licença **não** deram problema no runner.
+2. **iOS:** o destino `generic/platform=iOS Simulator` compilava também `x86_64`, que o framework não tem (`Unknown iOS simulator arch: 'x86_64'`) → `EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64` no `project.yml` (Task 10).
+3. **gitleaks:** no **primeiro push** o intervalo `<commit raiz>^..HEAD` não existe (`ambiguous argument`), então esse job falha uma vez e passa nos pushes seguintes; não é um defeito do repositório.
+
+Na segunda execução os quatro jobs passaram. O Dependabot abre PRs de atualização logo após a criação (a primeira varredura): revise um a um, os saltos de versão maior de actions (por exemplo `actions/checkout` 4 → 7) merecem atenção. Depois, marque a 5a como concluída e siga para o plano da 5b.
