@@ -3,7 +3,7 @@ import { contrastRatio } from './contrast.mjs';
 import { loadTokens, isMain } from './paths.mjs';
 
 export const THEMES = ['light', 'dark'];
-export const STATUSES = ['LC', 'NT', 'VU', 'EN', 'CR', 'EW'];
+export const STATUSES = ['LC', 'NT', 'VU', 'EN', 'CR', 'EW', 'EX', 'DD'];
 
 export const REQUIRED_ROLES = [
   'primary', 'onPrimary', 'primaryContainer', 'onPrimaryContainer',

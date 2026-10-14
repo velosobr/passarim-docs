@@ -56,6 +56,10 @@
   --cons-cr-fg:#5C0008;
   --cons-ew-bg:#E1D5F0;
   --cons-ew-fg:#2E1A4D;
+  --cons-ex-bg:#DDDDDD;
+  --cons-ex-fg:#1F1F1F;
+  --cons-dd-bg:#D3E4F5;
+  --cons-dd-fg:#14304D;
 }
 [data-theme="dark"]{
   --md-primary:#7DDB97;
@@ -105,6 +109,10 @@
   --cons-cr-fg:#FFDAD6;
   --cons-ew-bg:#44306A;
   --cons-ew-fg:#E8DDFF;
+  --cons-ex-bg:#3C3C3C;
+  --cons-ex-fg:#E3E3E3;
+  --cons-dd-bg:#22405E;
+  --cons-dd-fg:#D3E4F5;
 }
 .t-displayLarge{font-size:3.5625rem;line-height:4rem;font-weight:700;letter-spacing:-0.25px}
 .t-displayMedium{font-size:2.8125rem;line-height:3.25rem;font-weight:700;letter-spacing:0px}

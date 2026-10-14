@@ -136,6 +136,8 @@ Fundo / texto do selo, por tema. Contraste mínimo 4.5:1 verificado por `tools/c
 | `EN` | Em perigo | `#FFC9A3` / `#5A2200` | `#6E3000` / `#FFC9A3` |
 | `CR` | Criticamente em perigo | `#FFB4AB` / `#5C0008` | `#8A1018` / `#FFDAD6` |
 | `EW` | Extinta na natureza | `#E1D5F0` / `#2E1A4D` | `#44306A` / `#E8DDFF` |
+| `EX` | Extinta | `#DDDDDD` / `#1F1F1F` | `#3C3C3C` / `#E3E3E3` |
+| `DD` | Dados insuficientes | `#D3E4F5` / `#14304D` | `#22405E` / `#D3E4F5` |
 
 ## Tipografia
 

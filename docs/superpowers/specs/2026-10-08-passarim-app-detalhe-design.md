@@ -88,3 +88,15 @@ O contrato devolve `conservationStatus.code ∈ {LC, NT, VU, EN, CR, EW, EX, DD}
 ## 10. Decisões do redator **[DR]**
 
 OpenFreeMap + `maplibre-compose`; `AudioPlayer` próprio (`expect/actual`) em vez de biblioteca KMP de mídia; sem tela cheia da galeria; só links `https`; sem cache de áudio; status desconhecido = selo oculto; EX/DD aprovados; lista de estados como único fallback do mapa.
+
+## 11. Ajustes na implementação (2026-10-13)
+
+Decididos na validação do esqueleto da fatia; o detalhe e o porquê de cada um estão no plano `docs/superpowers/plans/2026-10-13-passarim-app-5c-detalhe.md` ("Diferenças em relação à spec"):
+
+- **MapLibre sem pacote no Xcode (§6, critério 7):** o `maplibre-compose` 0.19 já traz o MapLibre nativo no klib. No Android entra o runtime `maplibre-native-ffi-runtime-opengl`. O critério 7 continua valendo: o `xcodebuild` do `iosApp` compila com o mapa.
+- **Xcode 26.4 e iOS 16:** o Kotlin 2.4.21 compila contra o SDK do iOS 26.4, e os testes iOS dos módulos com mapa só linkam com ele. As bibliotecas nativas do MapLibre pedem iOS 15.5+, e o mínimo do app passa a ser o iOS 16.
+- **Atribuição (§6):** "© OpenFreeMap © OpenMapTiles · dados © OpenStreetMap", que é a atribuição declarada pelo próprio estilo.
+- **Clusters (§6):** o app reagrupa os clusters do BFF (soma das contagens), porque eles se sobrepõem num mapa de 200 dp. O mapa é estático, dentro da tela rolável.
+- **Fallback do mapa (§6):** o limite de 10 s vale para o **estilo** carregar. Falha de tiles individuais não é detectável com segurança, como já previa o "melhor esforço".
+- **Galeria (§1):** a primeira foto fica no hero, com o crédito logo abaixo, e a galeria mostra as demais.
+- **Mídia do catálogo:** o worker gerava WebP inválido para o Android (tamanho do RIFF zerado ao escrever num pipe com o ffmpeg 6.1). A correção é no `passarim-catalog` (`-f image2pipe`), e a mídia de cada ambiente deve ser reprocessada depois dela.

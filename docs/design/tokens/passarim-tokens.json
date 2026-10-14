@@ -42,7 +42,8 @@
   },
   "conservationLabels": {
     "LC": "Pouco preocupante", "NT": "Quase ameaçada", "VU": "Vulnerável",
-    "EN": "Em perigo", "CR": "Criticamente em perigo", "EW": "Extinta na natureza"
+    "EN": "Em perigo", "CR": "Criticamente em perigo", "EW": "Extinta na natureza",
+    "EX": "Extinta", "DD": "Dados insuficientes"
   },
   "conservation": {
     "light": {
@@ -51,7 +52,9 @@
       "VU": { "bg": "#FFE08A", "fg": "#4A3600" },
       "EN": { "bg": "#FFC9A3", "fg": "#5A2200" },
       "CR": { "bg": "#FFB4AB", "fg": "#5C0008" },
-      "EW": { "bg": "#E1D5F0", "fg": "#2E1A4D" }
+      "EW": { "bg": "#E1D5F0", "fg": "#2E1A4D" },
+      "EX": { "bg": "#DDDDDD", "fg": "#1F1F1F" },
+      "DD": { "bg": "#D3E4F5", "fg": "#14304D" }
     },
     "dark": {
       "LC": { "bg": "#1F4A2C", "fg": "#BDF0C8" },
@@ -59,7 +62,9 @@
       "VU": { "bg": "#5E4800", "fg": "#FFE08A" },
       "EN": { "bg": "#6E3000", "fg": "#FFC9A3" },
       "CR": { "bg": "#8A1018", "fg": "#FFDAD6" },
-      "EW": { "bg": "#44306A", "fg": "#E8DDFF" }
+      "EW": { "bg": "#44306A", "fg": "#E8DDFF" },
+      "EX": { "bg": "#3C3C3C", "fg": "#E3E3E3" },
+      "DD": { "bg": "#22405E", "fg": "#D3E4F5" }
     }
   },
   "type": {
