@@ -50,7 +50,7 @@ test('status ausente é reportado', () => {
 });
 
 test('as listas esperadas não encolheram', () => {
-  assert.equal(STATUSES.length, 6);
+  assert.equal(STATUSES.length, 8);
   assert.ok(REQUIRED_ROLES.includes('surfaceContainer') && REQUIRED_ROLES.includes('scrim'));
 });
 
