@@ -16,7 +16,7 @@ O `passarim-proto` já está no padrão (`catalog.proto` é o modelo de tom) e f
 
 | Repositório | Arquivos |
 |---|---|
-| `passarim-bff` | 68 `.go` (código e testes), `Dockerfile`, `Makefile`, `.golangci.yml`, workflows da CI, `openapi.yaml` (só os `description` que faltarem) |
+| `passarim-bff` | 68 `.go` (código e testes), `Dockerfile`, `Makefile`, `.golangci.yml`, workflows da CI, `openapi.yaml` (comentários `#`; os `description` ficam como estão, porque são conteúdo do contrato) |
 | `passarim-catalog` | 66 `.go` (código e testes), 8 `.sql` (migrações e consultas do sqlc), `Dockerfile`, `Dockerfile.worker`, `Makefile`, `sqlc.yaml`, `.golangci.yml`, workflows da CI |
 | `passarim-app` | 172 `.kt` (código e testes), 30 `.kts` (módulos, `build-logic`, `settings`), 2 `.swift`, 3 `.sh`, os `.xml` de manifesto e de recursos que não são só strings, `.xcconfig`, workflows da CI, `config/detekt.yml`, `.editorconfig` |
 
