@@ -24,7 +24,7 @@ Favoritos **persistentes e offline** (Room KMP) e a aba **Configurações** comp
 
 - `core/database` (esqueleto da 5a, agora completo): entidade, DAO, banco e a implementação **`LocalFavoritesRepository`** de `FavoritesRepository`. O Room fica só aqui; nenhum outro módulo depende dele.
 - `feature/favorites/presentation` (a lista de Favoritos). Sem `domain` nem `data` próprios: o repositório vive em `core:domain` (interface) e `core:database` (implementação).
-- `feature/settings/{data,presentation}`: `data` tem `DataStoreSettingsRepository` (implementação de `SettingsRepository`, interface em `core:domain` desde a 5c) e o limpador de cache; `presentation` tem Configurações, Dados e armazenamento, Sobre e Licenças.
+- `feature/settings/{data,presentation}`: `data` tem `DataStoreSettingsRepository` (implementação de `SettingsRepository`, interface em `core:domain` desde a 5c) e o limpador de cache (`CoilImageCacheCleaner`; a interface `ImageCacheCleaner` fica em `core:domain`, porque a apresentação não enxerga o `data`); `presentation` tem Configurações, Dados e armazenamento, Sobre e Licenças, cada uma com o seu ViewModel.
 - O módulo Koin do `app` **substitui** as implementações em memória da 5b (favoritos) e da 5c (configurações) por estas. `core:data` continua só com a rede.
 
 ## 3. Favoritos (Room KMP)
@@ -32,7 +32,7 @@ Favoritos **persistentes e offline** (Room KMP) e a aba **Configurações** comp
 - Entidade `FavoriteEntity(id PK, commonName, scientificName, thumbnailUrl?, addedAt)`: guarda o suficiente para listar offline sem chamar o BFF (o selo de conservação não aparece na lista, então não é guardado). Versão 1, **esquema exportado** e teste de migração preparado para a versão 2.
 - `FavoriteDao`: `observeAll(): Flow<List<FavoriteEntity>>` (ordem `addedAt DESC`), `insert`, `deleteById`, `observeIds()`.
 - `BundledSQLiteDriver` em Android e iOS; o builder do banco é `expect/actual` (caminho do arquivo por plataforma).
-- `FavoritesRepository`: `observeIds`, `observeAll`, `toggle(summary)`. Alternar duas vezes rápido não duplica nem perde (operação em transação).
+- `FavoritesRepository`: `observeIds`, `observeAll`, `toggle(summary)` e o `refresh(summary)` da 5c. Alternar duas vezes rápido não duplica nem perde (operação em transação: apaga, e insere se nada foi apagado).
 - A `thumbnailUrl` gravada pode ficar velha quando o worker troca a mídia: o Detalhe atualiza o registro ao abrir uma ave favorita (5c).
 - Miniaturas offline são **melhor esforço**: aparecem se o Coil já as tem em cache em disco; senão, placeholder "foto ilustrativa". O texto nunca depende da rede.
 - Tela: lista com miniatura, nome, científico em itálico e coração (48dp); toque abre o Detalhe por callback (`onOpenDetail`). `FavoritesState`: `Loading` | `Content(items)` | `Empty`.
@@ -41,7 +41,7 @@ Favoritos **persistentes e offline** (Room KMP) e a aba **Configurações** comp
 
 - Chaves: `theme` (`SYSTEM` | `LIGHT` | `DARK`, padrão `SYSTEM`), `dynamicColors` (padrão `false`), `autoPlay` (padrão `false`).
 - `SettingsRepository`: `observe(): Flow<Settings>` e setters. Valores inválidos no arquivo caem no padrão. O caminho do arquivo do DataStore é `expect/actual`, como o do banco.
-- O `App()` raiz coleta `Settings` e passa `darkTheme`/`dynamicColor` ao `PassarimTheme`. **Para evitar o "piscar":** no Android, `installSplashScreen().setKeepOnScreenCondition { !settingsLoaded }` mantém a splash até a primeira leitura; no iOS, a primeira leitura roda antes de compor a UI (o Launch Screen cobre o intervalo). Nenhuma leitura bloqueia a thread principal.
+- O `App()` raiz coleta `Settings` e passa `darkTheme`/`dynamicColor` ao `PassarimTheme`. **Para evitar o "piscar":** o `App()` não desenha nada até a primeira leitura; no Android, `installSplashScreen().setKeepOnScreenCondition { !settingsLoaded }` mantém a splash até lá; no iOS, o fundo do `UIViewController` cobre o intervalo (a confirmar na 5e). Nenhuma leitura bloqueia a thread principal. As barras do sistema seguem o tema do app, não o do sistema.
 - Cores dinâmicas: `expect/actual` do esquema (Android `dynamicLightColorScheme`/`dynamicDarkColorScheme` em API ≥ 31; iOS sem suporte, linha oculta). O selo de conservação não muda com elas.
 - **Dados e armazenamento:** "Limpar cache" limpa o Coil (memória e disco) e mostra confirmação inline (sem diálogo do sistema); o texto diz "cache de imagens" e avisa que favoritos são mantidos.
 - **Sobre:** versão do app (de `AppConfig`, preenchida pela plataforma), créditos conforme ADR-0007 (CC0, CC BY, CC BY-SA, CC BY-NC, CC BY-NC-SA; xeno-canto; Wikipédia; CBRO), a atribuição do mapa ("© OpenFreeMap · dados © OpenStreetMap") e dois links.
@@ -58,7 +58,7 @@ A aba Favoritos e a aba Configurações ganham destinos reais; `AboutRoute`, `St
 ## 7. Testes
 
 - **Room (em `jvmTest` de `core:database`, banco em memória com `BundledSQLiteDriver`):** inserir, remover, ordenação, toggle duplo, `observeIds`, migração preparada. O alvo `jvm()` existe só para testes (5a §3, ponto 3); isso desvia do "Room em `commonTest`" do spec geral §10 e fica registrado no ADR de testes.
-- **Configurações:** repositório com DataStore em arquivo temporário (padrões, persistência, valor inválido), ViewModel (tema, dinâmico, autoPlay, limpar cache chama o limpador e não toca favoritos).
+- **Configurações:** repositório com DataStore em arquivo temporário (padrões, persistência, valor inválido); ViewModels de Configurações (tema, dinâmico, autoPlay), de Dados e armazenamento (limpar cache chama o limpador; o ViewModel não recebe favoritos nem configurações) e de Sobre (versão e links).
 - **ViewModel de Favoritos:** vazio, conteúdo, remover.
 - **Paparazzi:** Favoritos (lista, vazio), Configurações (cada opção de tema, dinâmico ligado/desligado), Dados e armazenamento, Sobre; claro e escuro × 1.0×/1.3×/2.0×.
 - Verificação manual documentada: favoritos offline com o compose parado; troca de tema sem piscar.

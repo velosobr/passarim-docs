@@ -16,7 +16,8 @@ SQLite nativo que o teste local do Android (JVM do host) não traz.
   (`iosSimulatorArm64Test`).
 - Os **snapshots** (ADR-0017) são os únicos testes em JUnit4.
 - Os testes de **Room** rodam em `jvmTest` de `core:database`, com banco em memória e `BundledSQLiteDriver`; o alvo
-  `jvm()` existe só para isso e nenhum código de produto o usa.
+  `jvm()` existe só para isso e nenhum código de produto o usa. O `core:domain` também tem o alvo `jvm()`, porque o
+  `core:database` depende dele (etapa 5d).
 - Nomes de teste não podem ter vírgula (o Kotlin/Native rejeita `,` em nomes com crases).
 
 ## Consequências
