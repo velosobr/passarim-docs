@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Sistema visual por bioma</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 900px; height: 844px; box-sizing: border-box; padding: 48px; background: #F6FBF3; color: #181D18; font-family: Manrope, sans-serif; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A6D3C">Passarim · sistema visual</div>
+    <h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 800; letter-spacing: -0.02em">Cada bioma tem a sua luz</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #414942; max-width: 640px">Gradientes com função: identificam o bioma da ave e fazem a transição da foto para o conteúdo. O verde da marca continua sendo a cor primária; o selo de conservação nunca usa gradiente.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #063D27 0%, #0B5D3B 45%, #3FA66B 100%)">
+      <div style="font-size: 18px; font-weight: 700">Amazônia</div>
+      <div style="font-size: 12px; opacity: 0.9">#063D27 → #3FA66B</div>
+    </div>
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #0D4F45 0%, #1A6D3C 50%, #4DAA7E 100%)">
+      <div style="font-size: 18px; font-weight: 700">Mata Atlântica</div>
+      <div style="font-size: 12px; opacity: 0.9">#0D4F45 → #4DAA7E</div>
+    </div>
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #6E3A0E 0%, #A65A17 50%, #D9A13B 100%)">
+      <div style="font-size: 18px; font-weight: 700">Cerrado</div>
+      <div style="font-size: 12px; opacity: 0.9">#6E3A0E → #D9A13B</div>
+    </div>
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #5C2414 0%, #9C4A2F 50%, #D07A4E 100%)">
+      <div style="font-size: 18px; font-weight: 700">Caatinga</div>
+      <div style="font-size: 12px; opacity: 0.9">#5C2414 → #D07A4E</div>
+    </div>
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #0E3A57 0%, #1E5F8C 50%, #3E9CB5 100%)">
+      <div style="font-size: 18px; font-weight: 700">Pantanal</div>
+      <div style="font-size: 12px; opacity: 0.9">#0E3A57 → #3E9CB5</div>
+    </div>
+    <div style="height: 112px; border-radius: 28px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; color: #FFFFFF; background: linear-gradient(135deg, #3E4A12 0%, #66762A 50%, #A3AE4E 100%)">
+      <div style="font-size: 18px; font-weight: 700">Pampa</div>
+      <div style="font-size: 12px; opacity: 0.9">#3E4A12 → #A3AE4E</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 24px; background: #EAF0E8">
+      <div style="font-size: 13px; font-weight: 700; color: #1A6D3C; text-transform: uppercase; letter-spacing: 0.08em">Scrim da foto</div>
+      <div style="height: 120px; border-radius: 20px; position: relative; overflow: hidden; background: linear-gradient(160deg, #3FA66B, #0B5D3B)">
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 70%; background: linear-gradient(180deg, rgba(16,20,16,0) 0%, rgba(16,20,16,0.78) 100%)"></div>
+        <div style="position: absolute; left: 14px; bottom: 12px; color: #FFFFFF; font-weight: 700; font-size: 16px">Texto sobre a foto</div>
+      </div>
+      <div style="font-size: 13px; line-height: 1.45; color: #414942">Escurece só o rodapé da foto; o nome fica legível (4.5:1) sem tirar o card da foto.</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 24px; background: #EAF0E8">
+      <div style="font-size: 13px; font-weight: 700; color: #1A6D3C; text-transform: uppercase; letter-spacing: 0.08em">Formas expressivas</div>
+      <div style="height: 120px; display: flex; align-items: center; justify-content: space-around">
+        <svg width="72" height="72" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 C58 4 62 12 70 13 C78 14 84 9 90 16 C96 23 90 30 92 38 C94 46 100 50 98 58 C96 66 88 68 85 76 C82 84 84 92 76 96 C68 100 62 93 54 94 C46 95 40 100 32 97 C24 94 23 86 17 80 C11 74 3 72 2 63 C1 54 8 50 8 42 C8 34 2 28 7 20 C12 12 20 14 28 10 C36 6 42 4 50 4 Z" fill="#A6F4B6"></path></svg>
+        <div style="width: 64px; height: 64px; border-radius: 22px; background: #FFDEA3"></div>
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #D0E8D2"></div>
+      </div>
+      <div style="font-size: 13px; line-height: 1.45; color: #414942">"Cookie" do MaterialShapes nas miniaturas e no coração que muda de forma ao favoritar.</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 24px; background: #EAF0E8">
+      <div style="font-size: 13px; font-weight: 700; color: #1A6D3C; text-transform: uppercase; letter-spacing: 0.08em">Movimento</div>
+      <div style="height: 120px; display: flex; flex-direction: column; justify-content: center; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 10px"><div style="width: 10px; height: 10px; border-radius: 50%; background: #1A6D3C"></div><div style="font-size: 14px; font-weight: 600">Card → hero (elemento compartilhado)</div></div>
+        <div style="display: flex; align-items: center; gap: 10px"><div style="width: 10px; height: 10px; border-radius: 50%; background: #1A6D3C"></div><div style="font-size: 14px; font-weight: 600">Molas do MotionScheme expressivo</div></div>
+        <div style="display: flex; align-items: center; gap: 10px"><div style="width: 10px; height: 10px; border-radius: 50%; background: #1A6D3C"></div><div style="font-size: 14px; font-weight: 600">Desfoque nas barras sobre a foto</div></div>
+      </div>
+      <div style="font-size: 13px; line-height: 1.45; color: #414942">Tudo respeita "reduzir animações" do sistema.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":900,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

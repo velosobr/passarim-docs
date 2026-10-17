@@ -23,6 +23,11 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Não registrar em log as chamadas de `grpc.health.v1.Health` (hoje gera uma linha a cada 5 s).
 - [ ] **P3** — Servidor de métricas: adicionar `ReadTimeout`, `WriteTimeout` e `IdleTimeout`.
 - [ ] **P3** — Comentário desatualizado em `config.go` cita `/healthz`, que não existe.
+- [ ] **P3** — `internal/config/worker.go`: as obrigatórias são conferidas percorrendo um map, então o erro não cita sempre a mesma variável primeiro (o BFF já usa uma slice).
+- [ ] **P3** — `internal/adapter/postgres/ingest_repository_test.go`: o teste de corte em UTF-8 usa "ã" × 400, e o corte em 500 bytes cai numa fronteira de caractere; um prefixo de 1 byte faria o teste exercitar o caso que promete.
+- [ ] **P3** — `internal/usecase/list_filters_test.go`: o fake não tem contagens zero, então o teste não prova que as zeradas saem.
+- [ ] **P2** — `internal/adapter/safehttp/downloader.go`: o `checkIP` não bloqueia 100.64.0.0/10 (CGNAT), 0.0.0.0/8 nem IPv4 mapeado em IPv6.
+- [ ] **P3** — Comentários de fim de linha imprecisos (a frente 0 não mexe neles): `internal/usecase/ports.go:32` e `0001_init.up.sql:31` não dizem que hífen e pontuação viram espaço na busca.
 - [ ] **P3** — `GetSpecies` faz 6 leituras fora de uma transação. Limitar também o tamanho do `id`.
 - [ ] **P3** — Healthcheck assume `GRPC_ADDR` no formato `:porta`.
 - [ ] **P3** — `WaitForDB` espera mais um intervalo depois da última tentativa.
@@ -57,9 +62,14 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Dashboard Grafana: filtrar `route=~"GET /v1.*"` nos painéis de requisições e latência (sondas de /readyz e /healthz dominam em sistema parado).
 - [ ] **P3** — Ao final do projeto: publicar o Swagger UI (`docs/swagger.html`, gerado por `make swagger`) no GitHub Pages do `passarim-bff`, com um passo no CI que regenera a página a partir do `openapi.yaml`.
 
+- [ ] **P2** — Subir para Go 1.27.2 e `golang.org/x/net` 0.60.0 (GO-2026-6612, GO-2026-6613, GO-2026-6617 e CVE-2026-78669), como o catalog já fez: a CI do PR #1 falha no govulncheck e no Trivy por isso.
+- [ ] **P3** — `internal/adapter/resilience/retry.go:26`: o comentário de fim de linha do `BaseBackoff` conta o retry a partir de 0, mas o laço usa n + 1 (o primeiro retry espera até 100 ms).
+
 ## passarim-app (Etapa 5)
 
 - [ ] **P2** — No início da etapa: fazer o app enxergar o `docker compose` do desktop. O emulador Android acessa o desktop em `10.0.2.2` e o simulador iOS em `localhost`; o aparelho físico precisa do IP da rede local, e isso exige publicar a porta do Traefik além de `127.0.0.1` (só para teste, nunca no deploy). Lembrar que `MEDIA_BASE_URL` e a porta do SeaweedFS têm o mesmo problema: as URLs de mídia usam `localhost` e precisam apontar para um endereço que o aparelho alcance.
+
+- [ ] **P3** — `DataError.Network.toUiText()` (`core:presentation`) não é usado por nenhuma tela, só pelo teste: usar num aviso curto ou remover.
 
 ## passarim-docs / infraestrutura
 
@@ -69,6 +79,8 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Fixar as versões do `mermaid-cli` e do `markdownlint-cli2` no CI.
 - [ ] **P3** — Textos dos ADRs começam com letra minúscula.
 - [ ] **P3** — Dependabot e SBOM previstos na spec (§9) ainda não configurados.
+
+- [ ] **P3** — `scripts/check-comment-only.sh` (bff, catalog e app): uma linha como `/* x */ val a = 1` passa como comentário. Hoje nenhum PR usa isso; fechar o furo se o verificador continuar em uso.
 
 ## passarim-proto
 

@@ -14,6 +14,11 @@ Sem Figma: tokens em JSON, logo em SVG e mockups em HTML exportados para PNG. Tu
 
 As conservações (`LC`, `NT`, `VU`, `EN`, `CR`, `EW`) têm cor própria por tema; os rótulos em português estão em `TOKENS.md`.
 
+## Direções 2026 (Passarim e Passarim Kids)
+
+A proposta de redesign moderno e da versão infantil, com tokens, padrões e a pesquisa que a embasou, está em
+[`direcoes-2026/`](direcoes-2026/README.md).
+
 ## Telas
 
 `splash` · `explorar` · `busca-ativa` · `explorar-vazio` · `filtros` · `detalhe` · `loading-explorar` · `loading-detalhe` · `favoritos` · `favoritos-vazio` · `configuracoes` · `dados-armazenamento` · `sobre` · `erro-sem-internet` · `erro-servidor` · `erro-nao-encontrada`
