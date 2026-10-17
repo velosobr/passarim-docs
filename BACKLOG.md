@@ -71,6 +71,10 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 
 - [ ] **P3** — `DataError.Network.toUiText()` (`core:presentation`) não é usado por nenhuma tela, só pelo teste: usar num aviso curto ou remover.
 
+- [ ] **P2** — O `:androidApp:exportLibraryDefinitions` (AboutLibraries) não gera sempre o mesmo `aboutlibraries.json`. No #16, com o mesmo lockfile, a CI escolheu `org.jetbrains:annotations` 23.0.0 e os ids `spatialk:geojson-jvm` e `units-jvm`; a máquina local e um rerun da própria CI escolheram 26.1.0 e os ids sem `-jvm`. A causa provável é que o mesmo artefato aparece duas vezes no classpath (`geojson` e `geojson-jvm`). Enquanto isso não for resolvido, o job `security` pode falhar à toa e se resolve com rerun. Caminhos: fixar a ordem (excluir as variantes duplicadas no `aboutLibraries`) ou comparar a lista ignorando a versão de artefatos repetidos.
+
+- [ ] **P3** — O dependabot sobe versões sem regenerar o `aboutlibraries.json` (#11). Todo PR dele que mexe em dependência de release falha no `security`. Avaliar um workflow que regenere a lista nos PRs do dependabot, ou aceitar o ajuste manual.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
