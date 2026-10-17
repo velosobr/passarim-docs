@@ -69,6 +69,8 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 
 - [ ] **P2** — No início da etapa: fazer o app enxergar o `docker compose` do desktop. O emulador Android acessa o desktop em `10.0.2.2` e o simulador iOS em `localhost`; o aparelho físico precisa do IP da rede local, e isso exige publicar a porta do Traefik além de `127.0.0.1` (só para teste, nunca no deploy). Lembrar que `MEDIA_BASE_URL` e a porta do SeaweedFS têm o mesmo problema: as URLs de mídia usam `localhost` e precisam apontar para um endereço que o aparelho alcance.
 
+- [ ] **P3** — `DataError.Network.toUiText()` (`core:presentation`) não é usado por nenhuma tela, só pelo teste: usar num aviso curto ou remover.
+
 ## passarim-docs / infraestrutura
 
 - [ ] **P3** — Compose sem valores padrão nem `${VAR:?}`: sem `.env`, sobe com portas aleatórias e senha vazia.
@@ -77,6 +79,8 @@ Prioridade: **P1** = resolver antes de publicar o app nas lojas · **P2** = ante
 - [ ] **P3** — Fixar as versões do `mermaid-cli` e do `markdownlint-cli2` no CI.
 - [ ] **P3** — Textos dos ADRs começam com letra minúscula.
 - [ ] **P3** — Dependabot e SBOM previstos na spec (§9) ainda não configurados.
+
+- [ ] **P3** — `scripts/check-comment-only.sh` (bff, catalog e app): uma linha como `/* x */ val a = 1` passa como comentário. Hoje nenhum PR usa isso; fechar o furo se o verificador continuar em uso.
 
 ## passarim-proto
 
