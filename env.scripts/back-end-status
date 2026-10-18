@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# back-end-status — diz se o back-end local está no ar e pronto para testes.
+#
+# Uso: env.scripts/back-end-status
+#
+# Imprime uma linha por serviço do compose (estado e saúde) e testa a API de
+# ponta a ponta: uma chamada a /v1/filters passa por Traefik, BFF, Redis,
+# catalog e PostgreSQL. Sai com 0 só se essa chamada responder 200, então dá
+# para usar como condição: "env.scripts/back-end-status && rodar os testes".
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+if ! docker_ready; then
+  warn "Docker parado: back-end fora do ar (env.scripts/back-end-init sobe tudo)"
+  exit 1
+fi
+
+# "ps -a" inclui os containers que já terminaram: o catalog-seed roda uma vez
+# e sai, e "exited (0)" nele é o esperado, não uma falha.
+services="$(compose ps -a --format '{{.Service}}|{{.State}}|{{.Health}}|{{.ExitCode}}' 2>/dev/null || true)"
+if [ -z "$services" ]; then
+  warn "nenhum container do Passarim (env.scripts/back-end-init sobe tudo)"
+  exit 1
+fi
+
+printf '%-22s %s\n' SERVIÇO ESTADO
+printf '%s\n' "$services" | sort | while IFS='|' read -r name state health exit_code; do
+  detail="$state"
+  [ -n "$health" ] && detail="$state ($health)"
+  [ "$state" = exited ] && detail="exited ($exit_code)"
+  printf '%-22s %s\n' "$name" "$detail"
+done
+
+port="$(bff_port)"
+code="$(http_code "http://localhost:$port/v1/filters")"
+if [ "$code" = 200 ]; then
+  ok "API respondendo em http://localhost:$port/v1 (pronta para testes)"
+else
+  warn "API em localhost:$port/v1/filters respondeu $code (não está pronta)"
+  exit 1
+fi

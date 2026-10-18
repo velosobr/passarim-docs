@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# front-end-down — fecha o app e libera a máquina.
+#
+# Uso: env.scripts/front-end-down [--keep-device]
+#   --keep-device  fecha o app, mas deixa emuladores e simuladores ligados
+#                  (a próxima subida fica mais rápida)
+#
+# Fecha o app nos aparelhos Android e simuladores iOS, desliga os emuladores e
+# simuladores e para os daemons do Gradle. Não apaga nada: o app continua
+# instalado, com os favoritos e as configurações. Aparelho físico só tem o app
+# fechado (não dá para "desligar" um celular pelo adb).
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+keep_device=0
+for arg in "$@"; do
+  case "$arg" in
+    --keep-device) keep_device=1 ;;
+    *) fail "opção desconhecida: $arg (veja --help)" ;;
+  esac
+done
+
+for serial in $(android_devices); do
+  "$ADB" -s "$serial" shell am force-stop "$APP_ID" >/dev/null 2>&1 || true
+  # Emuladores têm serial "emulator-<porta>"; "emu kill" desliga só eles.
+  case "$serial" in
+    emulator-*) [ "$keep_device" = 1 ] || "$ADB" -s "$serial" emu kill >/dev/null 2>&1 || true ;;
+  esac
+done
+
+for udid in $(booted_simulators); do
+  xcrun simctl terminate "$udid" "$APP_ID" >/dev/null 2>&1 || true
+  [ "$keep_device" = 1 ] || xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
+done
+
+if [ "$(app_gradle_daemons)" != 0 ]; then
+  # "--stop" pede aos daemons que terminem; ele roda com qualquer JDK.
+  (cd "$APP_DIR" && ./gradlew --stop >/dev/null 2>&1) || true
+fi
+
+if [ "$keep_device" = 1 ]; then
+  ok "app fechado; emuladores e simuladores continuam ligados"
+else
+  ok "app fechado, emuladores e simuladores desligados, Gradle parado"
+fi

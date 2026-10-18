@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# init-all — sobe o ambiente inteiro: back-end primeiro, depois o app.
+#
+# Uso: env.scripts/init-all [--ios] [--device] [--build]
+#   --ios     abre o app no simulador iOS em vez do emulador Android
+#   --device  publica o BFF na rede local (aparelho físico; ver back-end-init)
+#   --build   reconstrói as imagens do back-end antes de subir
+#
+# A ordem importa: o app só mostra dados com o BFF no ar, então o front-end só
+# começa depois que o back-end-init confirma a API respondendo. Para subir só
+# uma parte, use back-end-init ou front-end-init.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+back=()
+front=()
+for arg in "$@"; do
+  case "$arg" in
+    --device | --build) back+=("$arg") ;;
+    --ios) front+=("$arg") ;;
+    *) fail "opção desconhecida: $arg (veja --help)" ;;
+  esac
+done
+
+# "${back[@]+...}": no bash 3.2 do macOS, expandir uma lista vazia com set -u
+# dá erro de "variável não definida"; essa forma expande para nada.
+"$SCRIPTS_DIR/back-end-init" ${back[@]+"${back[@]}"}
+"$SCRIPTS_DIR/front-end-init" ${front[@]+"${front[@]}"}
+ok "ambiente pronto (env.scripts/status confere; env.scripts/down-all derruba)"

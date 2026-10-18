@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# status — leitura rápida do ambiente inteiro: back-end e app.
+#
+# Uso: env.scripts/status
+#
+# Junta o back-end-status e o front-end-status numa saída só. Sai com 0 quando o
+# back-end está pronto para testes (a API responde); o app fechado não conta
+# como falha, porque a maioria dos testes (Go, Python, testes do app no Gradle)
+# não precisa dele aberto.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+printf '== back-end\n'
+back=0
+"$SCRIPTS_DIR/back-end-status" || back=$?
+printf '\n== app\n'
+"$SCRIPTS_DIR/front-end-status" || true
+exit "$back"

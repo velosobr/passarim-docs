@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# back-end-down — derruba o back-end local, MANTENDO os dados.
+#
+# Uso: env.scripts/back-end-down
+#
+# Para e remove os containers e as redes do compose, mas não os volumes: o
+# banco (aves, fotos e jobs de ingestão), a mídia do SeaweedFS e os painéis do
+# Grafana continuam lá para a próxima subida. Derrubar NÃO é zerar: para
+# apagar os dados também, use env.scripts/clean-all.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+if ! docker_ready; then
+  ok "Docker parado: o back-end já está fora do ar"
+  exit 0
+fi
+
+# stop_grace_period do compose dá ao worker até 2 min 30 s para terminar o
+# lote em andamento; por isso o down pode demorar quando há ingestão rodando.
+step "derrubando os containers (volumes ficam)"
+compose down --remove-orphans >/dev/null 2>&1
+ok "back-end fora do ar; dados preservados"
