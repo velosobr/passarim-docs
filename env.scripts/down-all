@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# down-all — derruba o ambiente inteiro, MANTENDO os dados.
+#
+# Uso: env.scripts/down-all
+#
+# Fecha o app (e desliga emuladores, simuladores e o Gradle) e derruba os
+# containers do back-end. Banco, mídia, painéis e o app instalado continuam
+# lá. Para voltar ao zero, apagando os dados, use env.scripts/clean-all.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+"$SCRIPTS_DIR/front-end-down"
+"$SCRIPTS_DIR/back-end-down"
+ok "ambiente fora do ar; dados preservados"

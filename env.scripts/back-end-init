@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# back-end-init — sobe o back-end local inteiro (docker compose do passarim-docs).
+#
+# Uso: env.scripts/back-end-init [--device] [--build]
+#   --device  publica o BFF e a mídia na rede local, para testar num aparelho
+#             físico (só em rede confiável; ver docker-compose.device.yml)
+#   --build   reconstrói as imagens do catalog, do worker e do BFF a partir dos
+#             repositórios vizinhos (use depois de mudar código Go)
+#
+# O que faz: abre o Docker Desktop se precisar, cria o .env na primeira vez,
+# roda "docker compose up -d --wait" (só volta quando os healthchecks passam) e
+# imprime os endereços. Sai com erro se algum serviço não ficar saudável.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+files=(-f docker-compose.yml)
+up_flags=(-d --wait)
+for arg in "$@"; do
+  case "$arg" in
+    --device) files+=(-f docker-compose.device.yml) ;;
+    --build) up_flags+=(--build) ;;
+    *) fail "opção desconhecida: $arg (veja --help)" ;;
+  esac
+done
+
+ensure_docker
+ensure_env
+
+# Na primeira vez o compose constrói as imagens dos repos vizinhos (alguns
+# minutos); nas próximas, reaproveita as que já existem.
+# O progresso do compose (uma linha por container, várias vezes) vai para um
+# log: no terminal ele só gastaria espaço. Se algo falhar, mostramos o final
+# do log, que é onde o compose diz qual serviço não ficou saudável.
+log="$LOG_DIR/passarim-compose.log"
+step "subindo os containers (docker compose up ${up_flags[*]}; log em $log)"
+if ! compose "${files[@]}" up "${up_flags[@]}" >"$log" 2>&1; then
+  tail -n 15 "$log" >&2
+  fail "o compose não subiu tudo (log completo em $log)"
+fi
+
+port="$(bff_port)"
+code="$(http_code "http://localhost:$port/v1/filters")"
+[ "$code" = 200 ] || fail "o compose subiu, mas o BFF respondeu $code em localhost:$port/v1/filters (rode env.scripts/back-end-status)"
+
+ok "back-end pronto"
+cat <<INFO
+  API (BFF via Traefik)  http://localhost:$port/v1/species
+  Traefik (dashboard)    http://localhost:$(env_value HOST_PORT_TRAEFIK_DASHBOARD)
+  Grafana                http://localhost:$(env_value HOST_PORT_GRAFANA)
+  Prometheus             http://localhost:$(env_value HOST_PORT_PROMETHEUS)
+  Jaeger                 http://localhost:$(env_value HOST_PORT_JAEGER_UI)
+  Mídia (SeaweedFS)      http://localhost:$(env_value HOST_PORT_S3_UI)/buckets/passarim-media
+INFO

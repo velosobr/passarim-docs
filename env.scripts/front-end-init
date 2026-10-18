@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# front-end-init — compila o app e abre num emulador Android (ou simulador iOS).
+#
+# Uso: env.scripts/front-end-init [--ios]
+#   (sem opção)  Android: usa o aparelho conectado; sem nenhum, liga o emulador
+#                PASSARIM_AVD (ou o primeiro de "emulator -list-avds")
+#   --ios        iOS: gera o projeto com XcodeGen, compila para o simulador
+#                PASSARIM_SIMULATOR (UDID; ou o primeiro iPhone disponível),
+#                instala e abre
+#
+# O app fala com o BFF local: suba o back-end antes (env.scripts/back-end-init,
+# ou tudo junto com env.scripts/init-all). Sem back-end o app abre, mas mostra
+# "Sem conexão".
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+platform=android
+for arg in "$@"; do
+  case "$arg" in
+    --ios) platform=ios ;;
+    *) fail "opção desconhecida: $arg (veja --help)" ;;
+  esac
+done
+
+port="$(bff_port)"
+if [ "$(http_code "http://localhost:$port/v1/filters")" != 200 ]; then
+  warn "o BFF não responde em localhost:$port: o app vai abrir sem dados (env.scripts/back-end-init)"
+fi
+
+# O Gradle do app exige o JDK 21 (ver README do passarim-app). java_home é o
+# utilitário do macOS que acha um JDK instalado pela versão.
+use_jdk21() {
+  local home
+  home="$(/usr/libexec/java_home -v 21 2>/dev/null || true)"
+  [ -n "$home" ] || fail "JDK 21 não encontrado (o Gradle do app precisa dele)"
+  export JAVA_HOME="$home"
+}
+
+# O app Android lê o endereço do BFF de local.properties (bff.baseUrl) e, sem
+# ele, usa http://10.0.2.2:8080. Se o Traefik estiver noutra porta (o .env
+# permite trocar), o app chamaria a porta errada: avisamos antes de compilar.
+check_android_port() {
+  local url
+  url="$({ grep -E '^bff.baseUrl=' "$APP_DIR/local.properties" 2>/dev/null || true; } | cut -d= -f2-)"
+  url="${url:-http://10.0.2.2:8080}"
+  case "$url" in
+    *":$port") ;;
+    *) warn "o app vai chamar $url, mas o Traefik está na porta $port: ajuste bff.baseUrl em passarim-app/local.properties" ;;
+  esac
+}
+
+# Liga um emulador se nenhum aparelho estiver conectado. "nohup ... &" deixa o
+# emulador rodando em segundo plano mesmo depois que o script termina; a saída
+# dele vai para um log, para não poluir o terminal.
+ensure_android_device() {
+  [ -n "$(android_devices)" ] && return 0
+  [ -x "$EMULATOR" ] || fail "Android SDK não encontrado em $ANDROID_SDK (defina ANDROID_HOME)"
+  local avd log
+  avd="${PASSARIM_AVD:-$("$EMULATOR" -list-avds | first_line)}"
+  [ -n "$avd" ] || fail "nenhum emulador criado; crie um no Android Studio (Device Manager)"
+  log="$LOG_DIR/passarim-emulator.log"
+  step "ligando o emulador $avd (log em $log)"
+  nohup "$EMULATOR" -avd "$avd" -no-snapshot-save >"$log" 2>&1 &
+  # wait-for-device volta quando o adb enxerga o aparelho; o Android ainda leva
+  # um tempo para terminar de iniciar, e sys.boot_completed=1 marca o fim.
+  "$ADB" wait-for-device
+  for _ in $(seq 1 90); do
+    [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && return 0
+    sleep 2
+  done
+  fail "o emulador não terminou de iniciar em 3 minutos (veja $log)"
+}
+
+run_android() {
+  use_jdk21
+  check_android_port
+  ensure_android_device
+  step "compilando e instalando o app (./gradlew :androidApp:installDebug)"
+  (cd "$APP_DIR" && ./gradlew -q :androidApp:installDebug)
+  # O monkey com 1 evento de LAUNCHER abre o app pela tela inicial, sem
+  # precisarmos saber o nome da Activity.
+  "$ADB" shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  ok "app aberto no Android ($(android_devices | first_line))"
+}
+
+run_ios() {
+  command -v xcodegen >/dev/null || fail "instale o XcodeGen: brew install xcodegen"
+  # O README do app pede o Xcode 26.4: com o 16 o app compila, mas parte dos
+  # testes não linka. Para só abrir o app, avisar basta.
+  local xcode udid derived app_path
+  xcode="$(xcodebuild -version 2>/dev/null | awk 'NR == 1 { print $2 }')"
+  case "$xcode" in
+    2[6-9]* | [3-9][0-9]*) ;;
+    *) warn "Xcode $xcode selecionado; o app pede o 26.4 (xcode-select -s <Xcode 26>)" ;;
+  esac
+  udid="${PASSARIM_SIMULATOR:-$(xcrun simctl list devices available | sed -nE 's/^ *iPhone.*\(([0-9A-F-]{36})\).*/\1/p' | first_line)}"
+  [ -n "$udid" ] || fail "nenhum simulador de iPhone disponível (crie um no Xcode)"
+  step "ligando o simulador $udid"
+  xcrun simctl boot "$udid" 2>/dev/null || true # já ligado não é erro
+  open -a Simulator
+  derived="$APP_DIR/build/ios"
+  # Mesmo com -quiet o xcodebuild imprime milhares de avisos do linker (hoje,
+  # símbolos do SQLite duplicados entre o Room e o sistema, que não impedem o
+  # build). Vão para o log; se o build falhar, mostramos o final dele.
+  local log="$LOG_DIR/passarim-xcodebuild.log"
+  step "gerando o projeto e compilando (xcodebuild; log em $log)"
+  if ! (cd "$APP_DIR/iosApp" && xcodegen generate --quiet &&
+    xcodebuild -quiet -project iosApp.xcodeproj -scheme iosApp -configuration Debug \
+      -destination "id=$udid" -derivedDataPath "$derived" build) >"$log" 2>&1; then
+    grep -E 'error:|BUILD FAILED' "$log" | tail -n 15 >&2 || tail -n 15 "$log" >&2
+    fail "o build do iOS falhou (log completo em $log)"
+  fi
+  app_path="$(find "$derived/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' | first_line)"
+  [ -n "$app_path" ] || fail "o build terminou, mas não achei o .app em $derived"
+  xcrun simctl install "$udid" "$app_path"
+  xcrun simctl launch "$udid" "$APP_ID" >/dev/null
+  ok "app aberto no simulador iOS ($udid)"
+}
+
+"run_$platform"

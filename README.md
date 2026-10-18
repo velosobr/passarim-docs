@@ -73,11 +73,45 @@ sequenceDiagram
 | [passarim-proto](https://github.com/velosobr/passarim-proto) | Contratos gRPC |
 | [passarim-catalog](https://github.com/velosobr/passarim-catalog) | Catalog API (gRPC) + banco + aves curadas |
 | [passarim-bff](https://github.com/velosobr/passarim-bff) | BFF REST/JSON + cache Redis + resiliência |
-| passarim-app | App KMP *(etapa 5)* |
+| [passarim-photo-curator](https://github.com/velosobr/passarim-photo-curator) | Curador de fotos (Python, gRPC): separa ave sozinha de ninho, ovo, bando... (frente A) |
+| [passarim-app](https://github.com/velosobr/passarim-app) | App KMP (Android e iOS) |
 
-## Rodando a infraestrutura local
+Os repositórios ficam lado a lado na mesma pasta (`~/dev/passarim/passarim-*`): o compose e os scripts abaixo
+encontram os vizinhos por caminho relativo.
 
-Pré-requisito: Docker, e os repositórios `passarim-docs` e `passarim-catalog` clonados lado a lado na mesma pasta.
+## Operando o ambiente local (`env.scripts`)
+
+A pasta [`env.scripts`](env.scripts) é a interface para subir, conferir e derrubar o ambiente. **Use estes
+comandos em vez de montar a sequência à mão** (vale para gente e para agentes de IA). Todos aceitam `--help`, saem
+com código diferente de 0 quando algo não está pronto e podem ser chamados de qualquer pasta.
+
+| Comando | O que faz | Tempo típico |
+|---|---|---|
+| `env.scripts/init-all [--ios] [--device] [--build]` | back-end e depois o app (emulador Android, ou simulador iOS com `--ios`) | ~1 min com imagens prontas |
+| `env.scripts/status` | uma linha por serviço, a API testada de ponta a ponta e onde o app está aberto; sai 0 se a API estiver pronta | segundos |
+| `env.scripts/down-all` | fecha o app, desliga emuladores, simuladores e Gradle, e derruba os containers. **Mantém os dados** | ~10 s |
+| `env.scripts/clean-all --yes` | o mesmo, mais **apagar** banco, mídia, painéis, imagens locais e o app dos aparelhos Android. Sem `--yes`, só avisa | ~10 s |
+| `env.scripts/back-end-init [--device] [--build]` | só o back-end: abre o Docker Desktop se preciso, cria o `.env`, `docker compose up --wait`, confere a API | ~30 s |
+| `env.scripts/back-end-status` | só o back-end | segundos |
+| `env.scripts/back-end-down` | só o back-end, mantendo os volumes | ~5 s |
+| `env.scripts/front-end-init [--ios]` | só o app: liga um emulador se não houver aparelho, compila, instala e abre | ~30 s Android; minutos no iOS |
+| `env.scripts/front-end-status` | aparelhos e simuladores, app instalado ou aberto, daemons do Gradle | segundos |
+| `env.scripts/front-end-down [--keep-device]` | fecha o app; sem `--keep-device`, desliga emuladores, simuladores e o Gradle | segundos |
+
+**Derrubar não é limpar.** `down-all` e `back-end-down` param os containers e deixam os volumes: as aves, a mídia
+baixada pelo worker e os jobs de ingestão continuam lá na próxima subida. Só o `clean-all --yes` volta ao zero, e
+depois dele o worker baixa a mídia de novo das APIs externas.
+
+Pré-requisitos: Docker Desktop; para o app, Android SDK e JDK 21 (Android) ou Xcode e XcodeGen (iOS), como no
+README do `passarim-app`. Na primeira vez o `back-end-init` copia o `.env.example` para `.env` e para, pedindo a
+`XENO_CANTO_API_KEY` (a única variável sem padrão). Variáveis opcionais: `PASSARIM_AVD` (nome do emulador Android) e
+`PASSARIM_SIMULATOR` (UDID do simulador iOS). Os logs do compose e do emulador ficam em `$TMPDIR/passarim-*.log`.
+
+O curador de fotos ainda não está no compose (entra no plano A3); até lá, ele roda pelo README dele.
+
+### O que os scripts fazem por baixo
+
+Para entender o ambiente, ou se um script falhar, os passos à mão:
 
 ```bash
 cp .env.example .env
@@ -87,7 +121,7 @@ docker compose up -d --wait
 
 | Serviço | Endereço |
 |---|---|
-| API (BFF via Traefik) | <http://localhost:8080/v1/species> (porta `HOST_PORT_TRAEFIK_HTTP`) |
+| API (BFF via Traefik) | <http://localhost:8080/v1/species> (porta `HOST_PORT_TRAEFIK_HTTP` do `.env`; o `back-end-init` imprime a real) |
 | Traefik (dashboard) | <http://localhost:8081> |
 | Grafana | <http://localhost:3000> (admin / ver `.env`) |
 | Prometheus | <http://localhost:9090> |
@@ -101,7 +135,8 @@ computador sem mudar nada, mas um aparelho físico não. Para esse caso, suba co
 só o BFF (Traefik) e a mídia (porta `HOST_PORT_S3_UI`) em todas as interfaces:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.device.yml up -d --wait
+env.scripts/back-end-init --device
+# o mesmo que: docker compose -f docker-compose.yml -f docker-compose.device.yml up -d --wait
 ```
 
 Use **apenas em rede confiável** e só para teste local. Depois configure o endereço do computador no app (veja o

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# clean-all — volta o ambiente ao zero, APAGANDO os dados locais.
+#
+# Uso: env.scripts/clean-all --yes
+#
+# Faz o down-all e, além disso, apaga:
+#   - os volumes do compose: banco (aves, fotos e jobs de ingestão), mídia do
+#     SeaweedFS e painéis do Grafana. A próxima subida refaz o seed e o worker
+#     baixa a mídia de novo (leva tempo e usa as APIs externas);
+#   - as imagens construídas aqui (passarim-catalog, passarim-worker,
+#     passarim-bff), que o próximo init reconstrói;
+#   - o app nos emuladores e aparelhos Android conectados (favoritos e
+#     configurações vão junto).
+# O .env fica. Sem --yes, só mostra o que faria: apagar não tem volta.
+
+source "$(dirname "$0")/lib.sh"
+help_if_asked "${1:-}"
+
+if [ "${1:-}" != --yes ]; then
+  warn "isto apaga banco, mídia, painéis, imagens locais e o app dos aparelhos Android"
+  warn "para confirmar: env.scripts/clean-all --yes   (para só derrubar: env.scripts/down-all)"
+  exit 1
+fi
+
+# Desinstala antes do front-end-down, que desliga os emuladores.
+for serial in $(android_devices); do
+  "$ADB" -s "$serial" uninstall "$APP_ID" >/dev/null 2>&1 || true
+done
+"$SCRIPTS_DIR/front-end-down"
+
+if docker_ready; then
+  # -v apaga os volumes nomeados; --rmi local, só as imagens sem tag de
+  # registry (as que o compose construiu), nunca postgres, redis etc.
+  step "apagando containers, volumes e imagens locais do Passarim"
+  compose down -v --rmi local --remove-orphans >/dev/null 2>&1
+else
+  warn "Docker parado: abra o Docker Desktop e rode de novo para apagar os volumes"
+  exit 1
+fi
+ok "ambiente zerado (o .env foi mantido)"
