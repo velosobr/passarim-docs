@@ -4,8 +4,8 @@
 # Uso: env.scripts/back-end-init [--device] [--build]
 #   --device  publica o BFF e a mídia na rede local, para testar num aparelho
 #             físico (só em rede confiável; ver docker-compose.device.yml)
-#   --build   reconstrói as imagens do catalog, do worker e do BFF a partir dos
-#             repositórios vizinhos (use depois de mudar código Go)
+#   --build   reconstrói as imagens do catalog, do worker, do curador de fotos e
+#             do BFF a partir dos repositórios vizinhos (use depois de mudar código)
 #
 # O que faz: abre o Docker Desktop se precisar, cria o .env na primeira vez,
 # roda "docker compose up -d --wait" (só volta quando os healthchecks passam) e
