@@ -134,6 +134,8 @@ test('CSS: bloco do Kids em [data-variant="kids"]', () => {
 });
 ```
 
+E troque, no teste `'docs: tabela de cores e bloco Kotlin'`, a linha `assert.ok(md.includes('val PassarimDarkColors = darkColorScheme('));` por `assert.ok(md.includes('val PiuDarkColors = darkColorScheme('));`.
+
 Run: `npm test`
 Expected: FAIL (`t.kids` indefinido, `PiuLightColors` ausente).
 
@@ -415,6 +417,12 @@ Aplique estas mudanças ao arquivo:
 
 9. Na seção 8, troque "cada componente em **claro e escuro** × **fonte 1.0× e 1.3×**" por "cada componente do Piu em **claro e escuro** × **fonte 1.0×, 1.3× e 2.0×**, e cada componente do Piu Kids **só em claro** × as mesmas três escalas"; e troque o item da semântica por "**Semântica** de componentes clicáveis (papel, descrição, alvo de toque), com `compose-ui-test` e `runComposeUiTest` em `androidHostTest`, a partir do plano C2."; e apague o item "**Arquitetura:** a task de dependências da seção 3."
 
+9a. Ainda na seção 8, troque "(alvo Android, source set `androidHostTest`)" por "(módulo Android `snapshots`, ADR-0017)" e apague a frase do fallback para o Roborazzi.
+
+9b. Na seção 9, troque "`@Preview` em claro e escuro" por "`@Preview` em claro e escuro no Piu; só em claro no Piu Kids".
+
+9c. Na seção 12 (checklist), troque o primeiro item por "- [ ] Usado por 2 ou mais features (ou na exceção 1a da seção 7) e passa no teste do domínio", o do alvo de toque por "- [ ] Alvo de toque ≥ 48dp no Piu e ≥ 56dp no Kids, `contentDescription` onde for clicável, papel semântico" e o dos snapshots por "- [ ] Snapshots com fonte 1.0×, 1.3× e 2.0×: Piu em claro e escuro, Kids só em claro, e em cada estado".
+
 10. Na seção 10, troque "a fonte Manrope é OFL" por "as fontes Manrope, Fredoka e Nunito são OFL e aparecem na tela de Licenças (definições customizadas do AboutLibraries)".
 
 11. No fim do arquivo, acrescente:
@@ -532,6 +540,10 @@ grep -rn 'designsystem\|design-system\|designSystem' --include='*.kt' --include=
 
 Expected: a última busca só mostra textos de comentário ou de README (corrija-os à mão para "PiuDS" / `core:piu-ds`); nenhum código.
 
+O sed também reescreve os exemplos dos comentários dos convention plugins, que ficariam falsos (o padrão do plugin geraria `com.velosobr.passarim.core.piuds`, não `com.velosobr.piuds`). Troque o exemplo por um módulo que segue o padrão:
+- em `build-logic/src/main/kotlin/passarim.kmp-library.gradle.kts`, o comentário do `namespace` vira `// ":core:domain" -> "com.velosobr.passarim.core.domain"`;
+- em `build-logic/src/main/kotlin/passarim.kmp-compose.gradle.kts`, o comentário do `packageOfResClass` vira `// ":core:domain" -> "com.velosobr.passarim.core.domain.resources"`.
+
 - [ ] **Step 4: Prefixo `Piu` nos composables públicos e no tema**
 
 Crie o script `scripts/rename-piu.py` **só neste branch** (é apagado no Step 6):
@@ -591,7 +603,7 @@ grep -rn 'material3.PiuFilterChip\|fun PiuPiu\|PiuPiu' --include='*.kt' . | grep
 
 Expected: as duas buscas vazias.
 
-Depois, revise à mão os comentários e KDoc dos arquivos tocados (`git diff --stat` lista os arquivos): frases como "o tema do Passarim" ficam; nomes antigos citados em comentário passam para os novos.
+Depois, revise à mão os comentários e KDoc dos arquivos tocados (`git diff --stat` lista os arquivos): frases como "o tema do Passarim" ficam; nomes antigos citados em comentário passam para os novos. O regex também troca o comentário do topo de `PiuFilterChip.kt`: restaure "sobre o FilterChip do Material 3" (é o componente do Material, que não mudou de nome).
 
 - [ ] **Step 5: O módulo de snapshots mantém classes e métodos**
 
@@ -630,7 +642,7 @@ gh pr create --base main --title "PiuDS: renomeação do design system (sem muda
 
 **Files:**
 - Create: `core/domain/src/commonMain/kotlin/com/velosobr/passarim/core/domain/Journey.kt`, `core/domain/src/commonMain/kotlin/com/velosobr/passarim/core/domain/Biome.kt`, `core/domain/src/commonTest/kotlin/com/velosobr/passarim/core/domain/BiomeTest.kt`, `core/piu-ds/src/commonMain/kotlin/com/velosobr/piuds/theme/SchemeChoice.kt`, `core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/SchemeChoiceTest.kt`
-- Move: `app/src/commonMain/kotlin/com/velosobr/passarim/app/theme/ThemeMode.kt` → `core/piu-ds/src/commonMain/kotlin/com/velosobr/piuds/theme/ThemeMode.kt`; `app/src/commonTest/.../ThemeModeTest.kt` → `core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/ThemeModeTest.kt`
+- Move: `app/src/commonMain/kotlin/com/velosobr/passarim/app/theme/ThemeMode.kt` → `core/piu-ds/src/commonMain/kotlin/com/velosobr/piuds/theme/ThemeMode.kt`; `app/src/commonTest/.../ThemeModeTest.kt` → `core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/theme/ThemeModeTest.kt`
 - Modify: `app/src/commonMain/kotlin/com/velosobr/passarim/app/App.kt` (import)
 
 **Interfaces:**
@@ -730,11 +742,10 @@ class SchemeChoiceTest {
 Mova o teste do tema:
 
 ```bash
-mkdir -p core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds
-git mv app/src/commonTest/kotlin/com/velosobr/passarim/app/theme/ThemeModeTest.kt core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/ThemeModeTest.kt
-sed -i '' 's/^package com.velosobr.passarim.app.theme/package com.velosobr.piuds/; s/import com.velosobr.passarim.app.theme.isDark/import com.velosobr.piuds.theme.isDark/' core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/ThemeModeTest.kt
-grep -q 'import com.velosobr.piuds.theme.isDark' core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/ThemeModeTest.kt || \
-  sed -i '' 's/^import assertk.assertThat/import assertk.assertThat\nimport com.velosobr.piuds.theme.isDark/' core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/ThemeModeTest.kt
+mkdir -p core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/theme
+git mv app/src/commonTest/kotlin/com/velosobr/passarim/app/theme/ThemeModeTest.kt core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/theme/ThemeModeTest.kt
+# O teste está no mesmo pacote da função (por isso não a importa): basta trocar o pacote.
+sed -i '' 's/^package com.velosobr.passarim.app.theme$/package com.velosobr.piuds.theme/' core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/theme/ThemeModeTest.kt
 ```
 
 Run: `./gradlew :core:domain:allTests :core:piu-ds:allTests`
@@ -882,7 +893,7 @@ Expected: os dois arquivos como `TrueType Font data`; as licenças começando co
 
 - [ ] **Step 2: Testes de tokens que falham**
 
-Em `TokensTest.kt` (agora em `core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/`), acrescente os imports `androidx.compose.ui.text.font.FontWeight`, `com.velosobr.passarim.core.domain.Biome`, `com.velosobr.piuds.theme.piuAdultTokens`, `com.velosobr.piuds.theme.PiuKidsColors`, `com.velosobr.piuds.theme.PiuKidsTokens`, `com.velosobr.piuds.theme.TitleWeight` e `com.velosobr.piuds.theme.kidsTypeSpecs`, e os testes:
+Em `TokensTest.kt` (agora em `core/piu-ds/src/commonTest/kotlin/com/velosobr/piuds/`), acrescente os imports `androidx.compose.ui.text.font.FontWeight`, `com.velosobr.passarim.core.domain.Biome`, `com.velosobr.piuds.theme.piuAdultTokens`, `com.velosobr.piuds.theme.PiuKidsColors`, `com.velosobr.piuds.theme.PiuKidsTokens`, `com.velosobr.piuds.theme.TitleWeight`, `com.velosobr.piuds.theme.piuTypeSpecs` e `com.velosobr.piuds.theme.kidsTypeSpecs`, e os testes:
 
 ```kotlin
     @Test
@@ -916,8 +927,19 @@ Em `TokensTest.kt` (agora em `core/piu-ds/src/commonTest/kotlin/com/velosobr/piu
     }
 
     @Test
-    fun `os titulos do Piu tem peso 800 e o Kids segue a tabela dos tokens`() {
+    fun `a tipografia do Piu segue os tokens 2_0_0 - titulos em 800`() {
         assertThat(TitleWeight).isEqualTo(FontWeight(800))
+        assertThat(piuTypeSpecs.size).isEqualTo(15)
+        listOf("displayLarge", "displayMedium", "displaySmall", "headlineLarge", "headlineMedium", "headlineSmall", "titleLarge")
+            .forEach { assertThat(piuTypeSpecs.getValue(it).weight).isEqualTo(800) }
+        listOf("titleMedium", "titleSmall", "labelLarge", "labelMedium", "labelSmall")
+            .forEach { assertThat(piuTypeSpecs.getValue(it).weight).isEqualTo(600) }
+        listOf("bodyLarge", "bodyMedium", "bodySmall").forEach { assertThat(piuTypeSpecs.getValue(it).weight).isEqualTo(400) }
+        assertThat(piuTypeSpecs.getValue("displayLarge").tracking).isEqualTo(-0.25f)
+    }
+
+    @Test
+    fun `o Kids segue a tabela dos tokens`() {
         val body = kidsTypeSpecs.getValue("bodyLarge")
         assertThat(body.size).isEqualTo(18)
         assertThat(body.weight).isEqualTo(600)
@@ -1130,7 +1152,66 @@ Em `Type.kt`:
 val TitleWeight = FontWeight(800)
 ```
 
-- em `piuTypography()`, troque `fontWeight = FontWeight.Bold` por `fontWeight = TitleWeight` nos estilos `displayLarge`, `displayMedium`, `displaySmall`, `headlineLarge`, `headlineMedium`, `headlineSmall` e `titleLarge` (os sete que são 700 hoje), e o KDoc da função por "Os 15 estilos do Material 3, todos em Manrope (tamanhos e pesos de tokens/TOKENS.md, versão 2.0.0): display, headline e titleLarge em 800.".
+- troque a função `piuTypography()` inteira (e o `@Suppress("LongMethod")` dela) por uma tabela e uma função curta, no mesmo padrão do Kids, para o teste conferir o que o tema realmente usa:
+
+```kotlin
+/** Um estilo da tabela "type.styles" dos tokens: tamanho e linha em sp, peso e espaçamento entre letras (sp). */
+data class PiuTypeSpec(
+    val size: Int,
+    val line: Int,
+    val weight: Int,
+    val tracking: Float,
+)
+
+/** A tabela "type.styles" de passarim-tokens.json 2.0.0: display, headline e titleLarge em 800. */
+val piuTypeSpecs: Map<String, PiuTypeSpec> =
+    mapOf(
+        "displayLarge" to PiuTypeSpec(57, 64, 800, -0.25f),
+        "displayMedium" to PiuTypeSpec(45, 52, 800, 0f),
+        "displaySmall" to PiuTypeSpec(36, 44, 800, 0f),
+        "headlineLarge" to PiuTypeSpec(32, 40, 800, 0f),
+        "headlineMedium" to PiuTypeSpec(28, 36, 800, 0f),
+        "headlineSmall" to PiuTypeSpec(24, 32, 800, 0f),
+        "titleLarge" to PiuTypeSpec(22, 28, 800, 0f),
+        "titleMedium" to PiuTypeSpec(16, 24, 600, 0.15f),
+        "titleSmall" to PiuTypeSpec(14, 20, 600, 0.1f),
+        "bodyLarge" to PiuTypeSpec(16, 24, 400, 0.5f),
+        "bodyMedium" to PiuTypeSpec(14, 20, 400, 0.25f),
+        "bodySmall" to PiuTypeSpec(12, 16, 400, 0.4f),
+        "labelLarge" to PiuTypeSpec(14, 20, 600, 0.1f),
+        "labelMedium" to PiuTypeSpec(12, 16, 600, 0.5f),
+        "labelSmall" to PiuTypeSpec(11, 16, 600, 0.5f),
+    )
+
+/** Os 15 estilos do Material 3, todos em Manrope, montados a partir de [piuTypeSpecs]. */
+@Composable
+fun piuTypography(): Typography {
+    val family = manropeFontFamily()
+    fun style(name: String): TextStyle {
+        val s = piuTypeSpecs.getValue(name)
+        return TextStyle(fontFamily = family, fontWeight = FontWeight(s.weight), fontSize = s.size.sp, lineHeight = s.line.sp, letterSpacing = s.tracking.sp)
+    }
+    return Typography(
+        displayLarge = style("displayLarge"),
+        displayMedium = style("displayMedium"),
+        displaySmall = style("displaySmall"),
+        headlineLarge = style("headlineLarge"),
+        headlineMedium = style("headlineMedium"),
+        headlineSmall = style("headlineSmall"),
+        titleLarge = style("titleLarge"),
+        titleMedium = style("titleMedium"),
+        titleSmall = style("titleSmall"),
+        bodyLarge = style("bodyLarge"),
+        bodyMedium = style("bodyMedium"),
+        bodySmall = style("bodySmall"),
+        labelLarge = style("labelLarge"),
+        labelMedium = style("labelMedium"),
+        labelSmall = style("labelSmall"),
+    )
+}
+```
+
+  O único valor que muda em relação a hoje é o peso dos sete estilos de título (700 → 800); tamanhos, linhas e espaçamentos são os de agora.
 
 - [ ] **Step 5: `PiuTokens`**
 
@@ -1624,7 +1705,7 @@ adb shell settings put global animator_duration_scale 0   # "Remover animações
 adb shell settings put global animator_duration_scale 1
 ```
 
-Registre o resultado no PR (no iOS: Ajustes > Acessibilidade > Movimento > Reduzir movimento, no simulador). Se o log temporário for usado, ele **não** entra no commit.
+Registre o resultado no PR (no iOS: Ajustes > Acessibilidade > Movimento > Reduzir movimento, no simulador; se o Xcode não estiver selecionado, registre que a conferência do iOS ficou pendente). Se o log temporário for usado, ele **não** entra no commit.
 
 - [ ] **Step 7: Conferir os cortes a 2.0× e commitar**
 
@@ -1704,6 +1785,32 @@ Em `androidApp/build.gradle.kts`, dentro de `aboutLibraries { ... }`, antes de `
     }
 ```
 
+`config/aboutlibraries/licenses/OFL-1.1.json` (o texto da licença, para a tela mostrar sem depender de um catálogo externo):
+
+```json
+{
+  "hash": "OFL-1.1",
+  "name": "SIL Open Font License 1.1",
+  "url": "https://openfontlicense.org",
+  "spdxId": "OFL-1.1",
+  "content": "<cole aqui o texto de LICENSES/Nunito-OFL.txt a partir da linha \"This Font Software is licensed under the SIL Open Font License, Version 1.1.\", com as quebras de linha como \\n>"
+}
+```
+
+Gere o `content` sem digitar à mão:
+
+```bash
+python3 - <<'PY'
+import json, pathlib
+text = pathlib.Path("LICENSES/Nunito-OFL.txt").read_text(encoding="utf-8")
+start = text.index("This Font Software is licensed under the SIL Open Font License")
+p = pathlib.Path("config/aboutlibraries/licenses/OFL-1.1.json")
+p.parent.mkdir(parents=True, exist_ok=True)
+p.write_text(json.dumps({"hash": "OFL-1.1", "name": "SIL Open Font License 1.1", "url": "https://openfontlicense.org",
+                         "spdxId": "OFL-1.1", "content": text[start:]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
+```
+
 - [ ] **Step 2: Regenerar e conferir**
 
 ```bash
@@ -1712,7 +1819,11 @@ grep -c '"font:' feature/settings/presentation/src/commonMain/composeResources/f
 grep -n 'OFL-1.1' feature/settings/presentation/src/commonMain/composeResources/files/aboutlibraries.json | head -3
 ```
 
-Expected: `3`, e a licença OFL-1.1 presente. Se o export não incluir as fontes, a versão do plugin usa outro nome de propriedade para a pasta: confira com `./gradlew :androidApp:exportLibraryDefinitions --info | grep -i config` e ajuste o bloco `collect`, registrando no PR.
+```bash
+python3 -c "import json;d=json.load(open('feature/settings/presentation/src/commonMain/composeResources/files/aboutlibraries.json'));print(len(d['licenses']['OFL-1.1'].get('content','')))"
+```
+
+Expected: `3`, a licença OFL-1.1 presente e o último comando imprimindo um número maior que 1000 (o texto da licença). Se o export não incluir as fontes, a versão do plugin usa outro nome de propriedade para a pasta: confira com `./gradlew :androidApp:exportLibraryDefinitions --info | grep -i config` e ajuste o bloco `collect`, registrando no PR.
 
 - [ ] **Step 3: Suíte, commit, push e PR 3**
 
