@@ -9,7 +9,8 @@ const tokens = loadTokens();
 
 test('CSS: papéis do tema claro em :root e do escuro em [data-theme="dark"]', () => {
   const css = toCss(tokens);
-  const [light, dark] = css.split('[data-theme="dark"]{');
+  const [light, rest] = css.split('[data-theme="dark"]{');
+  const dark = rest.split('}')[0]; // só o bloco escuro: depois dele vêm a tipografia e o Kids
   assert.ok(light.includes('--md-on-primary:#FFFFFF;'));
   assert.ok(light.includes('--md-surface-container:#EAF0E8;'));
   assert.ok(dark.includes('--md-on-primary:#00391B;'));
@@ -38,11 +39,25 @@ test('docs: tabela de cores e bloco Kotlin', () => {
   assert.ok(md.startsWith('# Tokens do Passarim'));
   assert.ok(md.includes('| `primary` | `#1A6D3C` | `#7DDB97` |'));
   assert.ok(md.includes('primary = Color(0xFF1A6D3C),'));
-  assert.ok(md.includes('val PassarimDarkColors = darkColorScheme('));
+  assert.ok(md.includes('val PiuDarkColors = darkColorScheme('));
   assert.ok(md.includes('| `VU` | Vulnerável |'));
 });
 
 test('arquivos gerados estão em dia com o JSON (rode `npm run build`)', () => {
   assert.equal(readFileSync(join(MOCKUPS, '_base.css'), 'utf8'), toCss(tokens));
   assert.equal(readFileSync(join(DESIGN, 'tokens', 'TOKENS.md'), 'utf8'), toDocs(tokens));
+});
+
+test('docs: Kotlin com os nomes do PiuDS e a seção do Kids', () => {
+  const md = toDocs(tokens);
+  assert.ok(md.includes('val PiuLightColors = lightColorScheme('));
+  assert.ok(md.includes('val PiuKidsColors = lightColorScheme('));
+  assert.ok(md.includes('## Passarim Kids'));
+  assert.ok(md.includes('| `pantanal` |'));
+});
+
+test('CSS: bloco do Kids em [data-variant="kids"]', () => {
+  const css = toCss(tokens);
+  assert.ok(css.includes('[data-variant="kids"]{'));
+  assert.ok(css.includes('--md-surface:#FFF7E8;'));
 });

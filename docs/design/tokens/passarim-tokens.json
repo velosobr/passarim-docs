@@ -1,5 +1,5 @@
 {
-  "meta": { "name": "Passarim", "version": "1.0.0" },
+  "meta": { "name": "Passarim", "version": "2.0.0" },
   "color": {
     "light": {
       "primary": "#1A6D3C", "onPrimary": "#FFFFFF",
@@ -69,14 +69,15 @@
   },
   "type": {
     "family": "Manrope",
+    "titleWeight": 800,
     "styles": {
-      "displayLarge":   { "size": 57, "line": 64, "weight": 700, "tracking": -0.25 },
-      "displayMedium":  { "size": 45, "line": 52, "weight": 700, "tracking": 0 },
-      "displaySmall":   { "size": 36, "line": 44, "weight": 700, "tracking": 0 },
-      "headlineLarge":  { "size": 32, "line": 40, "weight": 700, "tracking": 0 },
-      "headlineMedium": { "size": 28, "line": 36, "weight": 700, "tracking": 0 },
-      "headlineSmall":  { "size": 24, "line": 32, "weight": 700, "tracking": 0 },
-      "titleLarge":     { "size": 22, "line": 28, "weight": 700, "tracking": 0 },
+      "displayLarge":   { "size": 57, "line": 64, "weight": 800, "tracking": -0.25 },
+      "displayMedium":  { "size": 45, "line": 52, "weight": 800, "tracking": 0 },
+      "displaySmall":   { "size": 36, "line": 44, "weight": 800, "tracking": 0 },
+      "headlineLarge":  { "size": 32, "line": 40, "weight": 800, "tracking": 0 },
+      "headlineMedium": { "size": 28, "line": 36, "weight": 800, "tracking": 0 },
+      "headlineSmall":  { "size": 24, "line": 32, "weight": 800, "tracking": 0 },
+      "titleLarge":     { "size": 22, "line": 28, "weight": 800, "tracking": 0 },
       "titleMedium":    { "size": 16, "line": 24, "weight": 600, "tracking": 0.15 },
       "titleSmall":     { "size": 14, "line": 20, "weight": 600, "tracking": 0.1 },
       "bodyLarge":      { "size": 16, "line": 24, "weight": 400, "tracking": 0.5 },
@@ -89,4 +90,77 @@
   },
   "shape": { "card": 12, "field": 16, "pill": 28 },
   "space": { "unit": 4, "screenMargin": 16, "touchTarget": 48 }
+  ,
+  "gradient": {
+    "angle": 135,
+    "biome": {
+      "amazonia":       { "from": "#063D27", "to": "#328556", "text": "#FFFFFF" },
+      "mata_atlantica": { "from": "#0D4F45", "to": "#3C8361", "text": "#FFFFFF" },
+      "cerrado":        { "from": "#6E3A0E", "to": "#9A6E1E", "text": "#FFFFFF" },
+      "caatinga":       { "from": "#5C2414", "to": "#B65D30", "text": "#FFFFFF" },
+      "pantanal":       { "from": "#0E3A57", "to": "#338095", "text": "#FFFFFF" },
+      "pampa":          { "from": "#3E4A12", "to": "#737B37", "text": "#FFFFFF" }
+    }
+  },
+  "scrim": { "color": "#101410", "alpha": 0.8, "from": 0.25, "text": "#FFFFFF" },
+  "kids": {
+    "color": {
+      "light": {
+        "primary": "#A84300", "onPrimary": "#FFFFFF",
+        "primaryContainer": "#FF8A3D", "onPrimaryContainer": "#1D2B3A",
+        "secondary": "#1E5FA6", "onSecondary": "#FFFFFF",
+        "secondaryContainer": "#CDEBFF", "onSecondaryContainer": "#0A2440",
+        "tertiary": "#B8164F", "onTertiary": "#FFFFFF",
+        "tertiaryContainer": "#FFD6E0", "onTertiaryContainer": "#4A0A22",
+        "error": "#B3261E", "onError": "#FFFFFF",
+        "errorContainer": "#FFDAD6", "onErrorContainer": "#410002",
+        "background": "#FFF7E8", "onBackground": "#1D2B3A",
+        "surface": "#FFF7E8", "onSurface": "#1D2B3A",
+        "surfaceVariant": "#F2E3C6", "onSurfaceVariant": "#4A5566",
+        "surfaceDim": "#EADBBF", "surfaceBright": "#FFF7E8",
+        "surfaceContainerLowest": "#FFFFFF", "surfaceContainerLow": "#FFF2DC",
+        "surfaceContainer": "#FCEDD3", "surfaceContainerHigh": "#F8E7C9", "surfaceContainerHighest": "#F2E3C6",
+        "outline": "#6E7680", "outlineVariant": "#E2D2B2",
+        "inverseSurface": "#1D2B3A", "inverseOnSurface": "#FFF7E8", "inversePrimary": "#FFC93C",
+        "scrim": "#000000"
+      }
+    },
+    "type": {
+      "titleFamily": "Fredoka",
+      "bodyFamily": "Nunito",
+      "styles": {
+        "displayLarge":   { "family": "Fredoka", "size": 57, "line": 64, "weight": 700, "tracking": 0 },
+        "displayMedium":  { "family": "Fredoka", "size": 45, "line": 52, "weight": 700, "tracking": 0 },
+        "displaySmall":   { "family": "Fredoka", "size": 38, "line": 44, "weight": 700, "tracking": 0 },
+        "headlineLarge":  { "family": "Fredoka", "size": 34, "line": 40, "weight": 700, "tracking": 0 },
+        "headlineMedium": { "family": "Fredoka", "size": 28, "line": 34, "weight": 700, "tracking": 0 },
+        "headlineSmall":  { "family": "Fredoka", "size": 26, "line": 32, "weight": 700, "tracking": 0 },
+        "titleLarge":     { "family": "Fredoka", "size": 22, "line": 28, "weight": 700, "tracking": 0 },
+        "titleMedium":    { "family": "Fredoka", "size": 18, "line": 24, "weight": 700, "tracking": 0 },
+        "titleSmall":     { "family": "Fredoka", "size": 16, "line": 22, "weight": 600, "tracking": 0 },
+        "bodyLarge":      { "family": "Nunito", "size": 18, "line": 26, "weight": 600, "tracking": 0 },
+        "bodyMedium":     { "family": "Nunito", "size": 16, "line": 24, "weight": 600, "tracking": 0 },
+        "bodySmall":      { "family": "Nunito", "size": 14, "line": 20, "weight": 600, "tracking": 0 },
+        "labelLarge":     { "family": "Nunito", "size": 16, "line": 22, "weight": 800, "tracking": 0 },
+        "labelMedium":    { "family": "Nunito", "size": 14, "line": 20, "weight": 800, "tracking": 0 },
+        "labelSmall":     { "family": "Nunito", "size": 12, "line": 16, "weight": 700, "tracking": 0 }
+      }
+    },
+    "shape": { "small": 16, "medium": 24, "large": 28, "extraLarge": 38, "touchTarget": 56 },
+    "gradient": {
+      "angle": 150,
+      "world": {
+        "amazonia":       { "from": "#9BE15D", "to": "#1F9F56", "text": "#0B2A17" },
+        "mata_atlantica": { "from": "#6EE7C0", "to": "#13A38B", "text": "#0B2A17" },
+        "cerrado":        { "from": "#FFE066", "to": "#FF9F1C", "text": "#3A2200" },
+        "caatinga":       { "from": "#FFB38A", "to": "#E65741", "text": "#3A1208" },
+        "pantanal":       { "from": "#7DD3FC", "to": "#438DDC", "text": "#0A2440" },
+        "pampa":          { "from": "#E4F57A", "to": "#7CB342", "text": "#1F2A0A" }
+      }
+    },
+    "shadow": {
+      "card":   { "color": "#F2E3C6", "offset": 4 },
+      "button": { "color": "#C9601E", "offset": 5 }
+    }
+  }
 }
