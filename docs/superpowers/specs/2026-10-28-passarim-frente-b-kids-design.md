@@ -22,7 +22,7 @@ O app não muda nesta frente.
 1. As 41 espécies do MVP têm `primary_biome` e o bloco `kids:` revisado pelo dono no PR de conteúdo.
 2. O lint do conteúdo passa.
 3. `/v1/featured` devolve a mesma ave o dia todo, troca à meia-noite de São Paulo e não repete ave até o ciclo acabar.
-4. A lista de espécies filtra por `primary_biome`, e a contagem por mundo de `/v1/filters` bate com a lista **[R]**.
+4. A lista de espécies filtra por `primary_biome`, e a contagem por mundo de `/v1/filters` bate com a lista **na mesma audiência** **[R]**.
 5. Depois da reingestão dos cantos (`requeue --source audio`), toda ave com canto tem `peaks`.
 
 ## 2. Decisões do dono
@@ -138,6 +138,7 @@ go run ./cmd/kidsgen --ids turdus-rufiventris --dry-run          # mostra o prom
 - **Terminal:** para cada espécie, uma linha `id → primary_biome: <bioma> (<biome_reason>)`. Quem abre o PR de conteúdo cola esse resumo na descrição, para a revisão do bioma.
 - **Prompt:** um arquivo `cmd/kidsgen/prompt.md`, embutido com `embed`, com as regras: público de 8 a 12 anos que já lê, não inventar nada, nenhum número que não esteja no texto, a tabela da seção 3.4, os limites de frase, sem nome científico, sem links, tom direto e caloroso sem infantilizar, e o critério do bioma ("o bioma em que a ave é mais típica ou mais lembrada pelos brasileiros").
 - **Chave:** só a variável `ANTHROPIC_API_KEY`, na máquina de quem roda. Ela nunca vai para a CI nem para o repositório, e o gitleaks cobre isso. Sem a chave, o kidsgen falha logo no começo, exceto no `--dry-run`, que então só mostra o prompt.
+- **Sem texto adulto:** uma espécie sem descrição adulta ou sem nenhum fato adulto é pulada **antes** de chamar a API, com o aviso "sem texto adulto curado", e não conta como falha. Sem isso, nenhuma saída passaria no validador, e o `--missing` num catálogo grande pagaria 3 chamadas por ave sem chance de dar certo **[R]**.
 - **Prazo:** 2 min por chamada e uma espécie por vez. Não há paralelismo: a revisão humana é o gargalo, não a geração.
 
 **Custo de uma rodada.** Pelos preços do Opus 5.5 (US$ 4 por milhão de tokens de entrada e US$ 20 por milhão de saída, conferidos em 2026-10-28 em sites de terceiros que citam a página da Anthropic), com cerca de 2.500 tokens de entrada e 800 de saída por espécie e 30% de margem para novas tentativas:
@@ -207,7 +208,7 @@ CREATE INDEX featured_day_cycle_idx ON featured_day (cycle);
 
 - `kids IS NOT NULL`;
 - uma foto principal (posição 0) com `category = 'single_bird'` **ou** escolhida pelo override do YAML (`photo_override.primary_photo_id = media.source_photo_id`). O override é a palavra final da frente A, e a foto escolhida por ele guarda a categoria que o curador deu, por isso a cláusula é necessária;
-- um canto (linha de áudio com `audio_key` não vazio) **[DR]**. O card adulto tem botão de canto, e num catálogo grande nem toda ave terá canto.
+- o áudio da posição 0 com `audio_key` não vazio **[DR]** **[R]**. O card adulto tem botão de canto, e num catálogo grande nem toda ave terá canto.
 
 **Escolha do dia D:**
 
@@ -216,12 +217,12 @@ CREATE INDEX featured_day_cycle_idx ON featured_day (cycle);
    1. Pega a linha mais recente com `day < D`. Sem nenhuma, o ciclo é 1 e não há "usadas".
    2. Com uma, o ciclo é o dela, e as "usadas" são as espécies das linhas desse ciclo com `day <> D` **[R]**. Contar também os dias depois de D evita repetir uma ave quando amanhã é pedido antes de hoje.
    3. **Restantes** = elegíveis menos usadas, em ordem alfabética de id.
-   4. Se não sobra nenhuma, começa um ciclo novo (ciclo + 1) com todas as elegíveis, **menos a ave do dia anterior, se houver mais de uma elegível** **[R]**. Sem isso, a última ave de um ciclo poderia voltar no primeiro dia do seguinte.
+   4. Se não sobra nenhuma, começa um ciclo novo (ciclo + 1) com todas as elegíveis, **menos a espécie da linha mais recente com `day < D`, se houver mais de uma elegível** **[R]**. Sem isso, a última ave de um ciclo poderia voltar no primeiro dia do seguinte.
    5. A escolhida é `restantes[FNV-1a 64 bits da string da data, módulo o número de restantes]`.
    6. `INSERT … ON CONFLICT (day) DO NOTHING` e relê a linha. Duas réplicas que calculam ao mesmo tempo ficam com a mesma ave.
 3. **Sem nenhuma elegível:** `NOT_FOUND`.
 
-**Resposta:** `GetFeaturedSpeciesResponse { SpeciesSummary species = 1; Audio audio = 2; }`. O `audio` fica ausente se a ave não tiver canto, o que só acontece com uma linha antiga, gravada antes de a ave perder o canto.
+**Resposta:** `GetFeaturedSpeciesResponse { SpeciesSummary species = 1; Audio audio = 2; }`. O `audio` é esse mesmo áudio da posição 0, e fica ausente se a ave não tiver canto, o que só acontece com uma linha antiga, gravada antes de a ave perder o canto.
 
 **Casos aceitos:**
 
@@ -272,14 +273,16 @@ O comentário de cada campo segue o tom didático do `catalog.proto`.
 
 - ganha `kids { description, facts: [{ text }], didYouKnow }`, sem `source_fact`, que o app não usa;
 - ganha `primaryBiome` e `audio.peaks`;
-- quando o catalog não manda áudio (mensagem ausente ou `key` vazia), o campo `audio` sai como `null`, nunca como um objeto com URL montada a partir de uma chave vazia **[R]**.
+- quando o catalog não manda áudio (mensagem ausente ou `key` vazia), o campo `audio` sai como `null`, nunca como um objeto com URL montada a partir de uma chave vazia **[R]**;
+- quando o catalog não manda o bloco Kids, `kids` sai como `null`, nunca como um objeto vazio: o app decide mostrar o Kids pela presença do campo **[R]**;
+- `primaryBiome` sai como `null` quando o catalog manda `UNSPECIFIED`, nunca a string `unspecified`. Vale no detalhe, nos resumos da lista e no `/v1/featured` **[R]**.
 
 **Lista e filtros:**
 
 - `?audience=adult|kids` em `/v1/species` e `/v1/filters`. O padrão é `adult`; valor inválido devolve 400 problem+json. `kids` vira `kids_only`.
 - `?primaryBiome=` em `/v1/species` **[R]**, com os mesmos valores e a mesma validação do `biome`.
 - Os resumos da lista ganham `primaryBiome`.
-- `/v1/filters` ganha `primaryBiomes`, com as contagens.
+- `/v1/filters` ganha `primaryBiomes`, no mesmo formato de `biomes` (código, rótulo e contagem) **[R]**.
 
 **`GET /v1/featured`, novo:**
 
@@ -325,7 +328,8 @@ O comentário de cada campo segue o tom didático do `catalog.proto`.
 - montagem do prompt com golden file;
 - troca de texto: sem bloco, com bloco, com `primary_biome` já presente, arquivo terminado sem quebra de linha, `biomes` fora do formato `[...]` (erro);
 - novas tentativas com um cliente falso: aceita na segunda, desiste depois da terceira;
-- sem chave: falha antes de chamar.
+- sem chave: falha antes de chamar;
+- espécie sem fatos adultos é pulada sem chamar o cliente **[R]**.
 
 **Picos:** WAV sintético gerado no próprio teste (um tom que cresce e some) comparado com um golden file, com tolerância de 0,01; silêncio; menos de 64 amostras; `CHECK` da migração.
 
@@ -348,7 +352,8 @@ O comentário de cada campo segue o tom didático do `catalog.proto`.
 
 - `/v1/featured` com relógio injetado: virada à meia-noite de São Paulo, nenhuma resposta velha depois dela, `max-age` mínimo de 1, os erros da tabela da seção 7;
 - `audience` e `primaryBiome` nas chaves de cache; prefixo `bff:v2:`;
-- `audio: null` sem canto;
+- `audio: null` sem canto, `kids: null` sem bloco Kids e `primaryBiome: null` com `UNSPECIFIED`;
+- `?audience` e `?primaryBiome` inválidos devolvem 400 problem+json **[R]**;
 - OpenAPI e contrato.
 
 **Proto:** `buf lint`, `buf breaking` e o teste de contrato atual.
@@ -402,4 +407,4 @@ Os PRs 3, 4 e 5 podem sair em qualquer ordem depois do 2. A ordem de deploy é c
 4. O kidsgen roda uma espécie por vez, sem paralelismo (seção 3.5).
 5. A lista de palavras proibidas é curta e comparada pelo começo da palavra (seção 3.2).
 
-**[R]** (representante do dono, nas seções 5 e 7): o tipo `biome` no banco; o loader recusa `primary_biome` fora de `biomes` mesmo sem bloco Kids; o filtro por bioma principal; "usadas" com `day <> D`; nenhuma ave repetida na virada de ciclo; `time/tzdata` no catalog; `audio: null` sem canto; a tabela de erros do `/v1/featured`; `max-age` mínimo de 1; a ADR-0022 citando a 0011; a divisão do B1 em PRs menores; o item 4 do "Pronto quando".
+**[R]** (representante do dono, nas seções 5 e 7): o tipo `biome` no banco; o loader recusa `primary_biome` fora de `biomes` mesmo sem bloco Kids; o filtro por bioma principal; "usadas" com `day <> D`; nenhuma ave repetida na virada de ciclo; `time/tzdata` no catalog; `audio: null` sem canto; a tabela de erros do `/v1/featured`; `max-age` mínimo de 1; a ADR-0022 citando a 0011; a divisão do B1 em PRs menores; o item 4 do "Pronto quando"; na revisão da spec escrita: `kids` e `primaryBiome` nulos no BFF, o formato de `primaryBiomes`, "a linha mais recente" na virada de ciclo, o áudio da posição 0, o kidsgen pulando espécie sem texto adulto, "na mesma audiência" e o teste dos parâmetros inválidos.
