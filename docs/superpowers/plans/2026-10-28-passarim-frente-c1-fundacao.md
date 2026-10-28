@@ -40,6 +40,7 @@
   - app: `refactor/piu-ds` (PR 2) ← `feat/piu-theme` (PR 3).
   - O PR 3 só abre depois do merge do PR 1, porque os tokens vêm de lá; o código pode ser escrito antes, com os valores deste plano.
 - **Sem merge, sem push na `main` e sem apagar o branch `docs/piu-readme`:** isso é do dono.
+- **iOS sem Xcode:** o `:app:linkDebugFrameworkIosSimulatorArm64` (Tasks 2, 5 e 6) e a conferência no simulador iOS (Task 5, Step 6) precisam do Xcode selecionado. Se `xcode-select -p` não apontar para o Xcode, tire essa tarefa do comando, confie no job iOS do CI e registre no PR.
 
 ## Review Focus
 
