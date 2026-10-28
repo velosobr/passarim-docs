@@ -23,7 +23,7 @@
   - mudou o código, atualiza o comentário.
 - **Idioma:** identificadores em inglês; comentários, mensagens de erro, commits, PRs e README em português do Brasil.
 - **Identidade do Git:** `velosobr <linoc.veloso@gmail.com>`. Commits terminam com as linhas de atribuição da sessão.
-- **Pré-requisito:** a frente A3 mergeada na `main` do catalog (migração `0004`, `photo_override`, `InsertMedia` com 18 parâmetros, `DeleteSpeciesNotIn` no seed) e na do proto (v0.3.0). A Task 2 confere isso antes de começar.
+- **Pré-requisito:** a frente A3 mergeada na `main` do catalog (migração `0004`, `photo_override`, `InsertMedia` com 18 parâmetros, `RequeuePhotoJobs`) e na do proto (v0.3.0). A Task 2 confere isso antes de começar.
 - **Números dos campos do proto, exatos:** `Audio.peaks` = 4; `SpeciesSummary.primary_biome` = 6; `Species.kids` = 16; `Species.primary_biome` = 17; `ListSpeciesRequest.kids_only` = 6; `ListSpeciesRequest.primary_biome` = 7; `ListFiltersRequest.kids_only` = 1; `ListFiltersResponse.primary_biome_counts` = 3.
 - **Branches empilhados:**
   - proto: `feat/kids-ave-do-dia` (PR 1);
@@ -256,7 +256,7 @@ git rev-parse HEAD   # anote o sha: o catalog usa esta pseudo-versão até a tag
 ```bash
 cd ~/dev/passarim/passarim-catalog
 git switch main && git pull --ff-only
-test -f internal/adapter/postgres/migrations/0004_photo_curation.up.sql && grep -q "DeleteSpeciesNotIn" internal/adapter/postgres/queries.sql && echo "A3 ok"
+test -f internal/adapter/postgres/migrations/0004_photo_curation.up.sql && grep -q RequeuePhotoJobs internal/adapter/postgres/queries_ingest.sql && echo "A3 ok"
 git switch -c feat/kids-banco
 go get github.com/velosobr/passarim-proto@<sha da Task 1> && go mod tidy
 ```
@@ -1808,9 +1808,12 @@ func TestIngestAudio_StoresPeaks(t *testing.T) {
 func TestIngestAudio_PeaksFailureTriesNext(t *testing.T) {
 	cands := []ingest.AudioCandidate{rec("1", "A", "song", 20000), rec("2", "B", "song", 20000)}
 	bad := "aac:" + cands[0].URL // o fakeAudio.ToAAC devolve "aac:" + bytes originais (a URL)
-	uc, _, _, repo := newAudio(cands, fakeAudio{failPeaks: map[string]bool{bad: true}})
+	uc, dl, _, repo := newAudio(cands, fakeAudio{failPeaks: map[string]bool{bad: true}})
 	if err := uc.Run(context.Background(), sabiaAudio); err != nil {
 		t.Fatal(err)
+	}
+	if len(dl.requested) != 2 {
+		t.Fatalf("deveria ter tentado as duas: %v", dl.requested)
 	}
 	if repo.audio == nil || repo.audio.Credit.SourceURL != cands[1].PageURL {
 		t.Fatalf("deveria ter ficado a segunda gravação: %+v", repo.audio)
@@ -2669,6 +2672,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 	_ "time/tzdata" // embute o banco de fusos: a imagem do catalog pode não ter o do sistema
@@ -2762,8 +2766,11 @@ func (u GetFeatured) pick(ctx context.Context, date string) (string, error) {
 		return "", fmt.Errorf("gravar a ave do dia: %w", err)
 	}
 	saved, found, err := u.Repo.FeaturedOn(ctx, date)
-	if err != nil || !found {
+	if err != nil {
 		return "", fmt.Errorf("reler a ave do dia: %w", err)
+	}
+	if !found {
+		return "", errors.New("a ave do dia sumiu logo depois de gravada")
 	}
 	return saved, nil
 }
@@ -3218,7 +3225,7 @@ Depois que os três PRs do catalog entrarem na `main` e o ambiente local subir c
 cd ~/dev/passarim/passarim-docs
 env.scripts/back-end-init --build
 docker compose run --rm catalog-worker requeue --source audio
-# espere a fila de cantos esvaziar (uma rodada por minuto; ~41 jobs)
+# espere a fila de cantos esvaziar (uma rodada por minuto; um job por espécie com canto)
 docker compose exec -T postgres psql -U passarim -c "SELECT count(*) FILTER (WHERE cardinality(peaks) = 64) AS com_picos, count(*) AS cantos FROM media WHERE kind = 'audio'"
 ```
 
