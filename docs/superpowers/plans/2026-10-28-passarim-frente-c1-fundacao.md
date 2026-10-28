@@ -32,7 +32,7 @@
 - **Identidade do Git:** `velosobr <linoc.veloso@gmail.com>`. Commits terminam com as linhas de atribuição da sessão.
 - **Nenhuma tela muda de layout** (spec, seção 1). O C1a não muda nenhum pixel; o C1b muda só o tema expressivo e o peso dos títulos.
 - **Snapshots:** só regravar com o diff revisado. No C1a o `verifyPaparazziDebug` tem de passar **sem regravar nada**.
-- **`@OptIn(ExperimentalMaterial3ExpressiveApi::class)` só dentro do `core:piu-ds`.**
+- **Tema expressivo:** `MaterialExpressiveTheme` e `MotionScheme` são internos no CMP material3 1.9.0 (descoberto na execução). O `PiuTheme` usa `MaterialTheme` com `TODO(frente-H)`; ver a correção na spec, seção 5.2.
 - **Acessores do tema:** só `PiuTheme.tokens`, `PiuTheme.reduceMotion` e `PiuTheme.isDark`. As features continuam com `MaterialTheme.*`.
 - **Dependências:** nenhuma biblioteca nova no C1, além de o `piu-ds` passar a usar o `lifecycle-runtime-compose`, que já está no catálogo. Lockfiles e `aboutlibraries.json` atualizados no mesmo PR (`./gradlew resolveAndLockShipped --write-locks :androidApp:exportLibraryDefinitions`).
 - **Branches:**
