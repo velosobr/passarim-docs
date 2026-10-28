@@ -30,7 +30,7 @@ O PiuDS é o design system do Passarim, com duas variantes: **Piu**, para o adul
 | Nome, módulo, pacote e prefixo | Do PRD: `core:piu-ds`, `com.velosobr.piuds`, prefixo `Piu` |
 | Divisão | Uma spec e dois planos: **C1, fundação** (regras, tokens, renomeação e tema) e **C2, componentes**. O C1 do app vira dois PRs, um de renomeação mecânica e um de tema **[R]** |
 | Componentes de jornada no PiuDS | Exceção fechada à regra do 2: só os 12 componentes do PRD (seção 6) **[R]** |
-| Acessores do tema | `PiuTheme` expõe só `tokens` e `reduceMotion`. As features continuam lendo cores, tipografia e formas pelo `MaterialTheme` **[R]** |
+| Acessores do tema | `PiuTheme` expõe só `tokens`, `reduceMotion` e `isDark`. As features continuam lendo cores, tipografia e formas pelo `MaterialTheme` **[R]** |
 | Pipo | Só a pose normal nesta frente. As poses dos estados Kids (festa, erro) entram na frente F, junto com o desenho deles **[R]** |
 | Cores das pranchetas | Ajustadas até passar no contraste. O dono aprova o antes e depois no PR do docs **[R]** |
 | Reduzir animações | Lê a preferência do sistema; sem chave própria no app **[R]** |
@@ -47,7 +47,7 @@ O README do branch local `docs/piu-readme`, de 05/10, volta para `docs/design/pi
 - **Alvo de toque:** 48 dp no Piu e **56 dp no Kids**.
 - **Reduzir animações:** deixa de ser adiado e passa a ser regra (seção 5.4).
 - **Comentários didáticos**, pela regra do `CLAUDE.md` local.
-- **Acessores:** só `PiuTheme.tokens` e `PiuTheme.reduceMotion`; o resto pelo `MaterialTheme`.
+- **Acessores:** só `PiuTheme.tokens`, `PiuTheme.reduceMotion` e `PiuTheme.isDark`; o resto pelo `MaterialTheme`.
 
 Depois do merge do PR do docs, o branch `docs/piu-readme` é apagado, **só com o ok explícito do dono**.
 
@@ -55,7 +55,7 @@ Depois do merge do PR do docs, o branch `docs/piu-readme` é apagado, **só com 
 
 ### 4.1 Estrutura
 
-Os blocos `color.light`, `color.dark` e `conservation` de hoje não mudam. Entram:
+Os blocos `color.light`, `color.dark` e `conservation` de hoje não mudam. Se uma cor de conservação reprovar sobre o creme, entra `kids.conservation` com os valores ajustados, e o `conservation` do Piu continua igual. Entram:
 
 - **`gradient.biome`:** os seis gradientes de bioma do Piu, de 135°, com `from`, `to` e a cor do texto por cima;
 - **`scrim`:** a cor e a faixa do scrim de foto (de transparente a `rgba(16,20,16,0.8)` nos 60 a 75% de baixo);
@@ -75,7 +75,7 @@ O `check-tokens.mjs` passa a conferir, a 4.5:1 para texto e a 3:1 para elementos
 
 - os pares do esquema Kids (texto sobre o creme, sobre os cartões e sobre a primária);
 - o texto de cada gradiente contra **as duas pontas** do gradiente, no Piu e no Kids **[R]**;
-- o texto branco sobre a ponta mais clara do scrim;
+- o texto branco sobre `rgba(16,20,16,0.8)` composto sobre `#FFFFFF`, o pior caso de foto. O texto só fica na faixa de opacidade máxima do scrim;
 - as cores de conservação sobre o creme **[R]**.
 
 O Pipo amarelo sobre o creme (1,44:1) fica fora: ele é decorativo e não carrega informação **[R]**.
@@ -87,7 +87,7 @@ O representante mediu as cores das pranchetas, e estes pares falham **[R]**:
 | Par | Contraste | Ajuste |
 |---|---|---|
 | Texto dos mundos Amazônia, Caatinga e Pantanal sobre a ponta escura | 4,43, 4,44 e 3,83 | Escurecer a cor do texto ou clarear a ponta escura, o mínimo necessário |
-| Texto branco sobre a ponta clara dos seis biomas do Piu | 2,3 a 3,2 | Escurecer a ponta clara, ou o texto sobre o chip passa a ser escuro |
+| Texto branco sobre a ponta clara dos seis biomas do Piu | 2,3 a 3,2 | Escurecer a ponta clara de cada bioma até o branco passar a 4,5:1; o texto continua branco |
 | Rótulo branco sobre o botão laranja do Kids | 2,35 | O rótulo passa a ser azul-noite (6,14) |
 
 **Regra do ajuste:** muda-se o mínimo possível para passar, mantendo o matiz. O PR do docs traz uma tabela de antes e depois de cada cor ajustada, com o contraste novo, e o dono aprova essa tabela. Os valores exatos são calculados no plano C1, com a ferramenta.
@@ -99,7 +99,7 @@ O representante mediu as cores das pranchetas, e estes pares falham **[R]**:
 - **Módulo e pacote:** `core/design-system` vira `core/piu-ds`, e o pacote `com.velosobr.passarim.core.designsystem` vira `com.velosobr.piuds`, com `git mv`, para o histórico seguir os arquivos.
 - **Prefixo:** todo composable público ganha o prefixo `Piu` (`FilterChip` vira `PiuFilterChip`, o que também acaba com o choque de nome com o `FilterChip` do Material). As funções internas ficam sem prefixo.
 - **Paletas e tema:** `PassarimLightColors` vira `PiuLightColors`, e o resto segue o mesmo padrão. O `PassarimTheme` vira `PiuTheme` com a assinatura de hoje; a assinatura nova entra no C1b.
-- **Portão:** o diff de snapshots é zero, e os nomes dos arquivos de snapshot não mudam. Os 18 arquivos de fora do módulo que importam o pacote mudam só nos imports e nos nomes.
+- **Portão:** o diff de snapshots é zero, e os nomes dos arquivos de snapshot não mudam. Como o Paparazzi monta o nome do arquivo com a classe e o método de teste, as classes e os métodos de `snapshots/` não são renomeados: só os imports e as chamadas mudam. Os 18 arquivos de fora do módulo que importam o pacote mudam só nos imports e nos nomes.
 - Comentários e KDoc acompanham os nomes novos.
 
 ### 5.2 `PiuTheme` (PR C1b)
@@ -120,15 +120,15 @@ fun PiuTheme(
   - As duas APIs são experimentais no Material 3 1.9.0 (androidx 1.4.0), o que o plano confere no artefato. O `@OptIn(ExperimentalMaterial3ExpressiveApi::class)` fica só dentro do `piu-ds` **[R]**.
   - Hoje o `manropeFontFamily()` declara só os pesos 400, 600 e 700. O 800 entra na lista, no `TOKENS.md` e no `TokensTest` **[R]**.
 - **Piu Kids:** sempre claro, sem cores dinâmicas, com o esquema, a tipografia e as formas do bloco `kids` (`PiuKidsColors`, `PiuKidsTypography` e `PiuKidsShapes`) **[R]**. O tema ignora `themeMode` e `dynamicColor` sem gravar nada; as preferências do adulto não mudam.
-- **"Escuro efetivo":** o tema expõe se o que está na tela é escuro (no Kids, nunca). Ligar isso aos ícones das barras do sistema fica na frente D, quando o Kids passa a abrir **[R]**.
-- **`PiuTheme.tokens`:** um `CompositionLocal` com os gradientes da variante (bioma ou mundo), o scrim, as sombras sólidas (só Kids) e as cores de conservação. Ele substitui o `LocalConservationPalette` de hoje.
+- **"Escuro efetivo":** `PiuTheme.isDark: Boolean` diz se o que está na tela é escuro (no Kids, nunca). Ligar isso aos ícones das barras do sistema fica na frente D, quando o Kids passa a abrir **[R]**.
+- **`PiuTheme.tokens`:** um `CompositionLocal` com os gradientes da variante (bioma ou mundo), o scrim, as sombras sólidas (só Kids) e as cores de conservação. Ele substitui o `LocalConservationPalette` de hoje, que só é usado dentro do módulo (no `ConservationBadge`): a troca não toca nas features.
 
 ### 5.3 Tipografia Kids **[R]**
 
 - Os estilos `display`, `headline` e `title` usam Fredoka, de 600 a 700.
 - Os estilos `body` e `label` usam Nunito, de 600 a 800.
 - O `bodyLarge` tem no mínimo 18 sp.
-- Os 15 estilos do Material ficam nos tokens, com tamanho, altura de linha e peso.
+- Os valores exatos dos 15 estilos do Material (tamanho, altura de linha e peso) são fixados no PR 1, a partir das pranchetas, e o `TokensTest` os trava **[R]**.
 
 ### 5.4 Reduzir animações **[R]**
 
@@ -185,7 +185,7 @@ Os componentes já estão desenhados nas pranchetas de `direcoes-2026/canvas`. O
 - **Haze 2.0 beta** e **`androidx.graphics:graphics-shapes`**, as duas no `piu-ds`.
 - **Antes do plano C2,** um teste rápido confere que as duas têm artefatos para iOS e funcionam com o Compose Multiplatform 1.12.1 e o conjunto de versões da ADR-0019. Se o Haze não funcionar no iOS, o `PiuBlurSurface` usa o fallback translúcido no iOS e o desfoque só no Android.
 - Os lockfiles e o `aboutlibraries.json` são atualizados no mesmo PR.
-- **ADR nova:** Haze 2.0 em beta, isolado num componente. Ela pega o próximo número livre na hora do merge, porque a frente B também cria ADRs **[R]**.
+- **ADR nova:** Haze 2.0 em beta, isolado num componente. Ela é escrita depois do teste de iOS, que pode mudar a decisão (desfoque só no Android), num PR do docs junto com o PR 4 **[R]**. Ela pega o próximo número livre na hora do merge, porque a frente B também cria ADRs **[R]**.
 
 ## 8. Testes
 
@@ -197,24 +197,27 @@ Os componentes já estão desenhados nas pranchetas de `direcoes-2026/canvas`. O
 - **O risco do peso 800:** com glifos mais largos, um título pode cortar a 2.0×. O C1b corrige só o texto que cortar e registra cada correção no PR **[R]**.
 - **Contraste:** `check-tokens.mjs`, com os pares da seção 4.2.
 - **Paridade de tokens:** o `TokensTest` com o bloco `kids` e o peso 800.
-- **Tema:**
+- **Tema:** a escolha do esquema é uma função pura, `resolvePiuScheme(journey, themeMode, systemDark, dynamicAvailable)`, testada em `commonTest` com assertk **[R]**:
   - o Kids sempre claro, mesmo com `ThemeMode.DARK`;
-  - o "escuro efetivo";
+  - o "escuro efetivo" (`isDark`);
   - o `ThemeMode.isDark` no novo endereço.
-- **Reduzir animações:** com `LocalPiuReduceMotion` ligado, o botão Kids e a barra flutuante não animam (snapshot e teste de estado).
-- **Semântica:** os componentes clicáveis têm papel, descrição e o alvo mínimo da variante, com `runComposeUiTest`.
+- **Reduzir animações:**
+  - no C1b, um teste confere que o `LocalPiuReduceMotion` sobrescreve o valor do sistema; a leitura real, no Android e no iOS, é conferida à mão e registrada no PR **[R]**;
+  - no C2, com `LocalPiuReduceMotion` ligado, o botão Kids e a barra flutuante não animam (snapshot e teste de estado).
+- **Semântica:** os componentes clicáveis têm papel, descrição e o alvo mínimo da variante. Entra no C2, com `compose-ui-test` e `runComposeUiTest` em `androidHostTest` (a decisão que o README antigo adiava). A dependência e a trava de versão entram no PR 4 **[R]**.
 - **Fora:** o snapshot de cores dinâmicas, que o Paparazzi não renderiza.
 
 ## 9. Ordem de entrega
 
 | # | PR | Repositório | Plano |
 |---|---|---|---|
-| 1 | README do PiuDS, tokens 2.0.0 com o bloco `kids` e a tabela de ajustes de cor, ferramenta de contraste, ADR do Haze | `passarim-docs` | C1 |
+| 1 | README do PiuDS, tokens 2.0.0 com o bloco `kids` e a tabela de ajustes de cor, ferramenta de contraste | `passarim-docs` | C1 |
 | 2 | C1a: renomeação mecânica, com diff de snapshots zero | `passarim-app` | C1 |
 | 3 | C1b: `PiuTheme` com as variantes, tokens, fontes e licenças, reduzir animações e o diff de snapshots para o dono aprovar | `passarim-app` | C1 |
 | 4 | Componentes comuns e o Pipo, mais Haze e `graphics-shapes` | `passarim-app` | C2 |
 | 5 | Componentes adultos | `passarim-app` | C2 |
 | 6 | Componentes Kids | `passarim-app` | C2 |
+| 7 | ADR do Haze, com o resultado do teste de iOS, junto com o PR 4 | `passarim-docs` | C2 |
 
 O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 4 a 6 dependem do 3.
 
@@ -230,7 +233,7 @@ O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 
 
 ## 11. Correções ao PRD e ao README antigo
 
-1. **O PRD fala em `PiuTheme.tokens`** e o README antigo em `PiuTheme.colors`, `.typography` e `.shapes`. Ficam só `tokens` e `reduceMotion`: são 64 usos de `MaterialTheme.*` nas features, e duas portas para o mesmo valor não ajudam **[R]**.
+1. **O PRD fala em `PiuTheme.tokens`** e o README antigo em `PiuTheme.colors`, `.typography` e `.shapes`. Ficam só `tokens`, `reduceMotion` e `isDark`: são 64 usos de `MaterialTheme.*` nas features, e duas portas para o mesmo valor não ajudam **[R]**.
 2. **O Pipo** do PRD ("o balão e os estados do Kids dependem dele") entra só na pose normal; as outras vão para a frente F **[R]**.
 3. **A regra do 2** ganha a exceção fechada da seção 3 **[R]**.
 4. **As cores das pranchetas** mudam onde não passam no contraste (seção 4.3) **[R]**.
@@ -242,9 +245,8 @@ O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 
 
 1. A divisão em dois planos (C1 e C2) e a ordem dos PRs.
 2. `PiuBlurSurface` como o único componente que importa o Haze.
-3. A exceção à regra do 2 para os componentes de assinatura.
-4. Fredoka e Nunito em TTF variável.
-5. O Pipo como `ImageVector` escrito à mão.
+3. Fredoka e Nunito em TTF variável.
+4. O Pipo como `ImageVector` escrito à mão.
 
 **[R]:**
 
@@ -252,7 +254,7 @@ O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 
 - `Journey` só como enum;
 - a exceção fechada aos 12 componentes;
 - o README alinhado ao código;
-- só `tokens` e `reduceMotion` no `PiuTheme`;
+- só `tokens`, `reduceMotion` e `isDark` no `PiuTheme`;
 - opt-in do expressivo só no `piu-ds`;
 - formas e tipografia próprias no Kids;
 - a base de snapshots Kids separada;
