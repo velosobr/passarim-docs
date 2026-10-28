@@ -43,6 +43,19 @@ Decisões do redator estão marcadas com **[DR]** e listadas na seção 12.
 - outros idiomas;
 - login, identificação de aves pela câmera e notificações (v2, como antes).
 
+### Crescimento do catálogo
+
+As 41 espécies são o tamanho do MVP. Depois da primeira entrega, a intenção do dono é **aumentar o catálogo**, na direção do "catálogo completo (~1.970 espécies)" do roadmap v2 da spec de design (`2026-10-01-passarim-design.md`, seção 16). Por isso:
+
+- **Nenhuma decisão das frentes depende de haver 41 espécies.** Cada spec confere a própria frente com um catálogo maior. As 41 aparecem só nos critérios de pronto da primeira entrega.
+- **O que já escala:** a "Ave do dia" (uma linha por dia, seja qual for o número de aves), o kidsgen (rodado por lote), o filtro `kids_only` (espécie nova sem o bloco Kids fica fora do Kids), os picos do canto, o proto e o BFF.
+- **Gargalos conhecidos, fora da guinada:**
+  - **o texto adulto curado é escrito à mão** (descrição e fatos com fonte). É o maior gargalo: mais de mil YAMLs assim pedem outra estratégia, numa frente própria depois da primeira entrega;
+  - **a conferência foto a foto** é o critério final da frente A para as 41. Num catálogo grande, ela passa a valer só para as espécies marcadas no relatório de curadoria;
+  - **a reingestão** roda um job de fotos por rodada, perto de 1 h para as 41 e uns 2 dias para 1.970. Serve para a rotina mensal, mas um catálogo grande pede rodadas em paralelo;
+  - **o álbum Kids** com centenas de aves por mundo pede outro desenho, decidido na frente F;
+  - **a regra do dono** continua: toda espécie precisa de foto e de canto gravado; sem isso, não entra.
+
 ## 3. Decisões do dono
 
 | # | Tema | Decisão |
@@ -235,7 +248,7 @@ A ordem de execução é: **0 → A → B → C → D → G → E → F → H**.
   - `did_you_know`: um fato curto para o balão "Você sabia?";
   - `generated_by`: o id exato do modelo usado;
   - `source_hash`: um hash do texto adulto de origem.
-- **Conteúdo Kids revisado** é o bloco `kids:` presente no YAML, que só entra por PR revisado. O lint exige o bloco em todas as espécies. O filtro `kids_only` existe para espécies futuras ainda sem o bloco: elas não aparecem no Kids e não são elegíveis para a "Ave do dia".
+- **Conteúdo Kids revisado** é o bloco `kids:` presente no YAML, que só entra por PR revisado. O lint valida o bloco sempre que ele existe, mas não o exige: as 41 espécies do MVP o têm como critério de pronto desta frente, e uma espécie nova pode entrar no catálogo antes do conteúdo Kids. O filtro `kids_only` existe para espécies futuras ainda sem o bloco: elas não aparecem no Kids e não são elegíveis para a "Ave do dia".
 
 **`cmd/kidsgen` (script com a API do Claude):**
 
