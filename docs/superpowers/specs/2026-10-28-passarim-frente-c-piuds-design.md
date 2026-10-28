@@ -9,7 +9,7 @@ Decisões do redator estão marcadas com **[DR]** e listadas no fim. O dono dele
 O PiuDS é o design system do Passarim, com duas variantes: **Piu**, para o adulto, e **Piu Kids**. Esta frente:
 
 - dá nome e regras ao módulo de design que o app já tem;
-- troca o tema atual pelo tema expressivo do Material 3;
+- troca o tema atual pelo `PiuTheme` (títulos em 800; o tema expressivo do Material 3 fica para quando sair em versão estável, seção 11);
 - cria a variante Kids;
 - entrega os componentes que as frentes E (adulto) e F (Kids) vão montar nas telas.
 
@@ -19,7 +19,7 @@ O PiuDS é o design system do Passarim, com duas variantes: **Piu**, para o adul
 
 1. O app atual roda sobre o PiuDS, na variante Piu.
    - O PR da renomeação não muda nenhum snapshot.
-   - O PR do tema muda os snapshots só pelo tema expressivo e pelos títulos em 800 (hoje em 700), e o dono aprova essa diferença no PR.
+   - O PR do tema muda os snapshots só pelos títulos em 800 (hoje em 700), e o dono aprova essa diferença no PR. Qualquer outra diferença de pixel é um bug a investigar **[R]**.
 2. Os componentes novos têm snapshots: Piu em claro e escuro, Piu Kids só em claro, cada um com fonte 1.0×, 1.3× e 2.0×.
 3. O contraste de todos os pares de cores usados pelos componentes passa na ferramenta de `docs/design/tools`, nas duas variantes. O dono aprova os ajustes de cor em relação às pranchetas (seção 4.3).
 
@@ -116,8 +116,9 @@ fun PiuTheme(
 
 - **`Journey { ADULT, KIDS }`** entra em `core:domain` como um enum puro **[R]**. O campo em `Settings` e o `setJourney` são da frente D.
 - **`ThemeMode.isDark`** sai de `app/theme` e vai para o `piu-ds`, junto com o teste dele, porque o tema passa a receber `themeMode`. O `App.kt` chama `PiuTheme(themeMode = …)`.
-- **Piu:** `MaterialExpressiveTheme` com as cores de hoje (ou as dinâmicas, se pedidas e disponíveis), a Manrope com títulos em 800 e o `MotionScheme.expressive()`.
-  - As duas APIs são experimentais no Material 3 1.9.0 (androidx 1.4.0), o que o plano confere no artefato. O `@OptIn(ExperimentalMaterial3ExpressiveApi::class)` fica só dentro do `piu-ds` **[R]**.
+- **Piu:** `MaterialTheme` com as cores de hoje (ou as dinâmicas, se pedidas e disponíveis) e a Manrope com títulos em 800.
+  - **Correção na execução** **[R]:** `MaterialExpressiveTheme` e `MotionScheme` são **internos** no CMP material3 1.9.0 (androidx 1.4.0) e só ficam públicos a partir do CMP material3 1.13.0-beta01 (androidx 1.5.0-beta02). O PiuDS fica no Material estável, com `TODO(frente-H): adotar MaterialExpressiveTheme e MotionScheme.expressive() quando saírem em versão estável do CMP material3`.
+  - **Movimento:** as molas dos componentes ficam centralizadas num `PiuMotion` (plano C2), com duas ou três `spring()` nomeadas que viram `snap()` quando `PiuTheme.reduceMotion` está ligado. É o lugar único que o `MotionScheme` expressivo substitui depois.
   - Hoje o `manropeFontFamily()` declara só os pesos 400, 600 e 700. O 800 entra na lista, no `TOKENS.md` e no `TokensTest` **[R]**.
 - **Piu Kids:** sempre claro, sem cores dinâmicas, com o esquema, a tipografia e as formas do bloco `kids` (`PiuKidsColors`, `PiuKidsTypography` e `PiuKidsShapes`) **[R]**. O tema ignora `themeMode` e `dynamicColor` sem gravar nada; as preferências do adulto não mudam.
 - **"Escuro efetivo":** `PiuTheme.isDark: Boolean` diz se o que está na tela é escuro (no Kids, nunca). Ligar isso aos ícones das barras do sistema fica na frente D, quando o Kids passa a abrir **[R]**.
@@ -238,6 +239,7 @@ O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 
 3. **A regra do 2** ganha a exceção fechada da seção 3 **[R]**.
 4. **As cores das pranchetas** mudam onde não passam no contraste (seção 4.3) **[R]**.
 5. **O README antigo** proibia Coil e prometia uma task de allowlist; o novo reflete o código (seção 3) **[R]**.
+6. **O tema expressivo** (`MaterialExpressiveTheme`, `MotionScheme`), que o PRD e as direções davam como disponível no Material 3 1.9.0, é interno nessa versão. Fica para quando sair em versão estável (seção 5.2) **[R]**.
 
 ## 12. Decisões do redator [DR] e do representante [R]
 
@@ -255,7 +257,7 @@ O PR 2 pode abrir antes do 1. O PR 3 depende do 1, por causa dos tokens. Os PRs 
 - a exceção fechada aos 12 componentes;
 - o README alinhado ao código;
 - só `tokens`, `reduceMotion` e `isDark` no `PiuTheme`;
-- opt-in do expressivo só no `piu-ds`;
+- ficar no Material estável (o expressivo é interno no 1.9.0), com o `PiuMotion` no C2;
 - formas e tipografia próprias no Kids;
 - a base de snapshots Kids separada;
 - o contraste do desfoque sem depender do desfoque;

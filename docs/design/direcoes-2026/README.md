@@ -100,9 +100,11 @@ aparece em balões de fala ("Qual ave vamos conhecer hoje?", "Você sabia?").
 
 - **Material 3 Expressive** é o visual padrão do Android: cores mais vivas, formas como a "cookie", movimento
   com molas e componentes novos. O Android 17 usa superfícies com desfoque tingidas pelas cores dinâmicas.
-- **No conjunto de versões do app** (Compose Multiplatform 1.12.1, Material 3 1.9.0, que é o `androidx` 1.4.0)
-  já existem `MaterialExpressiveTheme`, `MotionScheme`, `ShortNavigationBar` e o carrossel. `LoadingIndicator`,
-  `MaterialShapes` e `ButtonGroup` só existem nas versões alpha.
+- **No conjunto de versões do app** (Compose Multiplatform 1.12.1, Material 3 1.9.0, que é o `androidx` 1.4.0):
+  **correção de 2026-10-28** — `MaterialExpressiveTheme` e `MotionScheme` são **internos** nessa versão (o compilador
+  recusa), e só ficam públicos a partir do CMP material3 1.13.0-beta01 (`androidx` 1.5.0-beta02). `ShortNavigationBar`
+  e o carrossel existem, mas são experimentais. `LoadingIndicator`, `MaterialShapes` e `ButtonGroup` só existem nas
+  versões alpha. O PiuDS fica no Material estável e adota o expressivo quando ele sair em versão estável.
 - **Peças possíveis em KMP:** elementos compartilhados (Compose Multiplatform), desfoque com a biblioteca Haze
   (2.0 em beta), formas e morfologia com `graphics-shapes`.
 
