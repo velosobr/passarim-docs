@@ -28,6 +28,9 @@ flowchart LR
         PG[(PostgreSQL)]
         S3[(Object storage<br/>SeaweedFS / R2)]
     end
+    subgraph Curadoria["passarim-photo-curator (Python) — rede interna, sem internet"]
+        CUR[Curador de fotos<br/>gRPC 50061]
+    end
     subgraph Externo["Fontes externas"]
         EXT[Wikipedia · Wikidata<br/>iNaturalist · GBIF<br/>xeno-canto · CBRO]
     end
@@ -40,6 +43,7 @@ flowchart LR
     W --> PG
     W --> S3
     W -- busca periódica --> EXT
+    W -- gRPC: o que cada foto mostra --> CUR
     App -- fotos e cantos --> CDN --> S3
 ```
 
@@ -107,7 +111,11 @@ README do `passarim-app`. Na primeira vez o `back-end-init` copia o `.env.exampl
 `XENO_CANTO_API_KEY` (a única variável sem padrão). Variáveis opcionais: `PASSARIM_AVD` (nome do emulador Android) e
 `PASSARIM_SIMULATOR` (UDID do simulador iOS). Os logs do compose e do emulador ficam em `$TMPDIR/passarim-*.log`.
 
-O curador de fotos ainda não está no compose (entra no plano A3); até lá, ele roda pelo README dele.
+**Curador de fotos.** O `photo-curator` sobe junto com o back-end, numa rede só dele e do worker
+(`passarim-curation`, sem internet, gRPC na porta 50061). A primeira construção baixa os pesos dos modelos (a imagem
+tem cerca de 2 GB) e ele usa perto de 2 GB de memória: no Docker Desktop, deixe pelo menos 6 GB para os containers.
+Para reprocessar as fotos: `docker compose run --rm catalog-worker requeue [species-id...]`; para conferir o
+resultado: `docker compose run --rm catalog-worker curation-report > relatorio.md`.
 
 ### O que os scripts fazem por baixo
 

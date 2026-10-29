@@ -69,6 +69,12 @@ networks:
     internal: true   # sem acesso à internet
   passarim-private:
     name: passarim-private
+  # Rede exclusiva entre o worker e o curador. "internal: true" tira a saída
+  # para a internet: o curador não chama nada de fora, e um bug nele não vira
+  # acesso à rede.
+  passarim-curation:
+    name: passarim-curation
+    internal: true
 
 volumes:
   postgres-data:
@@ -201,10 +207,26 @@ services:
     read_only: true
     restart: "no"
 
+  # Curador de fotos (frente A): serviço em Python que diz o que cada foto
+  # mostra (ave sozinha, bando, ninho...). Só o worker fala com ele, pela
+  # rede passarim-curation, que é "internal": sem saída para a internet. Os
+  # pesos dos modelos já estão dentro da imagem, então ele nunca baixa nada.
+  # A primeira construção da imagem demora (cerca de 2 GB) e ele usa cerca de
+  # 2 GB de memória quando os modelos carregam.
+  # O health check vem do Dockerfile (python -m photo_curator.healthcheck):
+  # o worker só sobe depois de ele responder.
+  photo-curator:
+    build: ../passarim-photo-curator
+    image: passarim-photo-curator:dev
+    networks: [passarim-curation]
+    read_only: true
+    tmpfs: [/tmp]   # HOME=/tmp: o torch grava cache aqui
+
   # Worker de ingestão (Etapa 2b): busca fotos, cantos e avistamentos nas
   # fontes externas e grava no banco e no object storage. Precisa de
   # INTERNET (sai pela rede privada, que não é "internal") e não recebe
-  # conexões de ninguém, então não publica portas.
+  # conexões de ninguém, então não publica portas. Pergunta ao curador
+  # (photo-curator, pela rede passarim-curation) o que cada foto mostra.
   catalog-worker:
     build:
       context: ../passarim-catalog
@@ -216,17 +238,21 @@ services:
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       XENO_CANTO_API_KEY: ${XENO_CANTO_API_KEY:?defina XENO_CANTO_API_KEY no .env}
+      CURATOR_ADDR: photo-curator:50061
     depends_on:
       catalog-seed:
         condition: service_completed_successfully   # só começa com as aves já no banco
       objectstorage:
         condition: service_healthy
-    networks: [passarim-private]
+      photo-curator:
+        condition: service_healthy   # sem o curador de pé, os jobs de fotos só seriam adiados
+    networks: [passarim-private, passarim-curation]
     read_only: true
     tmpfs: [/tmp]   # o ffmpeg pode precisar de arquivos temporários
-    # O worker termina o lote em andamento (até 2 min) antes de sair; sem isto o
-    # Docker o mata após 10 s e o job fica 'running' até voltar à fila (15 min).
-    stop_grace_period: 2m30s
+    # O worker termina a rodada em andamento antes de sair: até 2 min mais o
+    # prazo do job de fotos (6 min). Sem isto, o Docker o mata após 10 s e o
+    # job fica 'running' até voltar à fila (15 min).
+    stop_grace_period: 8m30s
 
   # BFF (REST/JSON em /v1) — duas réplicas atrás do Traefik (Etapa 3).
   bff-1:
