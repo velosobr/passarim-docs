@@ -31,10 +31,13 @@ export function toCss(t) {
   const type = Object.entries(t.type.styles)
     .map(([name, s]) => `.t-${name}{font-size:${s.size / 16}rem;line-height:${s.line / 16}rem;font-weight:${s.weight};letter-spacing:${s.tracking}px}`)
     .join('\n') + '\n';
+  // O Kids é uma variante só clara: um bloco próprio, ligado por data-variant.
+  const kids = `[data-variant="kids"]{\n${Object.entries(t.kids.color.light).map(([role, hex]) => `  --md-${kebab(role)}:${hex};`).join('\n')}\n}\n`;
   return head + shared
     + themeBlock(':root,[data-theme="light"]', t, 'light')
     + themeBlock('[data-theme="dark"]', t, 'dark')
-    + type;
+    + type
+    + kids;
 }
 
 const kotlinColor = (hex) => `Color(0xFF${hex.slice(1).toUpperCase()})`;
@@ -54,6 +57,10 @@ export function toDocs(t) {
   });
   const typeRows = Object.entries(t.type.styles)
     .map(([n, s]) => `| \`${n}\` | ${s.size} | ${s.line} | ${s.weight} | ${s.tracking} |`);
+  const gradRows = (g) => Object.entries(g).map(([n, c]) => `| \`${n}\` | \`${c.from}\` | \`${c.to}\` | \`${c.text}\` |`);
+  const kidsRoleRows = Object.entries(t.kids.color.light).map(([r, hex]) => `| \`${r}\` | \`${hex}\` |`);
+  const kidsTypeRows = Object.entries(t.kids.type.styles)
+    .map(([n, s]) => `| \`${n}\` | ${s.family} | ${s.size} | ${s.line} | ${s.weight} |`);
   return [
     '# Tokens do Passarim',
     '',
@@ -70,9 +77,9 @@ export function toDocs(t) {
     '### Compose (`Color.kt`)',
     '',
     '```kotlin',
-    kotlinScheme('PassarimLightColors', 'lightColorScheme', t.color.light),
+    kotlinScheme('PiuLightColors', 'lightColorScheme', t.color.light),
     '',
-    kotlinScheme('PassarimDarkColors', 'darkColorScheme', t.color.dark),
+    kotlinScheme('PiuDarkColors', 'darkColorScheme', t.color.dark),
     '```',
     '',
     '## Conservação',
@@ -90,6 +97,42 @@ export function toDocs(t) {
     '| Estilo | Tamanho | Linha | Peso | Tracking |',
     '|---|---|---|---|---|',
     ...typeRows,
+    '',
+    '## Gradientes de bioma (Piu)',
+    '',
+    `Ângulo de ${t.gradient.angle}°. O texto passa a 4.5:1 contra as duas pontas.`,
+    '',
+    '| Bioma | De | Até | Texto |',
+    '|---|---|---|---|',
+    ...gradRows(t.gradient.biome),
+    '',
+    `Scrim de foto: \`${t.scrim.color}\` com opacidade ${t.scrim.alpha}, a partir de ${t.scrim.from * 100}% da altura; texto \`${t.scrim.text}\`.`,
+    '',
+    '## Passarim Kids',
+    '',
+    'Variante só clara. Mesmos papéis do Material 3.',
+    '',
+    '| Papel | Cor |',
+    '|---|---|',
+    ...kidsRoleRows,
+    '',
+    '```kotlin',
+    kotlinScheme('PiuKidsColors', 'lightColorScheme', t.kids.color.light),
+    '```',
+    '',
+    `### Mundos (ângulo de ${t.kids.gradient.angle}°)`,
+    '',
+    '| Mundo | De | Até | Texto |',
+    '|---|---|---|---|',
+    ...gradRows(t.kids.gradient.world),
+    '',
+    '### Tipografia Kids',
+    '',
+    '| Estilo | Família | Tamanho | Linha | Peso |',
+    '|---|---|---|---|---|',
+    ...kidsTypeRows,
+    '',
+    `Formas (dp): ${Object.entries(t.kids.shape).map(([k, v]) => `\`${k}\` ${v}`).join(', ')}. Sombras sólidas: cartão \`${t.kids.shadow.card.color}\` (${t.kids.shadow.card.offset} dp), botão \`${t.kids.shadow.button.color}\` (${t.kids.shadow.button.offset} dp).`,
     '',
     '## Forma e espaço',
     '',

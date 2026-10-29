@@ -47,7 +47,7 @@ Esquema Material 3. Os nomes dos papéis são os mesmos de `ColorScheme` no Comp
 ### Compose (`Color.kt`)
 
 ```kotlin
-val PassarimLightColors = lightColorScheme(
+val PiuLightColors = lightColorScheme(
     primary = Color(0xFF1A6D3C),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFA6F4B6),
@@ -85,7 +85,7 @@ val PassarimLightColors = lightColorScheme(
     scrim = Color(0xFF000000),
 )
 
-val PassarimDarkColors = darkColorScheme(
+val PiuDarkColors = darkColorScheme(
     primary = Color(0xFF7DDB97),
     onPrimary = Color(0xFF00391B),
     primaryContainer = Color(0xFF00522A),
@@ -145,13 +145,13 @@ Família única **Manrope** (variável, embarcada no app). Itálico (nome cient�
 
 | Estilo | Tamanho | Linha | Peso | Tracking |
 |---|---|---|---|---|
-| `displayLarge` | 57 | 64 | 700 | -0.25 |
-| `displayMedium` | 45 | 52 | 700 | 0 |
-| `displaySmall` | 36 | 44 | 700 | 0 |
-| `headlineLarge` | 32 | 40 | 700 | 0 |
-| `headlineMedium` | 28 | 36 | 700 | 0 |
-| `headlineSmall` | 24 | 32 | 700 | 0 |
-| `titleLarge` | 22 | 28 | 700 | 0 |
+| `displayLarge` | 57 | 64 | 800 | -0.25 |
+| `displayMedium` | 45 | 52 | 800 | 0 |
+| `displaySmall` | 36 | 44 | 800 | 0 |
+| `headlineLarge` | 32 | 40 | 800 | 0 |
+| `headlineMedium` | 28 | 36 | 800 | 0 |
+| `headlineSmall` | 24 | 32 | 800 | 0 |
+| `titleLarge` | 22 | 28 | 800 | 0 |
 | `titleMedium` | 16 | 24 | 600 | 0.15 |
 | `titleSmall` | 14 | 20 | 600 | 0.1 |
 | `bodyLarge` | 16 | 24 | 400 | 0.5 |
@@ -160,6 +160,136 @@ Família única **Manrope** (variável, embarcada no app). Itálico (nome cient�
 | `labelLarge` | 14 | 20 | 600 | 0.1 |
 | `labelMedium` | 12 | 16 | 600 | 0.5 |
 | `labelSmall` | 11 | 16 | 600 | 0.5 |
+
+## Gradientes de bioma (Piu)
+
+Ângulo de 135°. O texto passa a 4.5:1 contra as duas pontas.
+
+| Bioma | De | Até | Texto |
+|---|---|---|---|
+| `amazonia` | `#063D27` | `#328556` | `#FFFFFF` |
+| `mata_atlantica` | `#0D4F45` | `#3C8361` | `#FFFFFF` |
+| `cerrado` | `#6E3A0E` | `#9A6E1E` | `#FFFFFF` |
+| `caatinga` | `#5C2414` | `#B65D30` | `#FFFFFF` |
+| `pantanal` | `#0E3A57` | `#338095` | `#FFFFFF` |
+| `pampa` | `#3E4A12` | `#737B37` | `#FFFFFF` |
+
+Scrim de foto: `#101410` com opacidade 0.8, a partir de 25% da altura; texto `#FFFFFF`.
+
+## Passarim Kids
+
+Variante só clara. Mesmos papéis do Material 3.
+
+| Papel | Cor |
+|---|---|
+| `primary` | `#A84300` |
+| `onPrimary` | `#FFFFFF` |
+| `primaryContainer` | `#FF8A3D` |
+| `onPrimaryContainer` | `#1D2B3A` |
+| `secondary` | `#1E5FA6` |
+| `onSecondary` | `#FFFFFF` |
+| `secondaryContainer` | `#CDEBFF` |
+| `onSecondaryContainer` | `#0A2440` |
+| `tertiary` | `#B8164F` |
+| `onTertiary` | `#FFFFFF` |
+| `tertiaryContainer` | `#FFD6E0` |
+| `onTertiaryContainer` | `#4A0A22` |
+| `error` | `#B3261E` |
+| `onError` | `#FFFFFF` |
+| `errorContainer` | `#FFDAD6` |
+| `onErrorContainer` | `#410002` |
+| `background` | `#FFF7E8` |
+| `onBackground` | `#1D2B3A` |
+| `surface` | `#FFF7E8` |
+| `onSurface` | `#1D2B3A` |
+| `surfaceVariant` | `#F2E3C6` |
+| `onSurfaceVariant` | `#4A5566` |
+| `surfaceDim` | `#EADBBF` |
+| `surfaceBright` | `#FFF7E8` |
+| `surfaceContainerLowest` | `#FFFFFF` |
+| `surfaceContainerLow` | `#FFF2DC` |
+| `surfaceContainer` | `#FCEDD3` |
+| `surfaceContainerHigh` | `#F8E7C9` |
+| `surfaceContainerHighest` | `#F2E3C6` |
+| `outline` | `#6E7680` |
+| `outlineVariant` | `#E2D2B2` |
+| `inverseSurface` | `#1D2B3A` |
+| `inverseOnSurface` | `#FFF7E8` |
+| `inversePrimary` | `#FFC93C` |
+| `scrim` | `#000000` |
+
+```kotlin
+val PiuKidsColors = lightColorScheme(
+    primary = Color(0xFFA84300),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFF8A3D),
+    onPrimaryContainer = Color(0xFF1D2B3A),
+    secondary = Color(0xFF1E5FA6),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFCDEBFF),
+    onSecondaryContainer = Color(0xFF0A2440),
+    tertiary = Color(0xFFB8164F),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFFFD6E0),
+    onTertiaryContainer = Color(0xFF4A0A22),
+    error = Color(0xFFB3261E),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+    background = Color(0xFFFFF7E8),
+    onBackground = Color(0xFF1D2B3A),
+    surface = Color(0xFFFFF7E8),
+    onSurface = Color(0xFF1D2B3A),
+    surfaceVariant = Color(0xFFF2E3C6),
+    onSurfaceVariant = Color(0xFF4A5566),
+    surfaceDim = Color(0xFFEADBBF),
+    surfaceBright = Color(0xFFFFF7E8),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFF2DC),
+    surfaceContainer = Color(0xFFFCEDD3),
+    surfaceContainerHigh = Color(0xFFF8E7C9),
+    surfaceContainerHighest = Color(0xFFF2E3C6),
+    outline = Color(0xFF6E7680),
+    outlineVariant = Color(0xFFE2D2B2),
+    inverseSurface = Color(0xFF1D2B3A),
+    inverseOnSurface = Color(0xFFFFF7E8),
+    inversePrimary = Color(0xFFFFC93C),
+    scrim = Color(0xFF000000),
+)
+```
+
+### Mundos (ângulo de 150°)
+
+| Mundo | De | Até | Texto |
+|---|---|---|---|
+| `amazonia` | `#9BE15D` | `#1F9F56` | `#0B2A17` |
+| `mata_atlantica` | `#6EE7C0` | `#13A38B` | `#0B2A17` |
+| `cerrado` | `#FFE066` | `#FF9F1C` | `#3A2200` |
+| `caatinga` | `#FFB38A` | `#E65741` | `#3A1208` |
+| `pantanal` | `#7DD3FC` | `#438DDC` | `#0A2440` |
+| `pampa` | `#E4F57A` | `#7CB342` | `#1F2A0A` |
+
+### Tipografia Kids
+
+| Estilo | Família | Tamanho | Linha | Peso |
+|---|---|---|---|---|
+| `displayLarge` | Fredoka | 57 | 64 | 700 |
+| `displayMedium` | Fredoka | 45 | 52 | 700 |
+| `displaySmall` | Fredoka | 38 | 44 | 700 |
+| `headlineLarge` | Fredoka | 34 | 40 | 700 |
+| `headlineMedium` | Fredoka | 28 | 34 | 700 |
+| `headlineSmall` | Fredoka | 26 | 32 | 700 |
+| `titleLarge` | Fredoka | 22 | 28 | 700 |
+| `titleMedium` | Fredoka | 18 | 24 | 700 |
+| `titleSmall` | Fredoka | 16 | 22 | 600 |
+| `bodyLarge` | Nunito | 18 | 26 | 600 |
+| `bodyMedium` | Nunito | 16 | 24 | 600 |
+| `bodySmall` | Nunito | 14 | 20 | 600 |
+| `labelLarge` | Nunito | 16 | 22 | 800 |
+| `labelMedium` | Nunito | 14 | 20 | 800 |
+| `labelSmall` | Nunito | 12 | 16 | 700 |
+
+Formas (dp): `small` 16, `medium` 24, `large` 28, `extraLarge` 38, `touchTarget` 56. Sombras sólidas: cartão `#F2E3C6` (4 dp), botão `#C9601E` (5 dp).
 
 ## Forma e espaço
 

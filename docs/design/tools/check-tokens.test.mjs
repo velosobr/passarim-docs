@@ -75,3 +75,44 @@ test('fundo único: background é igual a surface nos dois temas', () => {
   const t = loadTokens();
   for (const theme of ['light', 'dark']) assert.equal(t.color[theme].background, t.color[theme].surface);
 });
+
+test('o bloco kids tem todos os papéis do Material e passa nos mesmos pares', () => {
+  const t = fresh();
+  t.kids.color.light.onSurface = '#B8B0A0';
+  const f = checkTokens(t);
+  assert.ok(f.some((x) => x.kind === 'contrast' && x.theme === 'kids' && x.bg === 'surface' && x.fg === 'onSurface'));
+  const u = fresh();
+  delete u.kids.color.light.scrim;
+  assert.ok(checkTokens(u).some((x) => x.kind === 'missing' && x.theme === 'kids' && x.role === 'scrim'));
+});
+
+test('o texto de um gradiente é conferido contra as duas pontas', () => {
+  const t = fresh();
+  t.gradient.biome.cerrado.to = '#D9A13B'; // a ponta clara da prancheta: 2.30:1 com branco
+  const f = checkTokens(t);
+  assert.ok(f.some((x) => x.kind === 'gradient' && x.name === 'gradient.biome.cerrado' && x.end === 'to' && x.ratio < 4.5));
+  const u = fresh();
+  u.kids.gradient.world.pantanal.to = '#2B7FD8'; // a ponta da prancheta: 3.83:1 com o texto
+  assert.ok(checkTokens(u).some((x) => x.kind === 'gradient' && x.name === 'kids.gradient.world.pantanal'));
+});
+
+test('o branco sobre o scrim é conferido no pior caso (foto branca)', () => {
+  const t = fresh();
+  t.scrim.alpha = 0.3;
+  assert.ok(checkTokens(t).some((x) => x.kind === 'contrast' && x.bg === 'scrim'));
+});
+
+test('as cores de conservação são conferidas sobre o creme do Kids', () => {
+  const t = fresh();
+  t.conservation.light.EX.fg = '#C8C0B0';
+  assert.ok(checkTokens(t).some((x) => x.kind === 'contrast' && x.theme === 'kids' && x.fg === 'conservation.EX.fg'));
+});
+
+test('os seis biomas têm gradiente no Piu e no Kids', () => {
+  const t = loadTokens();
+  const biomes = ['amazonia', 'mata_atlantica', 'cerrado', 'caatinga', 'pantanal', 'pampa'];
+  assert.deepEqual(Object.keys(t.gradient.biome).sort(), [...biomes].sort());
+  assert.deepEqual(Object.keys(t.kids.gradient.world).sort(), [...biomes].sort());
+  assert.equal(t.meta.version, '2.0.0');
+  assert.equal(t.type.titleWeight, 800);
+});
