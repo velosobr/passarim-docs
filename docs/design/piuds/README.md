@@ -24,7 +24,7 @@ Este documento são as **regras do projeto PiuDS**. Quem mexe no PiuDS (inclusiv
 
 O módulo é `core/piu-ds`, pacote `com.velosobr.piuds`, e fica **abaixo** de todas as features.
 
-- Pode depender **apenas** de: Compose (runtime, foundation, material3, ui), Compose Resources, `lifecycle-runtime-compose` (para reler preferências do sistema ao voltar ao app), Coil (os componentes de foto carregam imagens), Haze (só no `PiuBlurSurface`), `graphics-shapes` (a forma cookie) e `:core:domain`.
+- Pode depender **apenas** de: Compose (runtime, foundation, material3, ui), Compose Resources, `lifecycle-runtime-compose` (para reler preferências do sistema ao voltar ao app), Coil (os componentes de foto carregam imagens), Haze (só no `PiuBlurSurface`, ADR-0023), `graphics-shapes` (a forma cookie), `ui-tooling-preview` (a anotação `@Preview`) e `:core:domain`. Nos testes de `androidHostTest`, também `compose-ui-test` e Robolectric.
 - **Não pode** depender de: `:app`, `:feature:*`, `:core:data`, `:core:presentation`, Koin, Ktor, Room nem MapLibre.
 - **Sem textos do produto.** Componentes recebem `String` ou *slots* (`@Composable () -> Unit`). Textos como "Sem conexão" ficam em recursos de string do app, para manter a internacionalização possível.
 - **Conhece só o domínio compartilhado.** Pode receber tipos de `:core:domain` (`ConservationStatus`, `Biome`, `Journey`); modelos de uma feature (`Species`, filtros) nunca entram.
@@ -35,7 +35,9 @@ O módulo é `core/piu-ds`, pacote `com.velosobr.piuds`, e fica **abaixo** de to
 
 - A fonte dos valores é `passarim-docs/docs/design/tokens/passarim-tokens.json` (versão 2.0.0). O Kotlin é derivado dele e leva no cabeçalho a versão de origem.
 - Esquema de cores **Material 3**, com os mesmos nomes de papel do `ColorScheme`. As features leem cores, tipografia e formas pelo `MaterialTheme`. O que o Material não tem fica em `PiuTheme.tokens` (gradientes de bioma e de mundo, scrim, sombras sólidas do Kids e cores de conservação). Além dele, só `PiuTheme.reduceMotion` e `PiuTheme.isDark`.
-- **Proibido em componentes:** cor literal (`Color(0xFF...)`), `dp` e `sp` soltos fora de `PiuDimens` e da tipografia, `RoundedCornerShape(12.dp)` direto. Use `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes`, `PiuTheme.tokens` e `PiuDimens`.
+- **Proibido em componentes:** cor literal (`Color(0xFF...)`), alvo de toque solto e tamanho de fonte (`sp`) fora da tipografia. Use `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `MaterialTheme.shapes`, `PiuTheme.tokens`, `PiuDimens` e `PiuKidsDimens`.
+  - **Exceções:** o branco do texto e dos ícones sobre o scrim de uma foto (o par que a ferramenta de contraste mede), o preto usado para escurecer uma cor de token (a sombra do cartão de mundo é a ponta do gradiente 25% mais escura) e o desenho do Pipo, que é ilustração.
+  - **Medidas de layout** (espaçamento, raio e tamanho tirados de uma prancheta) podem ser `dp` dentro do componente, perto de onde são usadas. Uma medida que dois componentes repetem vira token.
 - Temas: no Piu, Sistema, Claro e Escuro, mais **cores dinâmicas** opcionais (Android 12+, via `expect/actual`; nas outras plataformas cai para a paleta da marca). No Piu Kids, sempre claro.
 - **Contraste verificado por teste** (`docs/design/tools/check-tokens.mjs`): texto ≥ 4.5:1 e elementos não textuais ≥ 3:1, no Piu claro, no Piu escuro e no Kids; o texto de cada gradiente contra as duas pontas; o branco sobre o scrim no pior caso (foto branca); as cores de conservação sobre o creme do Kids. Mudar um token sem rodar essa verificação não passa no CI.
 
@@ -46,7 +48,7 @@ O módulo é `core/piu-ds`, pacote `com.velosobr.piuds`, e fica **abaixo** de to
 - **Sem estado interno que o chamador não controle.** Estado sobe (*state hoisting*): `selected`, `checked`, `value` e o `onChange` correspondente vêm de fora.
 - **Slots no lugar de dezenas de parâmetros.** Conteúdo variável é `@Composable () -> Unit`; evite listas de booleanos de estilo.
 - **Estados explícitos:** `enabled`, e quando fizer sentido, `loading` e erro. Cada estado tem visual definido e snapshot.
-- **Parâmetros estáveis:** tipos imutáveis ou anotados `@Immutable`/`@Stable`; coleções em parâmetros usam `kotlinx.collections.immutable` (ou a configuração de estabilidade do projeto), pois `List` é instável. Objetos não triviais criados na composição ficam em `remember`; isso é conferido na revisão e pelos relatórios do compilador do Compose.
+- **Parâmetros estáveis:** tipos imutáveis ou anotados `@Immutable`/`@Stable`. Com o *strong skipping* (padrão do compilador do Compose desde o Kotlin 2.0.20), um parâmetro instável como `List` é comparado pela instância: quem chama passa a mesma lista (guardada em `remember` ou vinda do estado) para o componente não recompor à toa. Objetos não triviais criados na composição ficam em `remember`; isso é conferido na revisão e pelos relatórios do compilador do Compose.
 - **Sem `ViewModel`, sem `Koin`, sem acesso a rede ou disco.** Um componente é função de seus parâmetros.
 - **Efeitos colaterais** (`LaunchedEffect`, `DisposableEffect`) só quando indispensáveis e com chave correta.
 - **Animação:** curta e com função. Todo componente animado lê `PiuTheme.reduceMotion` e, com a preferência do sistema ligada, troca a mola por uma troca seca, sem esconder nada (uma mensagem aparece parada).
@@ -58,6 +60,7 @@ O módulo é `core/piu-ds`, pacote `com.velosobr.piuds`, e fica **abaixo** de to
 - Papéis semânticos corretos (`Role.Button`, `Role.Checkbox`, ...), e estado (`selected`, `toggleable`) exposto à acessibilidade.
 - O layout aguenta **fonte 2.0×** sem cortar texto: nada de altura fixa em contêiner de texto (use `heightIn`/`defaultMinSize`), e nada de reticências que escondam o nome de uma ave ou de um filtro.
 - Cor nunca é o único sinal: um status tem texto ou ícone além da cor.
+- **Texto sobre foto** fica só onde o scrim já está na opacidade cheia: o scrim acompanha o bloco de texto, e não a altura do card, para continuar atrás do texto quando a fonte cresce. O que fica no alto de um card, fora do scrim (um selo, um botão), tem fundo próprio na cor do scrim. Um snapshot com foto branca é o pior caso.
 
 ## 7. Quando criar (ou não) um componente no PiuDS
 
@@ -74,7 +77,8 @@ Toda mudança visual passa por estes portões, todos no CI:
 
 - **Snapshots com Paparazzi** (módulo Android `snapshots`, ADR-0017): cada componente do Piu em **claro e escuro** × **fonte 1.0×, 1.3× e 2.0×**, e cada componente do Piu Kids **só em claro** × as mesmas três escalas, em cada estado relevante.
 - **Contraste** dos tokens (seção 4).
-- **Semântica** de componentes clicáveis (papel, descrição, alvo de toque), com `compose-ui-test` e `runComposeUiTest` em `androidHostTest`, a partir do plano C2.
+- **Semântica** de componentes clicáveis (papel, descrição, alvo de toque), com `compose-ui-test` e `runComposeUiTest` (a API `v2`) em `androidHostTest`, a partir do plano C2.
+- **Estado de animação:** um componente animado tem um teste que acompanha a animação quadro a quadro (`mainClock`) com e sem "reduzir animações". É também onde fica o estado **pressionado**, que o Paparazzi não fotografa: o toque chega ao Compose por um efeito, e o snapshot é tirado antes de os efeitos rodarem.
 - **Paridade com os tokens:** um teste confere que as cores, a conservação, a tipografia e as formas em Kotlin batem com o `passarim-tokens.json`.
 - Snapshot só é regravado com o **diff visual revisado** no PR; "regravar tudo" para o CI passar é proibido.
 - O iOS não tem snapshot (limitação do Paparazzi); o código comum é validado pelo alvo Android e a compilação do iOS roda no CI.
