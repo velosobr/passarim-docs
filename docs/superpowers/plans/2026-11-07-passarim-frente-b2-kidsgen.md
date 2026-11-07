@@ -6,7 +6,7 @@
 
 **Architecture:**
 - **Validador (`internal/kidscontent`):** regras puras de texto (frases, palavras, palavras proibidas), o carimbo `source_hash` do texto adulto e a regra dos números com um parser de números por extenso. Um pacote só, usado pelo teste do conteúdo e pelo kidsgen, para os dois nunca discordarem (spec, seção 3.2).
-- **kidsgen (`cmd/kidsgen`):** lê os YAMLs com o loader do seed, escolhe as espécies (`--missing` ou `--ids`), conversa com o modelo atrás de uma interface (`conversation`), valida a saída, devolve os erros ao modelo até 2 novas tentativas e grava por edição de texto do YAML. Só `anthropic.go` conhece o SDK; a CI nunca chama a API.
+- **kidsgen (`cmd/kidsgen`):** lê os YAMLs com o loader do seed, escolhe as espécies (`--missing` ou `--ids`), conversa com o modelo atrás de uma interface (`conversation`), pede a resposta em saída estruturada (JSON com esquema), valida, devolve os erros ao modelo até 2 novas tentativas e grava por edição de texto do YAML. Só `anthropic.go` conhece o SDK; a CI nunca chama a API.
 - **Conteúdo (PR 6):** o dono roda o kidsgen na máquina dele e revisa espécie por espécie no PR.
 
 **Tech Stack:** Go 1.27.3, `github.com/anthropics/anthropic-sdk-go` v1.84.0 (SDK oficial, publicado em 2026-10-20), `gopkg.in/yaml.v3` (já usado pelo loader), golangci-lint.
@@ -334,7 +334,13 @@ git commit -m "feat: regras de texto e carimbo do conteúdo Kids"
   {"text": "Bota duas ou três vezes.", "want": [2, 3]},
   {"text": "Canta entre 13 e 14 horas.", "want": [13, 14]},
   {"text": "Vive até mil metros de altitude.", "want": [1000]},
-  {"text": "Mede 1.5 metro.", "want": [1.5]}
+  {"text": "Mede 1.5 metro.", "want": [1.5]},
+  {"text": "Voa a 4 mil metros de altitude.", "want": [4000]},
+  {"text": "Come 200 mil insetos por ano.", "want": [200000]},
+  {"text": "Restam 1,5 milhão de aves.", "want": [1500000]},
+  {"text": "Vive no meio da mata.", "want": []},
+  {"text": "Canta à meia-noite.", "want": []},
+  {"text": "Dorme meia hora.", "want": [0.5]}
 ]
 ```
 
@@ -343,7 +349,9 @@ Por que cada caso existe:
 - `"Há um milhão de aves."` e `"vinte e um"`: `um` conta dentro de um número maior;
 - `"O tico-tico come milho."`: "milho" não é "mil", e o hífen separa palavras;
 - `"Mede 1.5 metro."`: um ponto que não separa grupos de 3 é decimal;
-- `"Bota duas ou três vezes."`: "ou" fecha o número, e saem dois valores.
+- `"Bota duas ou três vezes."`: "ou" fecha o número, e saem dois valores;
+- `"4 mil metros"`, `"1,5 milhão"`: algarismo com escala é um número só (o catálogo tem "4 mil metros" e "200 mil insetos");
+- `"no meio da mata"`, `"meia-noite"`: `meio`/`meia` só contam depois de "e" ou antes de uma medida.
 
 `internal/kidscontent/numbers_test.go`:
 
@@ -414,9 +422,11 @@ import (
 )
 
 // digitsPattern acha um número com algarismos, com "." e "," entre os grupos
-// ("2.000", "1,5", "2002"). Um ponto final logo depois não entra, porque o
-// padrão exige um algarismo depois de cada separador.
-var digitsPattern = regexp.MustCompile(`\d+(?:[.,]\d+)*`)
+// ("2.000", "1,5", "2002"), e a escala por extenso que vier logo depois
+// ("4 mil", "1,5 milhão"). Um ponto final logo depois não entra, porque o
+// padrão exige um algarismo depois de cada separador. \b é a fronteira de
+// palavra: "milhares" não é lido como "mil".
+var digitsPattern = regexp.MustCompile(`(\d+(?:[.,]\d+)*)(?:\s+(mil|milhão|milhao|milhões|milhoes)\b)?`)
 
 // wordValues são as palavras que valem um número sozinhas, já sem acento
 // (o texto passa por domain.NormalizeForSearch antes). "um" e "uma" não
@@ -435,16 +445,33 @@ var wordValues = map[string]float64{
 // scales multiplicam a parte que vem antes: "dois mil" = 2 × 1000.
 var scales = map[string]float64{"mil": 1e3, "milhao": 1e6, "milhoes": 1e6}
 
+// units são as palavras de medida depois das quais "meio" e "meia" são um
+// número ("meio metro", "meia hora"). Sem elas, "meio" é quase sempre outra
+// coisa: "no meio da mata", "meia-noite", "meio ambiente".
+var units = map[string]bool{
+	"metro": true, "metros": true, "centimetro": true, "centimetros": true, "quilometro": true, "quilometros": true,
+	"quilo": true, "quilos": true, "grama": true, "gramas": true, "litro": true, "litros": true,
+	"hora": true, "horas": true, "minuto": true, "minutos": true, "segundo": true, "segundos": true,
+	"dia": true, "dias": true, "ano": true, "anos": true,
+}
+
 // Numbers devolve os valores dos números do texto: primeiro os escritos com
-// algarismos, depois os por extenso, cada grupo na ordem do texto.
+// algarismos, depois os por extenso, cada grupo na ordem do texto. Um número
+// com algarismos e escala ("4 mil") vale um número só (4000); a escala sai
+// do texto antes da leitura por extenso, para não contar 1000 de novo.
 func Numbers(text string) []float64 {
 	var out []float64
-	for _, m := range digitsPattern.FindAllString(text, -1) {
-		if v, ok := parseDigits(m); ok {
-			out = append(out, v)
+	for _, m := range digitsPattern.FindAllStringSubmatch(text, -1) {
+		v, ok := parseDigits(m[1])
+		if !ok {
+			continue
 		}
+		if m[2] != "" {
+			v *= scales[domain.NormalizeForSearch(m[2])]
+		}
+		out = append(out, v)
 	}
-	return append(out, wordNumbers(text)...)
+	return append(out, wordNumbers(digitsPattern.ReplaceAllString(text, " "))...)
 }
 
 // parseDigits lê um número no padrão brasileiro: "," separa os decimais
@@ -514,11 +541,14 @@ func wordNumbers(text string) []float64 {
 				flush()
 			}
 		case w == "meio" || w == "meia":
-			if afterAnd { // "dois e meio"
+			switch {
+			case afterAnd: // "dois e meio"
 				current += 0.5
-			} else {
+			case units[next]: // "meio metro", "meia hora"
 				flush()
 				out = append(out, 0.5)
+			default: // "no meio da mata", "meia-noite"
+				flush()
 			}
 		case isValue:
 			in = true
@@ -555,7 +585,7 @@ func formatNumber(v float64) string { return strconv.FormatFloat(v, 'f', -1, 64)
 - [ ] **Step 4: Rodar os testes**
 
 Run: `go test ./internal/kidscontent/`
-Expected: PASS (os 18 casos do golden).
+Expected: PASS (os 24 casos do golden).
 
 - [ ] **Step 5: Commit**
 
@@ -1316,7 +1346,7 @@ func TestUserMessageGolden(t *testing.T) {
 
 // As regras do prompt citam os limites da spec.
 func TestSystemPromptRules(t *testing.T) {
-	for _, rule := range []string{"15 palavras", "de 2 a 4 frases", "write_kids_content", "Suavizar sem esconder", "carcaça"} {
+	for _, rule := range []string{"15 palavras", "de 2 a 4 frases", "JSON", "Suavizar sem esconder", "carcaça"} {
 		if !strings.Contains(strings.ToLower(systemPrompt), strings.ToLower(rule)) {
 			t.Errorf("o prompt deveria citar %q", rule)
 		}
@@ -1337,7 +1367,7 @@ Expected: FAIL na compilação (`undefined: generate`, `undefined: userMessage`)
 Você escreve o conteúdo Kids do Passarim, um guia de aves do Brasil. O
 público tem de 8 a 12 anos e já lê sozinho. Você recebe o texto adulto de
 uma ave, já curado e revisado, e o reescreve para essa criança. Responda
-sempre chamando a ferramenta write_kids_content.
+só com o JSON no formato pedido.
 
 ## Regras do texto
 
@@ -1381,8 +1411,8 @@ Kids. Em biome_reason, explique a escolha numa frase, para quem revisa.
 
 ## Correções
 
-Se a resposta da ferramenta trouxer erros do validador, corrija só o que
-eles apontam e chame write_kids_content de novo com o conteúdo inteiro.
+Se a próxima mensagem trouxer erros do validador, corrija só o que eles
+apontam e responda de novo com o JSON inteiro.
 ```
 
 `cmd/kidsgen/prompt.go`:
@@ -1463,8 +1493,8 @@ const modelID = "claude-opus-5-5"
 // maxAttempts é a primeira tentativa mais as 2 novas.
 const maxAttempts = 3
 
-// modelOutput é o que a ferramenta write_kids_content devolve. As tags json
-// dizem o nome de cada campo no JSON da ferramenta.
+// modelOutput é o JSON que o modelo devolve (o esquema está em
+// outputSchema). As tags json dizem o nome de cada campo nesse JSON.
 type modelOutput struct {
 	Description  string       `json:"description"`
 	Facts        []factOutput `json:"facts"`
@@ -1480,7 +1510,7 @@ type factOutput struct {
 
 // conversation é uma conversa com o modelo sobre UMA espécie. send manda a
 // mensagem (na primeira vez, o texto adulto; depois, os erros do validador)
-// e devolve a saída da ferramenta.
+// e devolve a resposta já lida do JSON.
 type conversation interface {
 	send(ctx context.Context, message string) (modelOutput, error)
 }
@@ -1535,7 +1565,7 @@ func feedback(problems []error) string {
 	for _, p := range problems {
 		b.WriteString("- " + p.Error() + "\n")
 	}
-	b.WriteString("Corrija só esses pontos e chame write_kids_content de novo com o conteúdo inteiro.")
+	b.WriteString("Corrija só esses pontos e responda de novo com o JSON inteiro.")
 	return b.String()
 }
 ```
@@ -1575,7 +1605,7 @@ git commit -m "feat: prompt do kidsgen e ciclo de geração com até 2 novas ten
 
 **Interfaces:**
 - Consumes: Tasks 4 e 5.
-- Produces: `toolName = "write_kids_content"`, `callTimeout = 2 * time.Minute`, `toolSchema(biomes []string) anthropic.ToolInputSchemaParam`, `newAnthropicConversation(apiKey string, s domain.Species) conversation`; `starter`; `run(ctx, args []string, apiKey string, out io.Writer, start starter) error`; `selectSpecies`, `writeKids`.
+- Produces: `callTimeout = 2 * time.Minute`, `maxTokens = 16000`, `outputSchema(biomes []string) map[string]any`, `newAnthropicConversation(apiKey string, s domain.Species) conversation`; `starter`; `run(ctx, args []string, apiKey string, out io.Writer, start starter) error`; `selectSpecies`, `writeKids`.
 
 - [ ] **Step 1: Dependência**
 
@@ -1590,8 +1620,8 @@ Expected: `go.mod` com `github.com/anthropics/anthropic-sdk-go v1.84.0`.
 `cmd/kidsgen/anthropic_test.go`:
 
 ```go
-// Teste do esquema da ferramenta write_kids_content. A conversa com a API
-// em si não é testada: a CI nunca chama a API (spec da frente B, seção 9).
+// Teste do esquema JSON da resposta do modelo. A conversa com a API em si
+// não é testada: a CI nunca chama a API (spec da frente B, seção 9).
 
 package main
 
@@ -1601,17 +1631,23 @@ import (
 	"testing"
 )
 
-// O bioma principal só pode sair da lista da ave, e todos os campos são obrigatórios.
-func TestToolSchema(t *testing.T) {
-	raw, err := json.Marshal(toolSchema([]string{"mata_atlantica", "cerrado"}))
+// O bioma principal só pode sair da lista da ave, todos os campos são
+// obrigatórios e nenhum campo a mais é aceito (additionalProperties: false,
+// que a saída estruturada exige).
+func TestOutputSchema(t *testing.T) {
+	raw, err := json.Marshal(outputSchema([]string{"mata_atlantica", "cerrado"}))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var schema struct {
 		Properties map[string]struct {
-			Enum []string `json:"enum"`
+			Enum  []string `json:"enum"`
+			Items struct {
+				AdditionalProperties *bool `json:"additionalProperties"`
+			} `json:"items"`
 		} `json:"properties"`
-		Required []string `json:"required"`
+		Required             []string `json:"required"`
+		AdditionalProperties *bool    `json:"additionalProperties"`
 	}
 	if err := json.Unmarshal(raw, &schema); err != nil {
 		t.Fatal(err)
@@ -1619,8 +1655,9 @@ func TestToolSchema(t *testing.T) {
 	if got := strings.Join(schema.Properties["primary_biome"].Enum, ","); got != "mata_atlantica,cerrado" {
 		t.Fatalf("enum = %q", got)
 	}
-	if len(schema.Required) != 5 {
-		t.Fatalf("required = %v", schema.Required)
+	if len(schema.Required) != 5 || schema.AdditionalProperties == nil || *schema.AdditionalProperties ||
+		schema.Properties["facts"].Items.AdditionalProperties == nil || *schema.Properties["facts"].Items.AdditionalProperties {
+		t.Fatalf("esquema: %s", raw)
 	}
 }
 ```
@@ -1768,7 +1805,7 @@ func TestRun_ArgumentErrors(t *testing.T) {
 - [ ] **Step 3: Rodar e ver falhar**
 
 Run: `go test ./cmd/kidsgen/`
-Expected: FAIL na compilação (`undefined: toolSchema`, `undefined: run`, `undefined: starter`).
+Expected: FAIL na compilação (`undefined: outputSchema`, `undefined: run`, `undefined: starter`).
 
 - [ ] **Step 4: A conversa com a API**
 
@@ -1784,8 +1821,8 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/anthropics/anthropic-sdk-go"
@@ -1794,21 +1831,22 @@ import (
 	"github.com/velosobr/passarim-catalog/internal/domain"
 )
 
-// toolName é a ferramenta que o modelo é obrigado a chamar: é assim que a
-// resposta vem como JSON com um esquema fixo, em vez de texto solto.
-const toolName = "write_kids_content"
-
 // callTimeout é o prazo de cada chamada à API (spec, seção 3.5).
 const callTimeout = 2 * time.Minute
 
+// maxTokens é o teto de tokens da resposta. O claude-opus-5-5 sempre pensa
+// antes de responder, e o raciocínio conta nesse teto: com pouco espaço, a
+// resposta pararia no meio do JSON.
+const maxTokens = 16000
+
 // anthropicConversation guarda o histórico da conversa sobre uma espécie:
 // a API não guarda nada entre chamadas, então cada nova tentativa manda as
-// mensagens anteriores de novo.
+// mensagens anteriores de novo, com a resposta do modelo e os erros do
+// validador.
 type anthropicConversation struct {
-	client        anthropic.Client
-	biomes        []string
-	messages      []anthropic.MessageParam
-	lastToolUseID string // o id da última chamada da ferramenta
+	client   anthropic.Client
+	biomes   []string
+	messages []anthropic.MessageParam
 }
 
 // newAnthropicConversation abre uma conversa para a espécie.
@@ -1816,49 +1854,58 @@ func newAnthropicConversation(apiKey string, s domain.Species) conversation {
 	return &anthropicConversation{client: anthropic.NewClient(option.WithAPIKey(apiKey)), biomes: biomeNames(s)}
 }
 
+// send pede a resposta em "saída estruturada" (output_config.format): a API
+// garante que o texto devolvido é um JSON que segue o esquema de
+// outputSchema. É assim que a resposta vem com campos fixos, em vez de texto
+// solto.
 func (c *anthropicConversation) send(ctx context.Context, message string) (modelOutput, error) {
-	if c.lastToolUseID == "" {
-		c.messages = append(c.messages, anthropic.NewUserMessage(anthropic.NewTextBlock(message)))
-	} else {
-		// Depois de uma chamada de ferramenta, a API exige que a mensagem
-		// seguinte traga o resultado dela (tool_result). É por ele que vão
-		// os erros do validador, marcados como erro (isError = true).
-		c.messages = append(c.messages, anthropic.NewUserMessage(anthropic.NewToolResultBlock(c.lastToolUseID, message, true)))
-	}
+	c.messages = append(c.messages, anthropic.NewUserMessage(anthropic.NewTextBlock(message)))
 	ctx, cancel := context.WithTimeout(ctx, callTimeout)
 	defer cancel()
 	resp, err := c.client.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     anthropic.Model(modelID),
-		MaxTokens: 2048,
+		MaxTokens: maxTokens,
 		System:    []anthropic.TextBlockParam{{Text: systemPrompt}},
 		Messages:  c.messages,
-		Tools:     []anthropic.ToolUnionParam{anthropic.ToolUnionParamOfTool(toolSchema(c.biomes), toolName)},
-		// ToolChoice força o modelo a responder chamando a ferramenta.
-		ToolChoice: anthropic.ToolChoiceParamOfTool(toolName),
+		OutputConfig: anthropic.OutputConfigParam{
+			// effort é o quanto o modelo raciocina; fixado aqui para o custo
+			// de uma rodada não mudar se o padrão da API mudar.
+			Effort: anthropic.OutputConfigEffortMedium,
+			Format: anthropic.JSONOutputFormatParam{Schema: outputSchema(c.biomes)},
+		},
 	})
 	if err != nil {
 		return modelOutput{}, err
 	}
+	// stop_reason diz por que a resposta acabou. Só "end_turn" é uma resposta
+	// inteira; "max_tokens" ou "refusal" deixariam o JSON pela metade.
+	if resp.StopReason != anthropic.StopReasonEndTurn {
+		return modelOutput{}, fmt.Errorf("a resposta parou antes do fim (stop_reason %s)", resp.StopReason)
+	}
 	c.messages = append(c.messages, resp.ToParam())
+	// A resposta pode ter blocos de raciocínio antes do texto: só o texto é o JSON.
+	var text strings.Builder
 	for _, block := range resp.Content {
-		if block.Type == "tool_use" && block.Name == toolName {
-			c.lastToolUseID = block.ID
-			var out modelOutput
-			if err := json.Unmarshal(block.Input, &out); err != nil {
-				return modelOutput{}, fmt.Errorf("saída da ferramenta inválida: %w", err)
-			}
-			return out, nil
+		if block.Type == "text" {
+			text.WriteString(block.Text)
 		}
 	}
-	return modelOutput{}, errors.New("o modelo não chamou a ferramenta " + toolName)
+	var out modelOutput
+	if err := json.Unmarshal([]byte(text.String()), &out); err != nil {
+		return modelOutput{}, fmt.Errorf("resposta fora do formato JSON: %w", err)
+	}
+	return out, nil
 }
 
-// toolSchema é o esquema JSON da ferramenta. primary_biome é um enum com os
+// outputSchema é o esquema JSON da resposta. primary_biome é um enum com os
 // biomas da ave: o modelo não consegue escolher um bioma fora da lista.
-func toolSchema(biomes []string) anthropic.ToolInputSchemaParam {
+// additionalProperties: false (nenhum campo além dos listados) é exigido
+// pela saída estruturada.
+func outputSchema(biomes []string) map[string]any {
 	str := func(desc string) map[string]any { return map[string]any{"type": "string", "description": desc} }
-	return anthropic.ToolInputSchemaParam{
-		Properties: map[string]any{
+	return map[string]any{
+		"type": "object",
+		"properties": map[string]any{
 			"description": str("De 2 a 4 frases, cada uma com até 15 palavras."),
 			"facts": map[string]any{
 				"type": "array",
@@ -1866,21 +1913,23 @@ func toolSchema(biomes []string) anthropic.ToolInputSchemaParam {
 					"type": "object",
 					"properties": map[string]any{
 						"text":        str("Uma frase com até 15 palavras."),
-						"source_fact": map[string]any{"type": "integer", "minimum": 0, "description": "O número do fato adulto de origem."},
+						"source_fact": map[string]any{"type": "integer", "description": "O número do fato adulto de origem."},
 					},
-					"required": []string{"text", "source_fact"},
+					"required":             []string{"text", "source_fact"},
+					"additionalProperties": false,
 				},
 			},
 			"did_you_know":  str("Uma frase com até 15 palavras."),
 			"primary_biome": map[string]any{"type": "string", "enum": biomes},
 			"biome_reason":  str("Uma frase explicando a escolha do bioma, para quem revisa."),
 		},
-		Required: []string{"description", "facts", "did_you_know", "primary_biome", "biome_reason"},
+		"required":             []string{"description", "facts", "did_you_know", "primary_biome", "biome_reason"},
+		"additionalProperties": false,
 	}
 }
 ```
 
-O SDK usado aqui é o da v1.84.0: `anthropic.NewClient`, `Messages.New` com `MessageNewParams` (`Tools`, `ToolChoice`), `ToolUnionParamOfTool`, `ToolChoiceParamOfTool`, `NewToolResultBlock` e `Message.ToParam()`. O SDK não tem constante para o `claude-opus-5-5`, por isso `anthropic.Model(modelID)`.
+O SDK usado aqui é o da v1.84.0: `anthropic.NewClient`, `Messages.New` com `MessageNewParams` (`OutputConfig` com `Effort` e `Format: JSONOutputFormatParam{Schema}`), `StopReasonEndTurn` e `Message.ToParam()`. O SDK não tem constante para o `claude-opus-5-5`, por isso `anthropic.Model(modelID)`. A saída estruturada substitui a ferramenta forçada da primeira versão da spec: o `claude-opus-5-5` recusa `tool_choice` forçado, e o raciocínio dele conta no `max_tokens` (por isso 16000 e o `stop_reason` conferido).
 
 - [ ] **Step 5: O programa**
 
@@ -2061,7 +2110,7 @@ git add -A
 git commit -m "feat: cmd/kidsgen gera o conteúdo Kids com o claude-opus-5-5"
 git push -u origin feat/kidsgen
 gh pr create --base main --title "Frente B: validador do conteúdo Kids, lint e cmd/kidsgen" \
-  --body "Validador do bloco kids: (internal/kidscontent: frases, palavras, números por extenso com golden file, palavras proibidas e source_hash), lint em content_test.go e o cmd/kidsgen (SDK oficial v1.84.0, saída por ferramenta forçada, até 2 novas tentativas com os erros do validador, gravação por edição de texto). A CI nunca chama a API. Spec: seções 3 e 9. Plano B2, Tasks 1 a 6."
+  --body "Validador do bloco kids: (internal/kidscontent: frases, palavras, números por extenso com golden file, palavras proibidas e source_hash), lint em content_test.go e o cmd/kidsgen (SDK oficial v1.84.0, saída estruturada, até 2 novas tentativas com os erros do validador, gravação por edição de texto). A CI nunca chama a API. Spec: seções 3 e 9. Plano B2, Tasks 1 a 6."
 ```
 
 ---
