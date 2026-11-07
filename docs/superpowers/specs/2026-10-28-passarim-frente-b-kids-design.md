@@ -98,7 +98,8 @@ Todo número do texto Kids tem que aparecer no texto adulto (descrição e fatos
 - **O que conta como número:** algarismos, com `.` e `,` como separadores (`2.000`, `1,5`), e números por extenso em português (`dois`, `vinte e cinco`, `dois mil`, `cem`, `meio`).
 - **Normalização:** um número por extenso vira o valor dele. `vinte e cinco` vira 25; `dois mil` vira 2000; `dois milhões` vira 2000000. O parser cobre de zero a milhões, com "e" entre as partes.
 - **`um` e `uma` não contam,** porque quase sempre são artigos ("uma ave"). Por isso o prompt pede que o Kids nunca escreva o número 1 em algarismo.
-- **A comparação é por valor:** "2 minutos" no Kids casa com "dois minutos" no adulto, e "dois mil" casa com "2.000".
+- **A comparação é por valor:** "2 minutos" no Kids casa com "dois minutos" no adulto, e "dois mil" casa com "2.000" e com "2 mil".
+- **`meio` e `meia` só contam** depois de "e" ("três e meio") ou antes de uma medida ("meio metro", "meia hora"). "No meio da mata" e "meia-noite" não são números **[R]**.
 - **Os anos contam como números:** "2002" no Kids exige "2002" no adulto.
 - Os casos de teste do parser ficam num golden file (seção 9).
 
@@ -129,7 +130,7 @@ go run ./cmd/kidsgen --ids turdus-rufiventris --dry-run          # mostra o prom
 
 - **Diretório:** `--dir content/species` por padrão.
 - **Entrada do modelo:** só o texto adulto curado (nome popular, descrição, fatos numerados a partir de 0) e a lista `biomes`. Não vão URLs, UFs nem o nome científico.
-- **Saída estruturada:** uma ferramenta `write_kids_content` com esquema JSON fixo, forçada com `tool_choice`. Campos: `description`, `facts[{text, source_fact}]`, `did_you_know`, `primary_biome` (enum com os biomas da ave) e `biome_reason` (uma frase).
+- **Saída estruturada:** `output_config.format` com um esquema JSON fixo (`additionalProperties: false`), `effort` fixo e `max_tokens` 16000; uma resposta que não termine em `end_turn` é erro. Campos: `description`, `facts[{text, source_fact}]`, `did_you_know`, `primary_biome` (enum com os biomas da ave) e `biome_reason` (uma frase). A primeira versão desta spec pedia uma ferramenta forçada com `tool_choice`, que o `claude-opus-5-5` recusa (achado da revisão final do B2) **[R]**.
 - **Validação e novas tentativas:** a saída passa pelo validador da seção 3.2. Se ele recusar, o kidsgen manda os erros de volta ao modelo na mesma conversa, até **2 novas tentativas**. Se ainda falhar, pula a espécie, segue para a próxima e lista as puladas no fim, saindo com código 1.
 - **Gravação no arquivo:** edição de texto, sem regravar o YAML inteiro. O estilo `>`, a ordem das chaves e os comentários continuam iguais, e o diff fica pequeno.
   - a linha `primary_biome:` é trocada se existir; senão, entra logo depois da linha `biomes:`;

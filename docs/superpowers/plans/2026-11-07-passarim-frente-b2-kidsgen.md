@@ -1577,9 +1577,13 @@ git commit -m "feat: prompt do kidsgen e ciclo de geração com até 2 novas ten
 - Consumes: Tasks 4 e 5.
 - Produces: `toolName = "write_kids_content"`, `callTimeout = 2 * time.Minute`, `toolSchema(biomes []string) anthropic.ToolInputSchemaParam`, `newAnthropicConversation(apiKey string, s domain.Species) conversation`; `starter`; `run(ctx, args []string, apiKey string, out io.Writer, start starter) error`; `selectSpecies`, `writeKids`.
 
-- [ ] **Step 1: Dependência (depois do Step 4)**
+- [ ] **Step 1: Dependência**
 
-A dependência entra no Step 4, logo depois de criar o `anthropic.go`: rodar o `go mod tidy` antes de algum código importar o SDK o tira de novo do `go.mod`.
+```bash
+go get github.com/anthropics/anthropic-sdk-go@v1.84.0 && go mod tidy
+```
+
+Expected: `go.mod` com `github.com/anthropics/anthropic-sdk-go v1.84.0`.
 
 - [ ] **Step 2: Testes que falham**
 
@@ -1875,14 +1879,6 @@ func toolSchema(biomes []string) anthropic.ToolInputSchemaParam {
 	}
 }
 ```
-
-Agora a dependência:
-
-```bash
-go get github.com/anthropics/anthropic-sdk-go@v1.84.0 && go mod tidy
-```
-
-Expected: `go.mod` com `github.com/anthropics/anthropic-sdk-go v1.84.0`.
 
 O SDK usado aqui é o da v1.84.0: `anthropic.NewClient`, `Messages.New` com `MessageNewParams` (`Tools`, `ToolChoice`), `ToolUnionParamOfTool`, `ToolChoiceParamOfTool`, `NewToolResultBlock` e `Message.ToParam()`. O SDK não tem constante para o `claude-opus-5-5`, por isso `anthropic.Model(modelID)`.
 
