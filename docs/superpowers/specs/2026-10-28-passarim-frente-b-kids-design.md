@@ -217,7 +217,7 @@ CREATE INDEX featured_day_cycle_idx ON featured_day (cycle);
    1. Pega a linha mais recente com `day < D`. Sem nenhuma, o ciclo é 1 e não há "usadas".
    2. Com uma, o ciclo é o dela, e as "usadas" são as espécies das linhas desse ciclo com `day <> D` **[R]**. Contar também os dias depois de D evita repetir uma ave quando amanhã é pedido antes de hoje.
    3. **Restantes** = elegíveis menos usadas, em ordem alfabética de id.
-   4. Se não sobra nenhuma, começa um ciclo novo (ciclo + 1) com todas as elegíveis, **menos a espécie da linha mais recente com `day < D`, se houver mais de uma elegível** **[R]**. Sem isso, a última ave de um ciclo poderia voltar no primeiro dia do seguinte.
+   4. Se não sobra nenhuma, começa um ciclo novo (ciclo + 1) com todas as elegíveis, **menos a espécie da linha mais recente com `day < D`** **[R]** e **menos as espécies das linhas com `day > D` que já estão no ciclo novo**. Sem a primeira exclusão, a última ave de um ciclo poderia voltar no primeiro dia do seguinte; sem a segunda, amanhã pedido antes de hoje bem na virada repetiria a ave (achado da revisão final do B1). Por isso a leitura do ciclo traz as linhas do ciclo de antes de D **e** as de qualquer dia depois de D. Se as exclusões esvaziarem a lista (catálogo com uma ou duas aves), elas caem, primeiro a de amanhã e depois a de ontem.
    5. A escolhida é `restantes[FNV-1a 64 bits da string da data, módulo o número de restantes]`.
    6. `INSERT … ON CONFLICT (day) DO NOTHING` e relê a linha. Duas réplicas que calculam ao mesmo tempo ficam com a mesma ave.
 3. **Sem nenhuma elegível:** `NOT_FOUND`.
