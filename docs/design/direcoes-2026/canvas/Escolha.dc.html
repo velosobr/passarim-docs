@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Escolha de jornada</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Fredoka:wght@600;700&amp;family=Nunito:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 860px; height: 844px; display: flex; gap: 80px; background: #E9EEE6">
+
+  <!-- Tela 1: a Escolha, na primeira abertura (tema do adulto, claro) -->
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F6FBF3; color: #181D18; font-family: Manrope, sans-serif">
+    <div style="padding: 72px 20px 0; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A6D3C">Bem-vindo ao Passarim</div>
+        <h1 style="margin: 0; font-size: 32px; line-height: 1.1; font-weight: 800; letter-spacing: -0.01em">Quem vai explorar as aves?</h1>
+        <p style="margin: 0; font-size: 15px; line-height: 1.45; color: #414942">Dá para trocar depois, nas Configurações.</p>
+      </div>
+
+      <!-- Cartão do adulto: prévia do visual Piu (mosaico com gradiente de bioma) -->
+      <button type="button" style="all: unset; cursor: pointer; border-radius: 28px; overflow: hidden; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.12); display: flex; flex-direction: column">
+        <span style="height: 128px; display: flex; gap: 8px; padding: 12px; box-sizing: border-box; background: linear-gradient(135deg, #0E3A57 0%, #338095 100%)" aria-hidden="true">
+          <span style="flex: 1; border-radius: 18px; background: linear-gradient(135deg, #063D27, #328556)"></span>
+          <span style="flex: 1; border-radius: 18px; background: linear-gradient(135deg, #6E3A0E, #9A6E1E)"></span>
+          <span style="flex: 1; border-radius: 18px; background: linear-gradient(135deg, #5C2414, #B65D30)"></span>
+        </span>
+        <span style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 22px; font-weight: 800">Passarim</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #414942">Para adultos: fotos, cantos, mapa e as fontes de cada informação.</span>
+        </span>
+      </button>
+
+      <!-- Cartão do Kids: prévia sempre clara, com o Pipo e um mundo -->
+      <button type="button" style="all: unset; cursor: pointer; border-radius: 28px; overflow: hidden; background: #FFF7E8; box-shadow: 0 4px 0 #F2E3C6; display: flex; flex-direction: column">
+        <span style="height: 128px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; box-sizing: border-box; background: linear-gradient(150deg, #7DD3FC 0%, #438DDC 100%)" aria-hidden="true">
+          <svg width="88" height="88" viewBox="0 0 120 120"><ellipse cx="60" cy="112" rx="34" ry="6" fill="#F2E3C6"></ellipse><path d="M22 70 C22 42 40 24 64 24 C88 24 100 44 100 64 C100 88 82 104 58 104 C38 104 22 92 22 70 Z" fill="#FFC93C"></path><path d="M30 74 C38 92 62 98 78 90 C66 88 48 82 30 74 Z" fill="#FF8A3D"></path><path d="M40 60 C30 64 26 76 34 84 C42 80 48 70 46 60 Z" fill="#FF8A3D"></path><circle cx="74" cy="50" r="12" fill="#FFFFFF"></circle><circle cx="77" cy="51" r="6" fill="#1D2B3A"></circle><circle cx="79" cy="48" r="2" fill="#FFFFFF"></circle><path d="M96 56 L114 62 L96 68 Z" fill="#FF6B4A"></path><circle cx="84" cy="70" r="5" fill="#FF9DB5" opacity="0.7"></circle><path d="M50 104 L46 114 M64 104 L66 114" stroke="#FF6B4A" stroke-width="4" stroke-linecap="round"></path></svg>
+          <span style="font-family: Fredoka, sans-serif; font-size: 20px; font-weight: 700; color: #0A2440">Oi! Eu sou o Pipo.</span>
+        </span>
+        <span style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; color: #1D2B3A">
+          <span style="font-family: Fredoka, sans-serif; font-size: 22px; font-weight: 700">Passarim Kids</span>
+          <span style="font-family: Nunito, sans-serif; font-size: 15px; line-height: 1.4; font-weight: 700">Para crianças de 8 a 12 anos: mundos, figurinhas e cantos.</span>
+        </span>
+      </button>
+
+      <!-- Estado sem rede do cartão Kids (mostrado como nota) -->
+      <div style="border-radius: 16px; border: 1px dashed #717971; padding: 12px 14px; font-size: 13px; line-height: 1.45; color: #414942">
+        <strong>Sem internet na primeira vez:</strong> o cartão Kids fica apagado, com "Precisa de internet na primeira vez" e um botão "Tentar de novo". Se o servidor ainda não tem o Kids, o cartão não aparece.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tela 2: Configurações do adulto, com a seção nova "Para crianças" no topo -->
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F6FBF3; color: #181D18; font-family: Manrope, sans-serif">
+    <div style="padding: 52px 0 0; display: flex; flex-direction: column">
+      <h1 style="margin: 0; padding: 24px 16px 8px; font-size: 32px; line-height: 1.1; font-weight: 800">Configurações</h1>
+      <div style="padding: 16px 16px 8px; font-size: 14px; font-weight: 700; color: #1A6D3C">Para crianças</div>
+      <button type="button" style="all: unset; cursor: pointer; min-height: 72px; padding: 8px 16px; display: flex; align-items: center; gap: 16px">
+        <span style="width: 40px; height: 40px; border-radius: 20px; background: #FFC93C; display: flex; align-items: center; justify-content: center" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 120 120"><path d="M22 70 C22 42 40 24 64 24 C88 24 100 44 100 64 C100 88 82 104 58 104 C38 104 22 92 22 70 Z" fill="#FFC93C"></path><path d="M40 60 C30 64 26 76 34 84 C42 80 48 70 46 60 Z" fill="#FF8A3D"></path><circle cx="74" cy="50" r="12" fill="#FFFFFF"></circle><circle cx="77" cy="51" r="6" fill="#1D2B3A"></circle><path d="M96 56 L114 62 L96 68 Z" fill="#FF6B4A"></path></svg>
+        </span>
+        <span style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+          <span style="font-size: 16px; font-weight: 700">Passarim Kids</span>
+          <span style="font-size: 14px; line-height: 1.4; color: #414942">Abre a versão para crianças. Para voltar, um adulto resolve uma conta.</span>
+        </span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#414942" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      </button>
+      <div style="padding: 24px 16px 8px; font-size: 14px; font-weight: 700; color: #1A6D3C">Aparência</div>
+      <div style="min-height: 56px; padding: 8px 16px; display: flex; align-items: center; gap: 16px; color: #414942">
+        <span style="width: 24px; height: 24px; border-radius: 12px; border: 2px solid #414942" aria-hidden="true"></span>
+        <span style="font-size: 16px; font-weight: 600; color: #181D18">Tema</span>
+      </div>
+      <div style="padding: 0 16px 0 56px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; color: #181D18">
+        <span>◉ Seguir o sistema</span><span>○ Claro</span><span>○ Escuro</span>
+      </div>
+      <div style="margin: 24px 16px 0; border-radius: 16px; border: 1px dashed #717971; padding: 12px 14px; font-size: 13px; line-height: 1.45; color: #414942">
+        O item troca na hora, sem confirmação. Sem internet, o subtítulo vira "Precisa de internet", e tocar confere de novo. Se o servidor não tem o Kids, a seção não aparece.
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":860,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
