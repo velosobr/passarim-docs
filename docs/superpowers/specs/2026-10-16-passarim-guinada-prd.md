@@ -269,19 +269,19 @@ A ordem de execução é: **0 → A → B → C → D → G → E → F → H**.
 
 - `Species.kids` (16): mensagem `KidsContent { string description = 1; repeated KidsFact facts = 2; string did_you_know = 3; }`, com `KidsFact { string text = 1; int32 source_fact = 2; }`. Ela tem mensagem própria, sem URL, para não levar links ao Kids.
 - `Species.primary_biome` (17) e `SpeciesSummary.primary_biome` (6).
-- `ListSpeciesRequest.kids_only` (6) e `ListFiltersRequest.kids_only` (1).
+- `ListSpeciesRequest.kids_only` (6) e `ListFiltersRequest.kids_only` (1), e `ListSpeciesRequest.primary_biome` (7), o filtro pelo "mundo".
 - `ListFiltersResponse.primary_biome_counts` (3): as contagens por bioma principal, usadas no progresso do álbum.
 - `Audio.peaks` (4): `repeated float`, com valores de 0 a 1.
 - **RPC novo:** `GetFeaturedSpecies(GetFeaturedSpeciesRequest { string date = 1; })`, com a data em `AAAA-MM-DD`, que devolve `GetFeaturedSpeciesResponse { SpeciesSummary species = 1; Audio audio = 2; }`. O áudio vai junto porque o card adulto tem botão de canto.
-  - **Elegíveis:** as aves com foto principal `SINGLE_BIRD` e com conteúdo Kids.
-  - **Escolha:** os ids elegíveis em ordem alfabética, com o índice dado por um hash da data, módulo o número de elegíveis. Uma mudança no conjunto de elegíveis só passa a valer no dia seguinte, para a ave não trocar no meio do dia.
+  - **Elegíveis:** as aves com conteúdo Kids, com canto e com a foto principal de ave sozinha (`SINGLE_BIRD`) ou escolhida pelo override do YAML.
+  - **Escolha:** rodízio sem repetição, gravado na tabela `featured_day` (spec da frente B, seção 5.3): nenhuma ave se repete até todas as elegíveis aparecerem uma vez, e a ave do dia não muda no meio do dia.
   - **Sem nenhuma elegível:** devolve `NOT_FOUND`.
   - **Onde fica:** no catalog, porque é ele quem conhece a categoria das fotos **[DR]**. A ave é a **mesma nas duas jornadas**.
 
 **BFF:**
 
 - `GET /v1/species/{id}`: ganha `kids`, `primaryBiome` e `audio.peaks`.
-- `GET /v1/species` e `GET /v1/filters`: aceitam `?audience=kids`.
+- `GET /v1/species` e `GET /v1/filters`: aceitam `?audience=kids`. `GET /v1/species` também aceita `?primaryBiome=`, e `/v1/filters` ganha `primaryBiomes`.
 - **`GET /v1/featured`, endpoint novo:**
   - a data é calculada no fuso de São Paulo;
   - sem catalog, responde erro e o app esconde o card;
@@ -491,7 +491,7 @@ A ordem de execução é: **0 → A → B → C → D → G → E → F → H**.
 | Banco do catalog | `media` ganha `source_photo_id`, `category`, `score` e `model_version`; o áudio ganha `peaks`; as espécies ganham `primary_biome` e o conteúdo Kids; tabelas novas `photo_override` e `curation_report` |
 | Reingestão | Comando do worker que reenfileira todas as espécies (fotos na frente A, cantos na B) |
 | `passarim-proto` | Serviço do curador (arquivo novo, enum `PhotoCategory`) e geração de Python; no `catalog.proto`: `Species.kids` (16), `Species.primary_biome` (17), `SpeciesSummary.primary_biome` (6), `kids_only` nos pedidos de lista (6) e de filtros (1), `ListFiltersResponse.primary_biome_counts` (3), `Audio.peaks` (4) e `GetFeaturedSpecies` |
-| BFF (REST) | `kids`, `primaryBiome` e `audio.peaks` no detalhe; `?audience=kids` na lista e nos filtros; `GET /v1/featured`; cache `bff:v2:`, com a audiência e a data nas chaves |
+| BFF (REST) | `kids`, `primaryBiome` e `audio.peaks` no detalhe; `?audience=kids` na lista e nos filtros; `?primaryBiome=` na lista e `primaryBiomes` nos filtros; `GET /v1/featured`; cache `bff:v2:`, com a audiência e a data nas chaves |
 | App (Room) | `audience` e `primaryBiome` na tabela de favoritos (v1 → v2, migração manual) |
 | App (DataStore) | `Settings.journey` e a última contagem do álbum por mundo |
 
