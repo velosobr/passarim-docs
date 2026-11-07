@@ -26,6 +26,8 @@ cores ainda precisam passar pela verificação de contraste de `docs/design/tool
 | Explorar (Kids) | `canvas/KidsExplorar.dc.html` | Balão do Pipo, busca, "Escolha um mundo", ave do dia, cards |
 | Detalhe (Kids) | `canvas/KidsDetalhe.dc.html` | Foto em forma de "cookie", "Ouvir o canto!", fatos comparados com a criança, "Você sabia?" |
 | Meu álbum (Kids) | `canvas/KidsAlbum.dc.html` | Favoritos como figurinhas, progresso por mundo, espaços "?" |
+| Escolha de jornada (frente D) | `canvas/Escolha.dc.html` | Os dois cartões da primeira abertura e a seção "Para crianças" das Configurações |
+| Casca e trava (Kids, frente D) | `canvas/KidsTrava.dc.html` | A casca Kids com "Para adultos" na barra, a trava com a conta por extenso e o estado depois do erro |
 
 ## Passarim (adulto)
 
