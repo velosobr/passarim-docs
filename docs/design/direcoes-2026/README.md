@@ -22,6 +22,7 @@ cores ainda precisam passar pela verificação de contraste de `docs/design/tool
 | Sistema visual (adulto) | `canvas/Main.dc.html` | Gradientes por bioma, scrim de foto, formas e movimento |
 | Explorar (adulto) | `canvas/Explorar.dc.html` | Título, busca, chips de bioma, "Ave do dia", grade em mosaico com texto sobre a foto, barra de navegação flutuante |
 | Detalhe (adulto, escuro) | `canvas/Detalhe.dc.html` | Foto em tela cheia que se funde ao fundo, título sobre a foto, player com forma de onda, fatos |
+| Favoritos e Configurações (adulto, frente E) | `canvas/FavoritosConfiguracoes.dc.html` | O mosaico nos Favoritos e as Configurações em grupos de cartões |
 | Sistema visual (Kids) | `canvas/KidsSistema.dc.html` | O guia Pipo, os "mundos", tipografia, botões e recompensa |
 | Explorar (Kids) | `canvas/KidsExplorar.dc.html` | Balão do Pipo, busca, "Escolha um mundo", ave do dia, cards |
 | Detalhe (Kids) | `canvas/KidsDetalhe.dc.html` | Foto em forma de "cookie", "Ouvir o canto!", fatos comparados com a criança, "Você sabia?" |
